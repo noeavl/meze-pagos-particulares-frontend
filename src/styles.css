@@ -1,1 +1,35 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.css";
+
+/* Forzar modo light globalmente */
+:root {
+  color-scheme: light;
+}
+
+/* Prevenir modo oscuro en toda la aplicación */
+* {
+  color-scheme: light;
+}
+
+/* Asegurar que el body siempre tenga fondo claro */
+body {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* Forzar colores light en componentes PrimeNG */
+.p-component {
+  color-scheme: light !important;
+}
+
+/* Prevenir estilos dark mode del sistema */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+  }
+  
+  body {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+  }
+}

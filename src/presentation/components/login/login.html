@@ -1,0 +1,85 @@
+<div class="flex justify-center items-center min-h-screen bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+    <div class="text-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">Iniciar Sesión</h1>
+      <p class="text-gray-600">Meze Pagos Particulares</p>
+    </div>
+
+    <!-- Mensaje de error general -->
+    @if (errorMessage) {
+    <div class="mb-4">
+      <p-message severity="error" size="small" variant="simple">
+        {{ errorMessage }}
+      </p-message>
+    </div>
+    }
+
+    <form
+      [formGroup]="exampleForm"
+      (ngSubmit)="onSubmit()"
+      class="flex flex-col gap-4"
+    >
+      <div class="flex flex-col gap-1">
+        <label for="email" class="text-sm font-medium text-gray-700"
+          >Email</label
+        >
+        <input
+          pInputText
+          type="email"
+          id="email"
+          placeholder="Ingresa tu email"
+          formControlName="email"
+          [invalid]="isInvalid('email')"
+          class="w-full"
+        />
+        @if (isInvalid('email')) { @if
+        (exampleForm.get('email')?.errors?.['required']) {
+        <p-message severity="error" size="small" variant="simple">
+          El email es requerido.
+        </p-message>
+        } @if (exampleForm.get('email')?.errors?.['email']) {
+        <p-message severity="error" size="small" variant="simple">
+          Por favor ingresa un email válido.
+        </p-message>
+        } }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="password" class="text-sm font-medium text-gray-700"
+          >Contraseña</label
+        >
+        <input
+          pInputText
+          type="password"
+          id="password"
+          placeholder="Ingresa tu contraseña"
+          formControlName="password"
+          [invalid]="isInvalid('password')"
+          class="w-full"
+        />
+        @if (isInvalid('password')) { @if
+        (exampleForm.get('password')?.errors?.['required']) {
+        <p-message severity="error" size="small" variant="simple">
+          La contraseña es requerida.
+        </p-message>
+        } @if (exampleForm.get('password')?.errors?.['minlength']) {
+        <p-message severity="error" size="small" variant="simple">
+          La contraseña debe tener al menos 6 caracteres.
+        </p-message>
+        } }
+      </div>
+
+      <button
+        pButton
+        type="submit"
+        [loading]="loading"
+        [disabled]="loading"
+        class="w-full p-button-primary mt-4"
+      >
+        <span pButtonLabel>{{
+          loading ? "Iniciando sesión..." : "Iniciar Sesión"
+        }}</span>
+      </button>
+    </form>
+  </div>
+</div>

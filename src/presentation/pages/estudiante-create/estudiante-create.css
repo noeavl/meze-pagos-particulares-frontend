@@ -1,0 +1,82 @@
+/* Estilos específicos para el formulario de crear estudiante */
+
+.p-card {
+  @apply shadow-lg border-0;
+}
+
+.p-card .p-card-header {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.p-card .p-card-body {
+  @apply p-6;
+}
+
+.p-card .p-card-footer {
+  @apply bg-gray-50 border-t border-gray-200;
+}
+
+/* Estilos para campos requeridos */
+label .text-red-500 {
+  @apply ml-1;
+}
+
+/* Estilos para mensajes de error */
+.p-error {
+  @apply text-red-600 text-xs mt-1;
+}
+
+/* Estilos para dropdowns */
+.p-dropdown {
+  @apply w-full;
+}
+
+/* Estados de validación */
+.p-inputtext.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  @apply border-red-500;
+}
+
+.p-inputtext.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+  @apply border-green-500;
+}
+
+/* Estilos para select nativo */
+select {
+  @apply appearance-none bg-white;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.2em 1.2em;
+  padding-right: 2.5rem;
+}
+
+select:focus {
+  @apply outline-none ring-2 ring-blue-500 border-transparent;
+}
+
+select option {
+  @apply py-2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grid {
+    @apply grid-cols-1;
+  }
+}
+
+/* Loading state */
+.p-button[loading] {
+  @apply opacity-75 cursor-not-allowed;
+}
+
+/* Breadcrumb styling */
+.breadcrumb-link {
+  @apply text-blue-600 hover:text-blue-800 hover:underline transition-colors;
+}
+
+.breadcrumb-separator {
+  @apply text-gray-400 mx-2;
+}

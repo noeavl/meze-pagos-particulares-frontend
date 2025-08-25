@@ -1,0 +1,130 @@
+<div
+  class="bg-gray-900 text-white h-screen flex flex-col shadow-xl transition-all duration-300 ease-in-out"
+  [ngClass]="isSideBarCollapse ? 'w-16' : 'w-64'"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between p-4 border-b border-gray-700">
+    <h2
+      class="text-xl font-semibold text-gray-100 transition-opacity duration-200"
+      [ngClass]="{
+        hidden: isSideBarCollapse,
+        'block overflow-hidden': !isSideBarCollapse
+      }"
+    >
+      Meze Pagos
+    </h2>
+    <button
+      (click)="sideBarCollapse()"
+      class="p-2 rounded-lg cursor-pointer hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <i class="fas fa-bars text-gray-300"></i>
+    </button>
+  </div>
+  <!-- Navigation -->
+  <nav class="flex-1 px-2 py-4">
+    <ul class="space-y-1">
+      <li>
+        <a
+          [routerLink]="['/dashboard']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-tachometer-alt text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+          >
+            Dashboard
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          [routerLink]="['/estudiantes']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-user-graduate text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+          >
+            Estudiantes
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          [routerLink]="['/pagos-adeudos']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-credit-card text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+          >
+            Pagos
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
+          [routerLink]="['/usuarios']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-users text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+          >
+            Usuarios
+          </span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Footer -->
+  <div class="p-4 border-t border-gray-700">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <div
+          class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
+        >
+          <i class="fas fa-user text-white text-sm"></i>
+        </div>
+        <div
+          class="ml-3 transition-all duration-200"
+          [ngClass]="{
+            hidden: isSideBarCollapse,
+            'block overflow-hidden': !isSideBarCollapse
+          }"
+        >
+          <p class="text-sm font-medium text-gray-300 overflow-hidden">Admin</p>
+          <p class="text-xs text-gray-400 overflow-hidden">admin@meze.com</p>
+        </div>
+      </div>
+      <button
+        (click)="logout()"
+        class="p-2 rounded-lg cursor-pointer hover:bg-gray-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500"
+        title="Cerrar sesión"
+        [ngClass]="{
+          hidden: isSideBarCollapse,
+          'block overflow-hidden': !isSideBarCollapse,
+        }"
+      >
+        <i class="fas fa-sign-out-alt text-gray-400 hover:text-red-400"></i>
+      </button>
+    </div>
+  </div>
+</div>
