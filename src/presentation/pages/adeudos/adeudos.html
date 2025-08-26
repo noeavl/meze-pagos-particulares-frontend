@@ -1,0 +1,238 @@
+<div class="p-6">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Lista de Adeudos</h2>
+  </div>
+
+  <!-- Filtros mejorados -->
+  <div class="mb-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <!-- Buscador -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Buscar adeudos..."
+            (input)="onSearch($event)"
+            class="w-full"
+          />
+        </span>
+      </div>
+      
+      <!-- Filtro por estado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+        <select 
+          [(ngModel)]="selectedEstado"
+          (ngModelChange)="onEstadoChange()"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Todos los estados</option>
+          <option *ngFor="let estado of estadoOptions" [value]="estado.value">
+            {{ estado.label }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Filtro por nivel -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
+        <select 
+          [(ngModel)]="selectedNivel"
+          (ngModelChange)="onNivelChange()"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Todos los niveles</option>
+          <option *ngFor="let nivel of nivelOptions" [value]="nivel.value">
+            {{ nivel.label }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Filtro por grado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+        <select 
+          [(ngModel)]="selectedGrado"
+          (ngModelChange)="onGradoChange()"
+          [disabled]="!selectedNivel"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+        >
+          <option value="">{{ selectedNivel ? 'Todos los grados' : 'Selecciona un nivel primero' }}</option>
+          <option *ngFor="let grado of availableGradoOptions" [value]="grado">
+            {{ grado }}°
+          </option>
+        </select>
+      </div>
+      
+      <!-- Filtro por modalidad -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Modalidad</label>
+        <select 
+          [(ngModel)]="selectedModalidad"
+          (ngModelChange)="onModalidadChange()"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Todas las modalidades</option>
+          <option *ngFor="let modalidad of modalidadOptions" [value]="modalidad.value">
+            {{ modalidad.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  @if (error) {
+  <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+    {{ error }}
+  </div>
+  }
+
+  <!-- Tabla original -->
+  <p-table
+    [value]="filteredAdeudos"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} adeudos"
+    [tableStyle]="{ 'min-width': '80rem' }"
+    styleClass="p-datatable-gridlines"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="estudiante">
+          Estudiante <p-sortIcon field="estudiante"></p-sortIcon>
+        </th>
+        <th pSortableColumn="concepto">
+          Concepto <p-sortIcon field="concepto"></p-sortIcon>
+        </th>
+        <th pSortableColumn="estado">
+          Estado <p-sortIcon field="estado"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montoTotal">
+          Total <p-sortIcon field="montoTotal"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montoPagado">
+          Pagado <p-sortIcon field="montoPagado"></p-sortIcon>
+        </th>
+        <th pSortableColumn="montoPendiente">
+          Pendiente <p-sortIcon field="montoPendiente"></p-sortIcon>
+        </th>
+        <th pSortableColumn="fechaVencimiento">
+          Periodo <p-sortIcon field="fechaVencimiento"></p-sortIcon>
+        </th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-adeudo>
+      <tr>
+        <td>{{ adeudo.id }}</td>
+        <td>
+          <span class="font-medium">
+            {{ adeudo.estudiante.nombres }}
+            {{ adeudo.estudiante.apellidoPaterno }}
+          </span>
+          <br />
+          <small class="text-gray-500">
+            {{ adeudo.estudiante.nivel.displayValue }} -
+            {{ adeudo.estudiante.grado }}° -
+            {{ adeudo.estudiante.modalidad.displayValue }}
+          </small>
+        </td>
+        <td>
+          <span class="font-medium">{{ adeudo.concepto.nombre }}</span>
+          <br />
+          <small class="text-gray-500">{{
+            adeudo.concepto.periodo.displayValue
+          }}</small>
+        </td>
+        <td>
+          <span
+            class="px-2 py-1 rounded-full text-xs font-medium"
+            [ngClass]="adeudo.estado.colorClass"
+          >
+            {{ adeudo.estado.displayValue }}
+          </span>
+        </td>
+        <td class="font-semibold text-blue-600">
+          ${{ adeudo.montoTotal | number : "1.2-2" }}
+        </td>
+        <td class="font-semibold text-green-600">
+          ${{ adeudo.montoPagado | number : "1.2-2" }}
+        </td>
+        <td class="font-semibold text-orange-600">
+          ${{ adeudo.montoPendiente | number : "1.2-2" }}
+        </td>
+        <td>
+          <div class="text-sm">
+            <div><strong>Inicio:</strong> {{ adeudo.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</div>
+            <div><strong>Vence:</strong> {{ adeudo.fechaVencimiento | date:'dd/MM/yyyy':'UTC' }}</div>
+          </div>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <button
+              [routerLink]="['/pagos-adeudos-create']"
+              [queryParams]="{estudiante_id: adeudo.estudiante.id, monto: adeudo.montoPendiente}"
+              pButton
+              type="button"
+              icon="fas fa-credit-card"
+              class="p-button-rounded p-button-success p-button-sm"
+              pTooltip="Registrar Pago"
+              [disabled]="adeudo.estado.displayValue === 'Pagado'"
+            ></button>
+            <button
+              [routerLink]="['/adeudo/detail', adeudo.id]"
+              pButton
+              type="button"
+              icon="fa-solid fa-eye"
+              class="p-button-rounded p-button-text p-button-info"
+              pTooltip="Ver"
+            ></button>
+            <button
+              [routerLink]="['/adeudo/edit', adeudo.id]"
+              pButton
+              type="button"
+              icon="fa-solid fa-pencil"
+              class="p-button-rounded p-button-text p-button-warn"
+              pTooltip="Editar"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center py-8">
+          <div class="flex flex-col items-center">
+            <i class="pi pi-credit-card text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">No se encontraron adeudos</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <tr class="bg-gray-50 font-bold">
+        <td colspan="4" class="text-right">Totales:</td>
+        <td class="text-blue-600">
+          ${{ totalConceptos | number : "1.2-2" }}
+        </td>
+        <td class="text-green-600">
+          ${{ totalPagado | number : "1.2-2" }}
+        </td>
+        <td class="text-orange-600">
+          ${{ totalPendiente | number : "1.2-2" }}
+        </td>
+        <td colspan="2"></td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

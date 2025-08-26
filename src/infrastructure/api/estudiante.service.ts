@@ -72,9 +72,9 @@ export class EstudianteService implements EstudianteRepository {
   ): Estudiante {
     return {
       id: apiResponse.id,
-      nombres: apiResponse.nombres,
-      apellidoPaterno: apiResponse.apellido_paterno,
-      apellidoMaterno: apiResponse.apellido_materno,
+      nombres: apiResponse.persona.nombres,
+      apellidoPaterno: apiResponse.persona.apellido_paterno,
+      apellidoMaterno: apiResponse.persona.apellido_materno,
       nivel: Nivel.createFromRaw(apiResponse.nivel),
       grado: apiResponse.grado,
       modalidad: Modalidad.createFromRaw(apiResponse.modalidad),

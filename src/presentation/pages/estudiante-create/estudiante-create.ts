@@ -113,9 +113,9 @@ export class EstudianteCreate implements OnInit {
       const formValues = this.estudianteForm.value;
 
       const createDto: CreateEstudianteDto = {
-        nombres: formValues.nombres.trim(),
-        apellido_paterno: formValues.apellidoPaterno.trim(),
-        apellido_materno: formValues.apellidoMaterno.trim(),
+        nombres: formValues.nombres,
+        apellido_paterno: formValues.apellidoPaterno,
+        apellido_materno: formValues.apellidoMaterno,
         nivel: formValues.nivel,
         grado: formValues.grado,
         modalidad: formValues.modalidad,

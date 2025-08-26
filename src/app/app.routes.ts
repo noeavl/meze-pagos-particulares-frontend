@@ -6,9 +6,18 @@ import { Usuarios } from '../presentation/pages/usuarios/usuarios';
 import { Estudiantes } from '../presentation/pages/estudiantes/estudiantes';
 import { EstudianteCreate } from '../presentation/pages/estudiante-create/estudiante-create';
 import { EstudianteEdit } from '../presentation/pages/estudiante-edit/estudiante-edit';
+import { EstudianteDetailComponent } from '../presentation/pages/estudiante-detail/estudiante-detail';
+import { Conceptos } from '../presentation/pages/conceptos/conceptos';
+import { ConceptoCreate } from '../presentation/pages/concepto-create/concepto-create';
+import { ConceptoEdit } from '../presentation/pages/concepto-edit/concepto-edit';
+import { ConceptoDetailComponent } from '../presentation/pages/concepto-detail/concepto-detail';
 import { PagosAdeudos } from '../presentation/pages/pagos-adeudos/pagos-adeudos';
 import { PagosRequeridos } from '../presentation/pages/pagos-requeridos/pagos-requeridos';
 import { MainLayout } from '../presentation/layouts/main-layout/main-layout';
+import { Adeudos } from '../presentation/pages/adeudos/adeudos';
+import { PagoCreate } from '../presentation/pages/pago-create/pago-create';
+import { PagoEdit } from '../presentation/pages/pago-edit/pago-edit';
+import { PagosAdeudosCreate } from '../presentation/pages/pagos-adeudos-create/pagos-adeudos-create';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -43,12 +52,48 @@ export const routes: Routes = [
         component: EstudianteEdit,
       },
       {
+        path: 'estudiante/detail/:id',
+        component: EstudianteDetailComponent,
+      },
+      {
+        path: 'conceptos',
+        component: Conceptos,
+      },
+      {
+        path: 'concepto/create',
+        component: ConceptoCreate,
+      },
+      {
+        path: 'concepto/edit/:id',
+        component: ConceptoEdit,
+      },
+      {
+        path: 'concepto/detail/:id',
+        component: ConceptoDetailComponent,
+      },
+      {
         path: 'pagos-adeudos',
         component: PagosAdeudos,
       },
       {
         path: 'pagos-requeridos',
         component: PagosRequeridos,
+      },
+      {
+        path: 'adeudos',
+        component: Adeudos,
+      },
+      {
+        path: 'pago/create',
+        component: PagoCreate,
+      },
+      {
+        path: 'pago/edit/:id',
+        component: PagoEdit,
+      },
+      {
+        path: 'pagos-adeudos-create',
+        component: PagosAdeudosCreate,
       },
     ],
   },

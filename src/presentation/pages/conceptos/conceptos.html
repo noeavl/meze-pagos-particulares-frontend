@@ -1,11 +1,11 @@
 <div class="p-6">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Lista de Estudiantes</h2>
+    <h2 class="text-2xl font-bold text-gray-800">Lista de Conceptos</h2>
     <button
-      [routerLink]="['/estudiante/create']"
+      [routerLink]="['/concepto/create']"
       pButton
       type="button"
-      label="Nuevo Estudiante"
+      label="Nuevo Concepto"
       icon="pi pi-plus"
       class="p-button-primary"
     ></button>
@@ -18,7 +18,7 @@
       <input
         type="text"
         pInputText
-        placeholder="Buscar estudiantes..."
+        placeholder="Buscar conceptos..."
         (input)="onSearch($event)"
         class="w-full"
       />
@@ -32,48 +32,65 @@
 
   <!-- Tabla -->
   <p-table
-    [value]="estudiantes"
+    [value]="conceptos"
     [loading]="loading"
     [paginator]="true"
     [rows]="10"
     [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} estudiantes"
+    currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} conceptos"
     [tableStyle]="{ 'min-width': '60rem' }"
     styleClass="p-datatable-gridlines"
   >
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-        <th pSortableColumn="nombres">
-          Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
+        <th pSortableColumn="nombre">
+          Nombre <p-sortIcon field="nombre"></p-sortIcon>
+        </th>
+        <th pSortableColumn="periodo">
+          Periodo <p-sortIcon field="periodo"></p-sortIcon>
         </th>
         <th pSortableColumn="nivel">
           Nivel <p-sortIcon field="nivel"></p-sortIcon>
         </th>
-        <th pSortableColumn="grado">
-          Grado <p-sortIcon field="grado"></p-sortIcon>
-        </th>
         <th pSortableColumn="modalidad">
           Modalidad <p-sortIcon field="modalidad"></p-sortIcon>
+        </th>
+        <th pSortableColumn="costo">
+          Costo <p-sortIcon field="costo"></p-sortIcon>
         </th>
         <th>Acciones</th>
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-estudiante>
+    <ng-template pTemplate="body" let-concepto>
       <tr>
-        <td>{{ estudiante.id }}</td>
+        <td>{{ concepto.id }}</td>
+        <td>{{ concepto.nombre }}</td>
+        <td>{{ concepto.periodo.displayValue }}</td>
         <td>
-          {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }}
-          {{ estudiante.apellidoMaterno }}
+          <span 
+            [pTooltip]="concepto.nivel?.displayValue || 'Aplica a todos los niveles'"
+            tooltipPosition="top"
+            class="cursor-help"
+          >
+            {{ concepto.nivel ? concepto.nivel.displayValue.split('(')[0].trim() : 'General' }}
+          </span>
         </td>
-        <td>{{ estudiante.nivel.displayValue }}</td>
-        <td>{{ estudiante.grado }}</td>
-        <td>{{ estudiante.modalidad.displayValue }}</td>
+        <td>
+          <span 
+            [pTooltip]="concepto.modalidad?.displayValue || 'Aplica a todas las modalidades'"
+            tooltipPosition="top"
+            class="cursor-help"
+          >
+            {{ concepto.modalidad ? concepto.modalidad.displayValue.split('(')[0].trim() : 'General' }}
+          </span>
+        </td>
+        <td>${{ concepto.costo | number:'1.2-2' }}</td>
         <td>
           <div class="flex gap-2">
             <button
-              [routerLink]="['/estudiante/detail', estudiante.id]"
+              [routerLink]="['/concepto/detail', concepto.id]"
               pButton
               type="button"
               icon="fa-solid fa-eye"
@@ -81,7 +98,7 @@
               pTooltip="Ver"
             ></button>
             <button
-              [routerLink]="['/estudiante/edit', estudiante.id]"
+              [routerLink]="['/concepto/edit', concepto.id]"
               pButton
               type="button"
               icon="fa-solid fa-pencil"
@@ -98,7 +115,7 @@
         <td colspan="7" class="text-center py-8">
           <div class="flex flex-col items-center">
             <i class="pi pi-inbox text-4xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500">No se encontraron estudiantes</p>
+            <p class="text-gray-500">No se encontraron conceptos</p>
           </div>
         </td>
       </tr>

@@ -1,0 +1,19 @@
+/* Estilos específicos para la lista de conceptos */
+.conceptos-table {
+  width: 100%;
+}
+
+.search-container {
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    max-width: 100%;
+  }
+  
+  .flex-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,112 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Información del Estudiante</h2>
+    <div class="flex gap-2">
+      <button
+        [routerLink]="['/estudiante/edit', estudiante()?.id]"
+        pButton
+        type="button"
+        label="Editar"
+        icon="pi pi-pencil"
+        class="p-button-primary"
+        [disabled]="!estudiante()"
+      ></button>
+      <button
+        [routerLink]="['/estudiantes']"
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-secondary"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error()" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+    {{ error() }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading()" class="flex justify-center items-center p-8">
+    <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+  </div>
+
+  <!-- Información del estudiante -->
+  <div *ngIf="estudiante() && !loading()" class="bg-white rounded-lg shadow-md p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Información Personal -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Información Personal</h3>
+        
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">ID</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.id }}</p>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Nombres</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.nombres }}</p>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Apellido Paterno</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.apellidoPaterno }}</p>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Apellido Materno</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.apellidoMaterno }}</p>
+        </div>
+      </div>
+
+      <!-- Información Académica -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Información Académica</h3>
+        
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Nivel</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.nivel?.displayValue }}</p>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Grado</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.grado }}</p>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-600 mb-1">Modalidad</label>
+          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.modalidad?.displayValue }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nombre Completo destacado -->
+    <div class="mt-6 pt-6 border-t">
+      <div class="text-center">
+        <h4 class="text-xl font-bold text-gray-800">
+          {{ estudiante()?.nombres }} {{ estudiante()?.apellidoPaterno }} {{ estudiante()?.apellidoMaterno }}
+        </h4>
+        <p class="text-gray-600 mt-2">
+          {{ estudiante()?.nivel?.displayValue }} - {{ estudiante()?.grado }} - {{ estudiante()?.modalidad?.displayValue }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no se encuentra el estudiante -->
+  <div *ngIf="!estudiante() && !loading() && !error()" class="text-center py-8">
+    <div class="flex flex-col items-center">
+      <i class="pi pi-user-minus text-4xl text-gray-300 mb-4"></i>
+      <p class="text-gray-500">Estudiante no encontrado</p>
+      <button
+        [routerLink]="['/estudiantes']"
+        pButton
+        type="button"
+        label="Volver a la lista"
+        icon="pi pi-arrow-left"
+        class="p-button-secondary mt-4"
+      ></button>
+    </div>
+  </div>
+</div>

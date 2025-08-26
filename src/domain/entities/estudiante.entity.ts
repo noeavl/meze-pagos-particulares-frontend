@@ -1,15 +1,24 @@
 import { Modalidad } from '../value-objects/modalidad.value-object';
 import { Nivel } from '../value-objects/nivel.value-object';
 
-// Interfaces para la respuesta de la API
-export interface ApiEstudianteResponse {
+export interface ApiPersonaResponse {
   id: number;
   nombres: string;
   apellido_paterno: string;
   apellido_materno: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiEstudianteResponse {
+  id: number;
+  persona_id: number;
   nivel: string;
   grado: string;
   modalidad: string;
+  created_at: string;
+  updated_at: string;
+  persona: ApiPersonaResponse;
 }
 
 export interface ApiResponse<T> {

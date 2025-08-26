@@ -1,4 +1,5 @@
 export enum ModalidadType {
+  GENERAL = 'general',
   PRESENCIAL = 'presencial',
   EN_LINEA = 'en_linea',
 }
@@ -32,6 +33,8 @@ export class Modalidad {
 
   get displayValue(): string {
     switch (this.value) {
+      case ModalidadType.GENERAL:
+        return 'General (Todas las modalidades)';
       case ModalidadType.PRESENCIAL:
         return 'Presencial';
       case ModalidadType.EN_LINEA:
@@ -43,5 +46,16 @@ export class Modalidad {
 
   equals(other: Modalidad): boolean {
     return this.value === other.value;
+  }
+
+  static getAll(): { value: string; displayValue: string }[] {
+    return Object.values(ModalidadType).map(value => ({
+      value,
+      displayValue: Modalidad.create(value).displayValue
+    }));
+  }
+
+  static fromString(value: string): Modalidad {
+    return Modalidad.create(value);
   }
 }

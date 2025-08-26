@@ -1,27 +1,31 @@
 <div class="p-6 max-w-4xl mx-auto">
   <div class="mb-6">
     <div class="flex items-center gap-2 text-sm text-gray-600 mb-4">
-      <a [routerLink]="['/estudiantes']" class="text-blue-600 hover:underline">Estudiantes</a>
+      <a [routerLink]="['/estudiantes']" class="text-blue-600 hover:underline"
+        >Estudiantes</a
+      >
       <i class="pi pi-chevron-right text-xs"></i>
       <span>Editar Estudiante</span>
     </div>
     <h1 class="text-2xl font-bold text-gray-800">
-      {{ loadingData ? 'Cargando...' : 'Editar Estudiante' }}
+      {{ loadingData ? "Cargando..." : "Editar Estudiante" }}
     </h1>
   </div>
 
   @if (errorMessage) {
-  <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
+  <div
+    class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200"
+  >
     <div class="flex items-center">
       <i class="pi pi-exclamation-triangle mr-2"></i>
       {{ errorMessage }}
     </div>
   </div>
-  }
-
-  @if (loadingData) {
+  } @if (loadingData) {
   <div class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+    ></div>
   </div>
   } @else {
   <form [formGroup]="estudianteForm" (ngSubmit)="onSubmit()">
@@ -58,7 +62,10 @@
 
         <!-- Apellido Paterno -->
         <div class="flex flex-col gap-2">
-          <label for="apellidoPaterno" class="text-sm font-medium text-gray-700">
+          <label
+            for="apellidoPaterno"
+            class="text-sm font-medium text-gray-700"
+          >
             Apellido Paterno <span class="text-red-500">*</span>
           </label>
           <input
@@ -78,7 +85,10 @@
 
         <!-- Apellido Materno -->
         <div class="flex flex-col gap-2">
-          <label for="apellidoMaterno" class="text-sm font-medium text-gray-700">
+          <label
+            for="apellidoMaterno"
+            class="text-sm font-medium text-gray-700"
+          >
             Apellido Materno <span class="text-red-500">*</span>
           </label>
           <input

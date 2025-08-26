@@ -1,0 +1,54 @@
+/* Estilos específicos para la vista de estudiante */
+.estudiante-view-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.info-card {
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-section h3 {
+  color: #374151;
+  font-weight: 600;
+}
+
+.info-field {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-field:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.highlight-section h4 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .estudiante-view-container {
+    padding: 1rem;
+  }
+}

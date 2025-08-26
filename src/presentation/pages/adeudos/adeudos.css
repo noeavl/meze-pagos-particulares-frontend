@@ -1,0 +1,46 @@
+/* Estilos específicos para la lista de adeudos */
+.adeudos-table {
+  width: 100%;
+}
+
+.search-container {
+  max-width: 400px;
+}
+
+.estado-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.monto {
+  font-weight: 600;
+}
+
+.estudiante-info {
+  min-width: 200px;
+}
+
+.concepto-info {
+  min-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .search-container {
+    max-width: 100%;
+  }
+  
+  .flex-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .p-datatable {
+    font-size: 0.875rem;
+  }
+  
+  .p-datatable td {
+    padding: 0.5rem 0.25rem;
+  }
+}

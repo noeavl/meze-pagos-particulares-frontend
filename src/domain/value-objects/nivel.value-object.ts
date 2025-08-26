@@ -1,4 +1,5 @@
 export enum NivelType {
+  GENERAL = 'general',
   PREESCOLAR = 'preescolar',
   PRIMARIA = 'primaria',
   SECUNDARIA = 'secundaria',
@@ -33,6 +34,8 @@ export class Nivel {
 
   get displayValue(): string {
     switch (this.value) {
+      case NivelType.GENERAL:
+        return 'General (Todos los niveles)';
       case NivelType.PREESCOLAR:
         return 'Preescolar';
       case NivelType.PRIMARIA:
@@ -50,5 +53,16 @@ export class Nivel {
 
   equals(other: Nivel): boolean {
     return this.value === other.value;
+  }
+
+  static getAll(): { value: string; displayValue: string }[] {
+    return Object.values(NivelType).map(value => ({
+      value,
+      displayValue: Nivel.create(value).displayValue
+    }));
+  }
+
+  static fromString(value: string): Nivel {
+    return Nivel.create(value);
   }
 }

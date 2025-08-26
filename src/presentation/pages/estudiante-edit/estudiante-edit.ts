@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -13,7 +13,10 @@ import { Card } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
-import { UpdateEstudianteDto, Estudiante } from '../../../domain/entities/estudiante.entity';
+import {
+  UpdateEstudianteDto,
+  Estudiante,
+} from '../../../domain/entities/estudiante.entity';
 
 interface DropdownOption {
   label: string;
@@ -23,7 +26,14 @@ interface DropdownOption {
 @Component({
   selector: 'app-estudiante-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InputText, Card, ButtonModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    InputText,
+    Card,
+    ButtonModule,
+  ],
   templateUrl: './estudiante-edit.html',
   styleUrl: './estudiante-edit.css',
 })
@@ -32,6 +42,7 @@ export class EstudianteEdit implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private estudianteService = inject(useEstudiante);
+  private cdr = inject(ChangeDetectorRef);
 
   estudianteId: number = 0;
   estudiante: Estudiante | null = null;
@@ -83,29 +94,49 @@ export class EstudianteEdit implements OnInit {
 
   loadEstudiante() {
     this.loadingData = true;
+    this.errorMessage = '';
+
     this.estudianteService.getEstudianteById(this.estudianteId).subscribe({
-      next: (estudiante: Estudiante) => {
+      next: (response: any) => {
+        const estudiante = response;
+        console.log('Estudiante extraído:', estudiante);
         this.estudiante = estudiante;
         this.populateForm(estudiante);
         this.loadingData = false;
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
-        this.errorMessage = 'Error al cargar el estudiante';
         console.error('Error al cargar estudiante:', error);
+        this.errorMessage = 'Error al cargar el estudiante';
         this.loadingData = false;
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+        this.loadingData = false;
+        this.cdr.detectChanges();
       },
     });
   }
 
   populateForm(estudiante: Estudiante) {
-    this.estudianteForm.patchValue({
-      nombres: estudiante.nombres,
-      apellidoPaterno: estudiante.apellidoPaterno,
-      apellidoMaterno: estudiante.apellidoMaterno,
-      nivel: estudiante.nivel.rawValue,
-      grado: estudiante.grado,
-      modalidad: estudiante.modalidad.rawValue,
-    });
+    try {
+      this.estudianteForm.patchValue({
+        nombres: estudiante.nombres,
+        apellidoPaterno: estudiante.apellidoPaterno,
+        apellidoMaterno: estudiante.apellidoMaterno,
+        nivel: estudiante.nivel.rawValue,
+        grado: estudiante.grado,
+        modalidad: estudiante.modalidad.rawValue,
+      });
+
+      console.log(
+        'Valores del formulario después de patchValue:',
+        this.estudianteForm.value
+      );
+    } catch (error) {
+      console.error('Error al popular formulario:', error);
+      this.errorMessage = 'Error al cargar los datos del estudiante';
+    }
   }
 
   isInvalid(fieldName: string): boolean {
@@ -153,11 +184,13 @@ export class EstudianteEdit implements OnInit {
     try {
       const formValues = this.estudianteForm.value;
 
+      console.log('Valores del formulario:', formValues);
+
       const updateDto: UpdateEstudianteDto = {
         id: this.estudianteId,
-        nombres: formValues.nombres.trim(),
-        apellido_paterno: formValues.apellidoPaterno.trim(),
-        apellido_materno: formValues.apellidoMaterno.trim(),
+        nombres: formValues.nombres,
+        apellido_paterno: formValues.apellidoPaterno,
+        apellido_materno: formValues.apellidoMaterno,
         nivel: formValues.nivel,
         grado: formValues.grado,
         modalidad: formValues.modalidad,
@@ -169,7 +202,8 @@ export class EstudianteEdit implements OnInit {
           this.router.navigate(['/estudiantes']);
         },
         error: (error: any) => {
-          this.errorMessage = error.message || 'Error al actualizar el estudiante';
+          this.errorMessage =
+            error.message || 'Error al actualizar el estudiante';
           console.error('Error al actualizar estudiante:', error);
           this.loading = false;
         },

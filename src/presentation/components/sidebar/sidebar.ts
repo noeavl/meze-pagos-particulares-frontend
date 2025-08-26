@@ -13,11 +13,16 @@ export class Sidebar {
   private loginService = inject(useLogin);
 
   isSideBarCollapse = false;
+  isPagosMenuOpen = false;
 
   private router = inject(Router);
 
   sideBarCollapse() {
     this.isSideBarCollapse = !this.isSideBarCollapse;
+  }
+
+  togglePagosMenu() {
+    this.isPagosMenuOpen = !this.isPagosMenuOpen;
   }
 
   async logout() {
