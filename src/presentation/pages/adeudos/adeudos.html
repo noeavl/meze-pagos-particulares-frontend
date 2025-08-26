@@ -8,7 +8,9 @@
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
       <!-- Buscador -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Buscar</label
+        >
         <span class="p-input-icon-left w-full">
           <i class="pi pi-search"></i>
           <input
@@ -20,11 +22,13 @@
           />
         </span>
       </div>
-      
+
       <!-- Filtro por estado -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-        <select 
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Estado</label
+        >
+        <select
           [(ngModel)]="selectedEstado"
           (ngModelChange)="onEstadoChange()"
           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -35,11 +39,33 @@
           </option>
         </select>
       </div>
-      
+
+      <!-- Filtro por modalidad -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Modalidad</label
+        >
+        <select
+          [(ngModel)]="selectedModalidad"
+          (ngModelChange)="onModalidadChange()"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Todas las modalidades</option>
+          <option
+            *ngFor="let modalidad of modalidadOptions"
+            [value]="modalidad.value"
+          >
+            {{ modalidad.label }}
+          </option>
+        </select>
+      </div>
+
       <!-- Filtro por nivel -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
-        <select 
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Nivel</label
+        >
+        <select
           [(ngModel)]="selectedNivel"
           (ngModelChange)="onNivelChange()"
           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -50,34 +76,25 @@
           </option>
         </select>
       </div>
-      
+
       <!-- Filtro por grado -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
-        <select 
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Grado</label
+        >
+        <select
           [(ngModel)]="selectedGrado"
           (ngModelChange)="onGradoChange()"
           [disabled]="!selectedNivel"
           class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
         >
-          <option value="">{{ selectedNivel ? 'Todos los grados' : 'Selecciona un nivel primero' }}</option>
+          <option value="">
+            {{
+              selectedNivel ? "Todos los grados" : "Selecciona un nivel primero"
+            }}
+          </option>
           <option *ngFor="let grado of availableGradoOptions" [value]="grado">
             {{ grado }}°
-          </option>
-        </select>
-      </div>
-      
-      <!-- Filtro por modalidad -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Modalidad</label>
-        <select 
-          [(ngModel)]="selectedModalidad"
-          (ngModelChange)="onModalidadChange()"
-          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Todas las modalidades</option>
-          <option *ngFor="let modalidad of modalidadOptions" [value]="modalidad.value">
-            {{ modalidad.label }}
           </option>
         </select>
       </div>
@@ -171,15 +188,24 @@
         </td>
         <td>
           <div class="text-sm">
-            <div><strong>Inicio:</strong> {{ adeudo.fechaInicio | date:'dd/MM/yyyy':'UTC' }}</div>
-            <div><strong>Vence:</strong> {{ adeudo.fechaVencimiento | date:'dd/MM/yyyy':'UTC' }}</div>
+            <div>
+              <strong>Inicio:</strong>
+              {{ adeudo.fechaInicio | date : "dd/MM/yyyy" : "UTC" }}
+            </div>
+            <div>
+              <strong>Vence:</strong>
+              {{ adeudo.fechaVencimiento | date : "dd/MM/yyyy" : "UTC" }}
+            </div>
           </div>
         </td>
         <td>
           <div class="flex gap-2">
             <button
               [routerLink]="['/pagos-adeudos-create']"
-              [queryParams]="{estudiante_id: adeudo.estudiante.id, monto: adeudo.montoPendiente}"
+              [queryParams]="{
+                estudiante_id: adeudo.estudiante.id,
+                monto: adeudo.montoPendiente
+              }"
               pButton
               type="button"
               icon="fas fa-credit-card"
@@ -222,12 +248,8 @@
     <ng-template pTemplate="footer">
       <tr class="bg-gray-50 font-bold">
         <td colspan="4" class="text-right">Totales:</td>
-        <td class="text-blue-600">
-          ${{ totalConceptos | number : "1.2-2" }}
-        </td>
-        <td class="text-green-600">
-          ${{ totalPagado | number : "1.2-2" }}
-        </td>
+        <td class="text-blue-600">${{ totalConceptos | number : "1.2-2" }}</td>
+        <td class="text-green-600">${{ totalPagado | number : "1.2-2" }}</td>
         <td class="text-orange-600">
           ${{ totalPendiente | number : "1.2-2" }}
         </td>
