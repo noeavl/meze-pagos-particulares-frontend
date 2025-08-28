@@ -1,10 +1,14 @@
 import { Observable } from 'rxjs';
-import { Pago, CreatePagoDto, UpdatePagoDto } from '../entities/pago.entity';
+import {
+  Pago,
+  CreatePagoAdeudoDto,
+  UpdatePagoAdeudoDto,
+} from '../entities/pago.entity';
 
 export abstract class PagoRepository {
   abstract getAllPagos(): Observable<Pago[]>;
   abstract getPagoById(id: number): Observable<Pago>;
-  abstract createPago(pago: CreatePagoDto): Observable<Pago>;
-  abstract updatePago(pago: UpdatePagoDto): Observable<Pago>;
+  abstract createPago(pago: CreatePagoAdeudoDto): Observable<Pago>;
+  abstract updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago>;
   abstract searchPagos(term: string): Observable<Pago[]>;
 }

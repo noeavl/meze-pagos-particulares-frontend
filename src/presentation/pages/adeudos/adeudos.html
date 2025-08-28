@@ -201,15 +201,11 @@
         <td>
           <div class="flex gap-2">
             <button
-              [routerLink]="['/pagos-adeudos-create']"
-              [queryParams]="{
-                estudiante_id: adeudo.estudiante.id,
-                monto: adeudo.montoPendiente
-              }"
+              [routerLink]="['/pagos/adeudos/create', adeudo.id]"
               pButton
               type="button"
               icon="fas fa-credit-card"
-              class="p-button-rounded p-button-success p-button-sm"
+              class="p-button-rounded p-button-success p-button-text"
               pTooltip="Registrar Pago"
               [disabled]="adeudo.estado.displayValue === 'Pagado'"
             ></button>

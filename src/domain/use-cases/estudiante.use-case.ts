@@ -32,4 +32,8 @@ export class EstudianteUseCase {
   searchEstudiantes(term: string): Observable<Estudiante[]> {
     return this.estudianteRepository.search(term);
   }
+
+  filterEstudiantesByParams(params: { [key: string]: any }): Observable<Estudiante[]> {
+    return this.estudianteRepository.filterByParams(params);
+  }
 }

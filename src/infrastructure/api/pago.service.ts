@@ -5,8 +5,8 @@ import { map } from 'rxjs/operators';
 import { PagoRepository } from '../../domain/repositories/pago.repository';
 import {
   Pago,
-  CreatePagoDto,
-  UpdatePagoDto,
+  CreatePagoAdeudoDto,
+  UpdatePagoAdeudoDto,
   ApiPagoResponse,
   ApiResponse,
 } from '../../domain/entities/pago.entity';
@@ -22,7 +22,7 @@ export class PagoService extends PagoRepository {
 
   getAllPagos(): Observable<Pago[]> {
     return this.http
-      .get<ApiResponse<ApiPagoResponse[]>>(API_ENDPOINTS.pagos.getAll)
+      .get<ApiResponse<ApiPagoResponse[]>>(API_ENDPOINTS.pagos.adeudos.getAll)
       .pipe(
         map((response) => response.data.map((item) => this.mapToDomain(item)))
       );
@@ -31,24 +31,24 @@ export class PagoService extends PagoRepository {
   getPagoById(id: number): Observable<Pago> {
     return this.http
       .get<ApiResponse<ApiPagoResponse>>(
-        API_ENDPOINTS.pagos.getById(id)
+        API_ENDPOINTS.pagos.adeudos.getById(id)
       )
       .pipe(map((response) => this.mapToDomain(response.data)));
   }
 
-  createPago(pago: CreatePagoDto): Observable<Pago> {
+  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
     return this.http
       .post<ApiResponse<ApiPagoResponse>>(
-        API_ENDPOINTS.pagos.create,
+        API_ENDPOINTS.pagos.adeudos.create,
         pago
       )
       .pipe(map((response) => this.mapToDomain(response.data)));
   }
 
-  updatePago(pago: UpdatePagoDto): Observable<Pago> {
+  updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago> {
     return this.http
       .put<ApiResponse<ApiPagoResponse>>(
-        API_ENDPOINTS.pagos.update(pago.id),
+        API_ENDPOINTS.pagos.adeudos.update(pago.id),
         pago
       )
       .pipe(map((response) => this.mapToDomain(response.data)));
@@ -57,7 +57,7 @@ export class PagoService extends PagoRepository {
   searchPagos(term: string): Observable<Pago[]> {
     return this.http
       .get<ApiResponse<ApiPagoResponse[]>>(
-        `${API_ENDPOINTS.pagos.search}?q=${encodeURIComponent(term)}`
+        `${API_ENDPOINTS.pagos.adeudos.search}?q=${encodeURIComponent(term)}`
       )
       .pipe(
         map((response) => response.data.map((item) => this.mapToDomain(item)))

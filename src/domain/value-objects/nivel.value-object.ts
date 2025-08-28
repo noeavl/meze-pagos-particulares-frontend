@@ -56,9 +56,9 @@ export class Nivel {
   }
 
   static getAll(): { value: string; displayValue: string }[] {
-    return Object.values(NivelType).map(value => ({
+    return Object.values(NivelType).map((value) => ({
       value,
-      displayValue: Nivel.create(value).displayValue
+      displayValue: Nivel.create(value).displayValue,
     }));
   }
 

@@ -26,15 +26,19 @@ export interface Pago {
   fecha: Date;
 }
 
-export interface CreatePagoDto {
-  estudiante_id: number;
+export interface PagoAdeudo {
+  adeudo_id: number;
+}
+
+export interface CreatePagoAdeudoDto {
+  adeudo_id: number;
   folio: string;
-  metodo: string;
+  metodo_pago: string;
   monto: string;
   fecha: string;
 }
 
-export interface UpdatePagoDto extends Partial<CreatePagoDto> {
+export interface UpdatePagoAdeudoDto extends Partial<CreatePagoAdeudoDto> {
   id: number;
 }
 
@@ -42,5 +46,5 @@ export type MetodoPago = 'efectivo' | 'transferencia';
 
 export const METODOS_PAGO: { label: string; value: MetodoPago }[] = [
   { label: 'Efectivo', value: 'efectivo' },
-  { label: 'Transferencia', value: 'transferencia' }
+  { label: 'Transferencia', value: 'transferencia' },
 ];

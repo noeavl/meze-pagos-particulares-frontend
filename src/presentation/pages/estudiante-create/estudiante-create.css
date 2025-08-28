@@ -1,50 +1,56 @@
 /* Estilos específicos para el formulario de crear estudiante */
 
 .p-card {
-  @apply shadow-lg border-0;
+  border: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .p-card .p-card-header {
-  @apply bg-gray-50 border-b border-gray-200;
+  background-color: rgb(249 250 251);
+  border-bottom: 1px solid rgb(229 231 235);
 }
 
 .p-card .p-card-body {
-  @apply p-6;
+  padding: 1.5rem;
 }
 
 .p-card .p-card-footer {
-  @apply bg-gray-50 border-t border-gray-200;
+  background-color: rgb(249 250 251);
+  border-top: 1px solid rgb(229 231 235);
 }
 
 /* Estilos para campos requeridos */
 label .text-red-500 {
-  @apply ml-1;
+  margin-left: 0.25rem;
 }
 
 /* Estilos para mensajes de error */
 .p-error {
-  @apply text-red-600 text-xs mt-1;
+  color: rgb(220 38 38);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 /* Estilos para dropdowns */
 .p-dropdown {
-  @apply w-full;
+  width: 100%;
 }
 
 /* Estados de validación */
 .p-inputtext.ng-invalid.ng-touched,
 select.ng-invalid.ng-touched {
-  @apply border-red-500;
+  border-color: rgb(239 68 68);
 }
 
 .p-inputtext.ng-valid.ng-touched,
 select.ng-valid.ng-touched {
-  @apply border-green-500;
+  border-color: rgb(34 197 94);
 }
 
 /* Estilos para select nativo */
 select {
-  @apply appearance-none bg-white;
+  appearance: none;
+  background-color: white;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.7rem center;
@@ -53,30 +59,44 @@ select {
 }
 
 select:focus {
-  @apply outline-none ring-2 ring-blue-500 border-transparent;
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(59 130 246);
+  border-color: transparent;
 }
 
 select option {
-  @apply py-2;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .grid {
-    @apply grid-cols-1;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
 }
 
 /* Loading state */
 .p-button[loading] {
-  @apply opacity-75 cursor-not-allowed;
+  opacity: 0.75;
+  cursor: not-allowed;
 }
 
 /* Breadcrumb styling */
 .breadcrumb-link {
-  @apply text-blue-600 hover:text-blue-800 hover:underline transition-colors;
+  color: rgb(37 99 235);
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.breadcrumb-link:hover {
+  color: rgb(30 64 175);
+  text-decoration: underline;
 }
 
 .breadcrumb-separator {
-  @apply text-gray-400 mx-2;
+  color: rgb(156 163 175);
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }

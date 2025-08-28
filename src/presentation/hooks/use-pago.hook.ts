@@ -1,124 +1,113 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { PagoUseCase } from '../../domain/use-cases/pago.use-case';
-import { Pago, CreatePagoDto, UpdatePagoDto } from '../../domain/entities/pago.entity';
+import {
+  Pago,
+  CreatePagoAdeudoDto,
+  UpdatePagoAdeudoDto,
+} from '../../domain/entities/pago.entity';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class usePago {
-  private _pagos = signal<Pago[]>([]);
-  private _selectedPago = signal<Pago | null>(null);
-  private _loading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
+  pagos = signal<Pago[]>([]);
+  selectedPago = signal<Pago | null>(null);
+  loading = signal<boolean>(false);
+  error = signal<string | null>(null);
 
   constructor(private pagoUseCase: PagoUseCase) {}
 
-  // Computed properties
-  pagos = computed(() => this._pagos());
-  selectedPago = computed(() => this._selectedPago());
-  loading = computed(() => this._loading());
-  error = computed(() => this._error());
-
-  // Actions
   loadPagos(): void {
-    this._loading.set(true);
-    this._error.set(null);
+    this.loading.set(true);
+    this.error.set(null);
 
-    this.pagoUseCase.getAllPagos().subscribe({
-      next: (pagos) => {
-        this._pagos.set(pagos);
-        this._loading.set(false);
-      },
-      error: (error) => {
-        this._error.set('Error al cargar los pagos');
-        this._loading.set(false);
-        console.error('Error loading pagos:', error);
-      },
-    });
-  }
-
-  loadPagoById(id: number): void {
-    this._loading.set(true);
-    this._error.set(null);
-
-    this.pagoUseCase.getPagoById(id).subscribe({
-      next: (pago) => {
-        this._selectedPago.set(pago);
-        this._loading.set(false);
-      },
-      error: (error) => {
-        this._error.set('Error al cargar el pago');
-        this._loading.set(false);
-        console.error('Error loading pago:', error);
-      },
-    });
-  }
-
-  createPago(pago: CreatePagoDto): Promise<Pago> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    return new Promise((resolve, reject) => {
-      this.pagoUseCase.createPago(pago).subscribe({
-        next: (newPago) => {
-          this._pagos.update((pagos) => [...pagos, newPago]);
-          this._loading.set(false);
-          resolve(newPago);
-        },
-        error: (error) => {
-          this._error.set('Error al crear el pago');
-          this._loading.set(false);
-          console.error('Error creating pago:', error);
-          reject(error);
-        },
+    this.pagoUseCase
+      .getAllPagos()
+      .pipe(
+        catchError((err) => {
+          this.error.set('Error al cargar los pagos');
+          console.error('Error loading pagos:', err);
+          return of([]);
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe((pagos) => {
+        this.pagos.set(pagos);
       });
-    });
   }
 
-  updatePago(pago: UpdatePagoDto): Promise<Pago> {
-    this._loading.set(true);
-    this._error.set(null);
+  getPagoById(id: number): Observable<Pago> {
+    this.loading.set(true);
+    this.error.set(null);
 
-    return new Promise((resolve, reject) => {
-      this.pagoUseCase.updatePago(pago).subscribe({
-        next: (updatedPago) => {
-          this._pagos.update((pagos) =>
-            pagos.map((p) => (p.id === updatedPago.id ? updatedPago : p))
-          );
-          this._selectedPago.set(updatedPago);
-          this._loading.set(false);
-          resolve(updatedPago);
-        },
-        error: (error) => {
-          this._error.set('Error al actualizar el pago');
-          this._loading.set(false);
-          console.error('Error updating pago:', error);
-          reject(error);
-        },
-      });
-    });
+    return this.pagoUseCase.getPagoById(id).pipe(
+      tap((pago) => {
+        this.selectedPago.set(pago);
+      }),
+      catchError((err) => {
+        this.error.set('Error al cargar el pago');
+        console.error('Error loading pago:', err);
+        throw err;
+      }),
+      finalize(() => this.loading.set(false))
+    );
+  }
+
+  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.pagoUseCase.createPago(pago).pipe(
+      tap((newPago) => {
+        this.pagos.update((pagos) => [...pagos, newPago]);
+      }),
+      catchError((err) => {
+        this.error.set('Error al crear el pago');
+        console.error('Error creating pago:', err);
+        throw err; // Re-throw the error to be handled by the component
+      }),
+      finalize(() => this.loading.set(false))
+    );
+  }
+
+  updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.pagoUseCase.updatePago(pago).pipe(
+      tap((updatedPago) => {
+        this.pagos.update((pagos) =>
+          pagos.map((p) => (p.id === updatedPago.id ? updatedPago : p))
+        );
+        this.selectedPago.set(updatedPago);
+      }),
+      catchError((err) => {
+        this.error.set('Error al actualizar el pago');
+        console.error('Error updating pago:', err);
+        throw err; // Re-throw the error to be handled by the component
+      }),
+      finalize(() => this.loading.set(false))
+    );
   }
 
   searchPagos(term: string): void {
-    this._loading.set(true);
-    this._error.set(null);
+    this.loading.set(true);
+    this.error.set(null);
 
-    this.pagoUseCase.searchPagos(term).subscribe({
-      next: (pagos) => {
-        this._pagos.set(pagos);
-        this._loading.set(false);
-      },
-      error: (error) => {
-        this._error.set('Error al buscar pagos');
-        this._loading.set(false);
-        console.error('Error searching pagos:', error);
-      },
-    });
-  }
-
-  clearError(): void {
-    this._error.set(null);
-  }
-
-  clearSelectedPago(): void {
-    this._selectedPago.set(null);
+    this.pagoUseCase
+      .searchPagos(term)
+      .pipe(
+        catchError((err) => {
+          this.error.set('Error al buscar pagos');
+          console.error('Error searching pagos:', err);
+          return of([]);
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe((pagos) => {
+        this.pagos.set(pagos);
+      });
   }
 }

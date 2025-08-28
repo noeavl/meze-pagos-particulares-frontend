@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PagoRepository } from '../repositories/pago.repository';
-import { Pago, CreatePagoDto, UpdatePagoDto } from '../entities/pago.entity';
+import {
+  Pago,
+  CreatePagoAdeudoDto,
+  UpdatePagoAdeudoDto,
+} from '../entities/pago.entity';
 
 @Injectable()
 export class PagoUseCase {
@@ -15,11 +19,11 @@ export class PagoUseCase {
     return this.pagoRepository.getPagoById(id);
   }
 
-  createPago(pago: CreatePagoDto): Observable<Pago> {
+  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
     return this.pagoRepository.createPago(pago);
   }
 
-  updatePago(pago: UpdatePagoDto): Observable<Pago> {
+  updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago> {
     return this.pagoRepository.updatePago(pago);
   }
 

@@ -88,4 +88,22 @@ export class useEstudiante {
         this.estudiantes.set(estudiantes);
       });
   }
+
+  filterEstudiantesByParams(params: { [key: string]: any }) {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.estudianteUseCase
+      .filterEstudiantesByParams(params)
+      .pipe(
+        catchError((err) => {
+          this.error.set('Error al filtrar estudiantes: ' + err.message);
+          return of([]);
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe((estudiantes) => {
+        this.estudiantes.set(estudiantes);
+      });
+  }
 }

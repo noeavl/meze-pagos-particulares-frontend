@@ -67,6 +67,24 @@ export class EstudianteService implements EstudianteRepository {
       );
   }
 
+  filterByParams(filterParams: { [key: string]: any }): Observable<Estudiante[]> {
+    let httpParams = new HttpParams();
+    
+    Object.keys(filterParams).forEach(key => {
+      if (filterParams[key] !== null && filterParams[key] !== undefined && filterParams[key] !== '') {
+        httpParams = httpParams.set(key, filterParams[key].toString());
+      }
+    });
+
+    return this.http
+      .get<ApiResponse<ApiEstudianteResponse[]>>(`${this.endpoint}/filter`, {
+        params: httpParams,
+      })
+      .pipe(
+        map((response) => response.data.map(this.mapApiResponseToEstudiante))
+      );
+  }
+
   private mapApiResponseToEstudiante(
     apiResponse: ApiEstudianteResponse
   ): Estudiante {

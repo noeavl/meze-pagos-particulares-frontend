@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { AdeudoUseCase } from '../../domain/use-cases/adeudo.use-case';
 import {
   Adeudo,
@@ -13,6 +13,7 @@ import {
 })
 export class useAdeudo {
   adeudos = signal<Adeudo[]>([]);
+  adeudo = signal<Adeudo | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
 
@@ -36,16 +37,23 @@ export class useAdeudo {
       });
   }
 
-  getAdeudoById(id: number) {
+  getAdeudoById(id: number): Observable<Adeudo> {
+    this.loading.set(true);
+    this.error.set(null);
+
     return this.adeudoUseCase.getAdeudoById(id).pipe(
+      tap((adeudo) => {
+        this.adeudo.set(adeudo);
+      }),
       catchError((err) => {
-        console.error('Error en hook getAdeudoById:', err);
-        throw err;
-      })
+        this.error.set('Error al obtener el adeudo: ' + err.message);
+        throw err; // Re-throw error for the component to handle
+      }),
+      finalize(() => this.loading.set(false))
     );
   }
 
-  createAdeudo(adeudo: CreateAdeudoDto) {
+  createAdeudo(adeudo: CreateAdeudoDto): Observable<Adeudo> {
     this.loading.set(true);
     this.error.set(null);
 
@@ -58,7 +66,7 @@ export class useAdeudo {
     );
   }
 
-  updateAdeudo(adeudo: UpdateAdeudoDto) {
+  updateAdeudo(adeudo: UpdateAdeudoDto): Observable<Adeudo> {
     this.loading.set(true);
     this.error.set(null);
 

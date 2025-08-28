@@ -11,13 +11,13 @@ import { Conceptos } from '../presentation/pages/conceptos/conceptos';
 import { ConceptoCreate } from '../presentation/pages/concepto-create/concepto-create';
 import { ConceptoEdit } from '../presentation/pages/concepto-edit/concepto-edit';
 import { ConceptoDetailComponent } from '../presentation/pages/concepto-detail/concepto-detail';
-import { PagosAdeudos } from '../presentation/pages/pagos-adeudos/pagos-adeudos';
-import { PagosRequeridos } from '../presentation/pages/pagos-requeridos/pagos-requeridos';
 import { MainLayout } from '../presentation/layouts/main-layout/main-layout';
 import { Adeudos } from '../presentation/pages/adeudos/adeudos';
-import { PagoCreate } from '../presentation/pages/pago-create/pago-create';
-import { PagoEdit } from '../presentation/pages/pago-edit/pago-edit';
+import { PagosAdeudosEdit } from '../presentation/pages/pagos-adeudos-edit/pagos-adeudos-edit';
+import { PagosAdeudos } from '../presentation/pages/pagos-adeudos/pagos-adeudos';
 import { PagosAdeudosCreate } from '../presentation/pages/pagos-adeudos-create/pagos-adeudos-create';
+import { PagosAdeudosDetail } from '../presentation/pages/pagos-adeudos-detail/pagos-adeudos-detail';
+import { PagosRequeridos } from '../presentation/pages/pagos-requeridos/pagos-requeridos';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -72,11 +72,7 @@ export const routes: Routes = [
         component: ConceptoDetailComponent,
       },
       {
-        path: 'pagos-adeudos',
-        component: PagosAdeudos,
-      },
-      {
-        path: 'pagos-requeridos',
+        path: 'pagos/requeridos',
         component: PagosRequeridos,
       },
       {
@@ -84,16 +80,20 @@ export const routes: Routes = [
         component: Adeudos,
       },
       {
-        path: 'pago/create',
-        component: PagoCreate,
+        path: 'pagos/adeudos',
+        component: PagosAdeudos,
       },
       {
-        path: 'pago/edit/:id',
-        component: PagoEdit,
-      },
-      {
-        path: 'pagos-adeudos-create',
+        path: 'pagos/adeudos/create/:id',
         component: PagosAdeudosCreate,
+      },
+      {
+        path: 'pagos/adeudos/edit/:id',
+        component: PagosAdeudosEdit,
+      },
+      {
+        path: 'pagos/adeudos/detail/:id',
+        component: PagosAdeudosDetail,
       },
     ],
   },
