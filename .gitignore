@@ -5,6 +5,7 @@
 /tmp
 /out-tsc
 /bazel-out
+/meze-pagos-particulares-angular-build
 
 # Node
 /node_modules

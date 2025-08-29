@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AdeudoRepository } from '../repositories/adeudo.repository';
-import { Adeudo, CreateAdeudoDto, UpdateAdeudoDto } from '../entities/adeudo.entity';
+import {
+  Adeudo,
+  ApiGenerarAdeudosResponse,
+  CreateAdeudoDto,
+  GenerarAdeudosDto,
+  UpdateAdeudoDto,
+} from '../entities/adeudo.entity';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +25,12 @@ export class AdeudoUseCase {
 
   createAdeudo(adeudo: CreateAdeudoDto): Observable<Adeudo> {
     return this.adeudoRepository.createAdeudo(adeudo);
+  }
+
+  generateAdeudosMassive(
+    ciclo: GenerarAdeudosDto
+  ): Observable<ApiGenerarAdeudosResponse> {
+    return this.adeudoRepository.generateAdeudos(ciclo);
   }
 
   updateAdeudo(adeudo: UpdateAdeudoDto): Observable<Adeudo> {

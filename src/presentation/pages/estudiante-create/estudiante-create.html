@@ -1,19 +1,24 @@
-<div class="p-6 max-w-4xl mx-auto">
-  <div class="mb-6">
-    <div class="flex items-center gap-2 text-sm text-gray-600 mb-4">
-      <a [routerLink]="['/estudiantes']" class="text-blue-600 hover:underline"
-        >Estudiantes</a
-      >
-      <i class="pi pi-chevron-right text-xs"></i>
-      <span>Nuevo Estudiante</span>
+<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Registrar Estudiante</h1>
+        <p class="text-gray-600 text-sm mt-1">Crear nuevo registro de estudiante</p>
+      </div>
+      <button
+        [routerLink]="['/estudiantes']"
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-outlined p-button-secondary"
+      ></button>
     </div>
-    <h1 class="text-2xl font-bold text-gray-800">Crear Nuevo Estudiante</h1>
   </div>
 
   @if (errorMessage) {
-  <div
-    class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200"
-  >
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
     <div class="flex items-center">
       <i class="pi pi-exclamation-triangle mr-2"></i>
       {{ errorMessage }}
@@ -22,179 +27,161 @@
   }
 
   <form [formGroup]="estudianteForm" (ngSubmit)="onSubmit()">
-    <p-card>
-      <ng-template #header>
-        <div class="flex items-center gap-2 p-4">
-          <i class="pi pi-user text-blue-600"></i>
-          <h2 class="text-lg font-semibold text-gray-800">
-            Información del Estudiante
-          </h2>
-        </div>
-      </ng-template>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Student Information Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+        Información Personal
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Nombres -->
-        <div class="flex flex-col gap-2">
-          <label for="nombres" class="text-sm font-medium text-gray-700">
+        <div class="space-y-2">
+          <label for="nombres" class="block text-sm font-medium text-gray-700">
             Nombres <span class="text-red-500">*</span>
           </label>
           <input
             pInputText
             id="nombres"
             formControlName="nombres"
-            placeholder="Ingrese los nombres"
+            placeholder="Nombres del estudiante"
             [invalid]="isInvalid('nombres')"
             class="w-full"
           />
           @if (isInvalid('nombres')) {
-          <small class="p-error">
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("nombres") }}
           </small>
           }
         </div>
 
         <!-- Apellido Paterno -->
-        <div class="flex flex-col gap-2">
-          <label
-            for="apellidoPaterno"
-            class="text-sm font-medium text-gray-700"
-          >
+        <div class="space-y-2">
+          <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">
             Apellido Paterno <span class="text-red-500">*</span>
           </label>
           <input
             pInputText
             id="apellidoPaterno"
             formControlName="apellidoPaterno"
-            placeholder="Ingrese apellido paterno"
+            placeholder="Apellido paterno"
             [invalid]="isInvalid('apellidoPaterno')"
             class="w-full"
           />
           @if (isInvalid('apellidoPaterno')) {
-          <small class="p-error">
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("apellidoPaterno") }}
           </small>
           }
         </div>
 
         <!-- Apellido Materno -->
-        <div class="flex flex-col gap-2">
-          <label
-            for="apellidoMaterno"
-            class="text-sm font-medium text-gray-700"
-          >
-            Apellido Materno <span class="text-red-500">*</span>
+        <div class="space-y-2">
+          <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">
+            Apellido Materno
           </label>
           <input
             pInputText
             id="apellidoMaterno"
             formControlName="apellidoMaterno"
-            placeholder="Ingrese apellido materno"
+            placeholder="Apellido materno"
             [invalid]="isInvalid('apellidoMaterno')"
             class="w-full"
           />
           @if (isInvalid('apellidoMaterno')) {
-          <small class="p-error">
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("apellidoMaterno") }}
           </small>
           }
         </div>
+      </div>
+    </div>
 
+    <!-- Academic Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+        Información Académica
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Nivel -->
-        <div class="flex flex-col gap-2">
-          <label for="nivel" class="text-sm font-medium text-gray-700">
-            Nivel <span class="text-red-500">*</span>
+        <div class="space-y-2">
+          <label for="nivel" class="block text-sm font-medium text-gray-700">
+            Nivel Educativo <span class="text-red-500">*</span>
           </label>
-          <select
+          <p-select
             id="nivel"
             formControlName="nivel"
-            class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            [class.border-red-500]="isInvalid('nivel')"
-          >
-            <option value="">Seleccione nivel</option>
-            @for (item of nivelesOptions; track $index) {
-            <option [value]="item.value">
-              {{ item.label }}
-            </option>
-            }
-          </select>
+            [options]="nivelesOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar nivel"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('nivel')"
+          ></p-select>
           @if (isInvalid('nivel')) {
-          <small class="p-error">
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("nivel") }}
           </small>
           }
         </div>
 
         <!-- Grado -->
-        <div class="flex flex-col gap-2">
-          <label for="grado" class="text-sm font-medium text-gray-700">
+        <div class="space-y-2">
+          <label for="grado" class="block text-sm font-medium text-gray-700">
             Grado <span class="text-red-500">*</span>
           </label>
-          <select
+          <p-select
             id="grado"
             formControlName="grado"
-            class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            [class.border-red-500]="isInvalid('grado')"
-          >
-            <option value="">Seleccione grado</option>
-            @for (item of gradosOptions; track $index) {
-            <option [value]="item.value">
-              {{ item.label }}
-            </option>
-            }
-          </select>
+            [options]="gradosOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar grado"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('grado')"
+          ></p-select>
           @if (isInvalid('grado')) {
-          <small class="p-error">
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("grado") }}
           </small>
           }
         </div>
 
         <!-- Modalidad -->
-        <div class="flex flex-col gap-2">
-          <label for="modalidad" class="text-sm font-medium text-gray-700">
+        <div class="space-y-2">
+          <label for="modalidad" class="block text-sm font-medium text-gray-700">
             Modalidad <span class="text-red-500">*</span>
           </label>
-          <select
+          <p-select
             id="modalidad"
             formControlName="modalidad"
-            class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            [class.border-red-500]="isInvalid('modalidad')"
-          >
-            <option value="">Seleccione modalidad</option>
-            @for (item of modalidadOptions; track $index) {
-            <option [value]="item.value">
-              {{ item.label }}
-            </option>
-            }
-          </select>
-          @if(isInvalid('modalidad')){
-          <small class="p-error">
+            [options]="modalidadOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar modalidad"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('modalidad')"
+          ></p-select>
+          @if (isInvalid('modalidad')) {
+          <small class="text-red-600 text-xs">
             {{ getErrorMessage("modalidad") }}
           </small>
           }
         </div>
       </div>
+    </div>
 
-      <ng-template #footer>
-        <div class="flex justify-end gap-3 p-4">
-          <button
-            pButton
-            type="button"
-            label="Cancelar"
-            severity="secondary"
-            (click)="onCancel()"
-            [disabled]="loading"
-          ></button>
-          <button
-            pButton
-            type="submit"
-            [disabled]="loading || estudianteForm.invalid"
-            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ loading ? "Creando..." : "Crear Estudiante" }}
-          </button>
-        </div>
-      </ng-template>
-    </p-card>
+    <!-- Actions -->
+    <div class="flex justify-end">
+      <button
+        pButton
+        type="submit"
+        label="Registrar Estudiante"
+        icon="pi pi-check"
+        [disabled]="loading || estudianteForm.invalid"
+      >
+        {{ loading ? 'Registrando...' : 'Registrar Estudiante' }}
+      </button>
+    </div>
   </form>
 </div>

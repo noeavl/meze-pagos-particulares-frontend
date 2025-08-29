@@ -7,7 +7,9 @@ import {
   Adeudo,
   CreateAdeudoDto,
   UpdateAdeudoDto,
+  GenerarAdeudosDto,
   ApiAdeudoResponse,
+  ApiGenerarAdeudosResponse,
   ApiResponse,
 } from '../../domain/entities/adeudo.entity';
 import { Estado } from '../../domain/value-objects/estado.value-object';
@@ -32,9 +34,7 @@ export class AdeudoService extends AdeudoRepository {
 
   getAdeudoById(id: number): Observable<Adeudo> {
     return this.http
-      .get<ApiResponse<ApiAdeudoResponse>>(
-        API_ENDPOINTS.adeudos.getById(id)
-      )
+      .get<ApiResponse<ApiAdeudoResponse>>(API_ENDPOINTS.adeudos.getById(id))
       .pipe(map((response) => this.mapToDomain(response.data)));
   }
 
@@ -66,6 +66,15 @@ export class AdeudoService extends AdeudoRepository {
       );
   }
 
+  generateAdeudos(
+    ciclo: GenerarAdeudosDto
+  ): Observable<ApiGenerarAdeudosResponse> {
+    return this.http.post<ApiGenerarAdeudosResponse>(
+      API_ENDPOINTS.adeudos.generate,
+      ciclo
+    );
+  }
+
   private mapToDomain(apiResponse: ApiAdeudoResponse): Adeudo {
     return {
       id: apiResponse.id,
@@ -73,8 +82,12 @@ export class AdeudoService extends AdeudoRepository {
         id: apiResponse.concepto.id,
         nombre: apiResponse.concepto.nombre,
         periodo: Periodo.fromString(apiResponse.concepto.periodo),
-        nivel: apiResponse.concepto.nivel ? Nivel.fromString(apiResponse.concepto.nivel) : null,
-        modalidad: apiResponse.concepto.modalidad ? Modalidad.fromString(apiResponse.concepto.modalidad) : null,
+        nivel: apiResponse.concepto.nivel
+          ? Nivel.fromString(apiResponse.concepto.nivel)
+          : null,
+        modalidad: apiResponse.concepto.modalidad
+          ? Modalidad.fromString(apiResponse.concepto.modalidad)
+          : null,
         costo: parseFloat(apiResponse.concepto.costo),
       },
       estudiante: {

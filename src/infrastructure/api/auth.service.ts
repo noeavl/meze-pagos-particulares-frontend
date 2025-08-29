@@ -5,10 +5,7 @@ import { throwError } from 'rxjs';
 import { AuthRepository } from '../../domain/repositories/auth.repository';
 import { User } from '../../domain/entities/user.entity';
 import { LoginCredentials, LoginResponse } from '../../shared/types/auth.types';
-import {
-  API_ENDPOINTS,
-  API_BASE_URL,
-} from '../../shared/constants/api.constants';
+import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
 @Injectable({
   providedIn: 'root',

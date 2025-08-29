@@ -18,6 +18,7 @@ import { PagosAdeudos } from '../presentation/pages/pagos-adeudos/pagos-adeudos'
 import { PagosAdeudosCreate } from '../presentation/pages/pagos-adeudos-create/pagos-adeudos-create';
 import { PagosAdeudosDetail } from '../presentation/pages/pagos-adeudos-detail/pagos-adeudos-detail';
 import { PagosRequeridos } from '../presentation/pages/pagos-requeridos/pagos-requeridos';
+import { AdeudosCreate } from '../presentation/pages/adeudos-create/adeudos-create';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -78,6 +79,10 @@ export const routes: Routes = [
       {
         path: 'adeudos',
         component: Adeudos,
+      },
+      {
+        path: 'adeudos/create',
+        component: AdeudosCreate,
       },
       {
         path: 'pagos/adeudos',

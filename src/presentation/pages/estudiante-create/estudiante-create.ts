@@ -9,7 +9,8 @@ import {
 import { Router, RouterLink } from '@angular/router';
 
 import { InputText } from 'primeng/inputtext';
-import { Card } from 'primeng/card';
+import { Select } from 'primeng/select';
+import { ButtonDirective } from 'primeng/button';
 
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
 import { CreateEstudianteDto } from '../../../domain/entities/estudiante.entity';
@@ -22,7 +23,7 @@ interface DropdownOption {
 @Component({
   selector: 'app-estudiante-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InputText, Card],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, InputText, Select, ButtonDirective],
   templateUrl: './estudiante-create.html',
   styleUrl: './estudiante-create.css',
 })

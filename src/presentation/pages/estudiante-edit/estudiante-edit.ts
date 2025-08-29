@@ -9,8 +9,9 @@ import {
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 
 import { InputText } from 'primeng/inputtext';
-import { Card } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
+import { Select } from 'primeng/select';
+import { ButtonDirective } from 'primeng/button';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
 import {
@@ -31,8 +32,9 @@ interface DropdownOption {
     ReactiveFormsModule,
     RouterLink,
     InputText,
-    Card,
-    ButtonModule,
+    Select,
+    ButtonDirective,
+    ProgressSpinner,
   ],
   templateUrl: './estudiante-edit.html',
   styleUrl: './estudiante-edit.css',

@@ -4,7 +4,9 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { AdeudoUseCase } from '../../domain/use-cases/adeudo.use-case';
 import {
   Adeudo,
+  ApiGenerarAdeudosResponse,
   CreateAdeudoDto,
+  GenerarAdeudosDto,
   UpdateAdeudoDto,
 } from '../../domain/entities/adeudo.entity';
 
@@ -61,6 +63,28 @@ export class useAdeudo {
       catchError((err) => {
         this.error.set('Error al crear adeudo: ' + err.message);
         throw err;
+      }),
+      finalize(() => this.loading.set(false))
+    );
+  }
+
+  generateAdeudosMassive(
+    year: GenerarAdeudosDto
+  ): Observable<ApiGenerarAdeudosResponse> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.adeudoUseCase.generateAdeudosMassive(year).pipe(
+      catchError((error) => {
+        if (error.status === 409) {
+          this.error.set(error.error.message);
+        } else {
+          this.error.set(
+            'Error al generar los adeudos: ' +
+              (error.error?.message || error.message)
+          );
+        }
+        throw error;
       }),
       finalize(() => this.loading.set(false))
     );

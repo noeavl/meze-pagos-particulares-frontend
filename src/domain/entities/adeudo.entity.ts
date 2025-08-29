@@ -46,6 +46,15 @@ export interface CreateAdeudoDto {
   fecha_vencimiento: string;
 }
 
+export interface GenerarAdeudosDto {
+  year: number;
+}
+
+export interface ApiGenerarAdeudosResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface UpdateAdeudoDto extends Partial<CreateAdeudoDto> {
   id: number;
 }

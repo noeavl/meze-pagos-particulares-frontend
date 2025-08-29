@@ -1,108 +1,114 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-        <i class="fa-solid fa-credit-card text-blue-600"></i>
-        Registrar Pago
-      </h1>
-      <p class="text-gray-600 mt-2">
-        Registra un nuevo pago para los adeudos del estudiante
-      </p>
+<div class="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Registrar Pago</h1>
+        <p class="text-gray-600 text-sm mt-1">Procesar nuevo pago de adeudo</p>
+      </div>
+      <button
+        [routerLink]="['/adeudos']"
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-outlined p-button-secondary"
+      ></button>
     </div>
-    <button
-      [routerLink]="['/adeudos']"
-      pButton
-      type="button"
-      label="Volver"
-      icon="pi pi-arrow-left"
-      class="p-button-secondary"
-    ></button>
   </div>
 
   @if (error()) {
-  <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
     {{ error() }}
   </div>
   } @if (loading()) {
-  <div class="flex justify-center items-center p-8">
-    <p-progressSpinner
-      strokeWidth="4"
-      animationDuration="1s"
-    ></p-progressSpinner>
+  <div class="flex justify-center items-center py-12">
+    <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
   </div>
   } @if(!loading() && adeudo()){
-  <form [formGroup]="pagoForm" (ngSubmit)="onSubmit()" class="space-y-6">
-    <!-- Sección 1: Estudiante que Realizará el Pago -->
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-user-graduate text-green-600"></i>
-          <h3 class="text-lg font-semibold text-gray-800">
-            Estudiante que Realizará el Pago
+  <form [formGroup]="pagoForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Student & Debt Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <div class="grid lg:grid-cols-2 gap-8">
+        
+        <!-- Student Info -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+            Información del Estudiante
           </h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Nombre:</span>
+              <span class="font-medium text-gray-900">
+                {{ adeudo()?.estudiante?.nombres }} {{ adeudo()?.estudiante?.apellidoPaterno }} {{ adeudo()?.estudiante?.apellidoMaterno }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Modalidad:</span>
+              <span class="text-gray-900">{{ adeudo()?.estudiante?.modalidad?.displayValue }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Nivel:</span>
+              <span class="text-gray-900">{{ adeudo()?.estudiante?.nivel?.displayValue }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Grado:</span>
+              <span class="text-gray-900">{{ adeudo()?.estudiante?.grado }}°</span>
+            </div>
+          </div>
         </div>
-      </ng-template>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-user text-blue-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Nombre</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">
-            {{ adeudo()?.estudiante?.nombres }}
-            {{ adeudo()?.estudiante?.apellidoPaterno }}
-            {{ adeudo()?.estudiante?.apellidoMaterno }}
-          </p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-chalkboard-teacher text-purple-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Modalidad</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">
-            {{ adeudo()?.estudiante?.modalidad?.displayValue }}
-          </p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-layer-group text-orange-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Nivel</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">
-            {{ adeudo()?.estudiante?.nivel?.displayValue }}
-          </p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-star text-yellow-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Grado</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.estudiante?.grado }}°</p>
-        </p-card>
-      </div>
-    </p-card>
 
-    <!-- Sección 2: Historial de Pagos del Estudiante -->
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-receipt text-orange-600"></i>
-          <h3 class="text-lg font-semibold text-gray-800">
-            Historial de Pagos del Estudiante
+        <!-- Debt Info -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+            Información del Adeudo
           </h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Concepto:</span>
+              <span class="font-medium text-gray-900">{{ adeudo()?.concepto?.nombre }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Periodo:</span>
+              <span class="text-gray-900">{{ adeudo()?.concepto?.periodo?.displayValue }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Estado:</span>
+              <span class="text-gray-900">{{ adeudo()?.estado?.displayValue }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Vencimiento:</span>
+              <span class="text-gray-900">{{ adeudo()?.fechaVencimiento | date : "dd/MM/yyyy" }}</span>
+            </div>
+          </div>
+          
+          <!-- Amount Summary -->
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600 text-sm">Total:</span>
+              <span class="font-semibold text-gray-900">{{ adeudo()?.montoTotal | currency }}</span>
+            </div>
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-gray-600 text-sm">Pagado:</span>
+              <span class="text-green-600 font-medium">{{ adeudo()?.montoPagado | currency }}</span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+              <span class="font-medium text-gray-900">Pendiente:</span>
+              <span class="font-bold text-red-600 text-lg">{{ adeudo()?.montoPendiente | currency }}</span>
+            </div>
+          </div>
         </div>
-      </ng-template>
+      </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+        Historial de Pagos
+      </h3>
       <p-table
         [value]="pagos"
-        [tableStyle]="{ 'min-width': '50rem' }"
         [paginator]="true"
         [rows]="5"
         [showCurrentPageReport]="true"
@@ -110,204 +116,97 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>Folio</th>
-            <th>Monto</th>
-            <th>Método de Pago</th>
-            <th>Fecha</th>
+            <th class="text-left">Folio</th>
+            <th class="text-right">Monto</th>
+            <th class="text-left">Método</th>
+            <th class="text-left">Fecha</th>
           </tr>
         </ng-template>
-
         <ng-template pTemplate="body" let-pago>
           <tr>
-            <td>
-              <span class="font-medium">{{ pago.folio }}</span>
-            </td>
-            <td>
-              <span class="font-semibold text-green-600">{{
-                pago.monto | currency : "MXN"
-              }}</span>
-            </td>
-            <td>
-              <span class="font-medium">{{ pago.metodo_pago }}</span>
-            </td>
-            <td>
-              {{ pago.fecha | date : "dd/MM/yyyy" }}
-            </td>
+            <td class="font-medium">{{ pago.folio }}</td>
+            <td class="text-right font-semibold text-green-600">{{ pago.monto | currency : "MXN" }}</td>
+            <td>{{ pago.metodo_pago }}</td>
+            <td>{{ pago.fecha | date : "dd/MM/yyyy" }}</td>
           </tr>
         </ng-template>
-
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="4" class="text-center py-8">
-              <div class="flex flex-col items-center">
-                <i class="pi pi-receipt text-4xl text-gray-300 mb-4"></i>
-                <p class="text-gray-500">
-                  Este estudiante no tiene pagos registrados.
-                </p>
-              </div>
+            <td colspan="4" class="text-center py-8 text-gray-500">
+              Sin pagos registrados
             </td>
           </tr>
         </ng-template>
       </p-table>
-    </p-card>
+    </div>
 
-    <!-- Sección de Adeudo -->
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-file-invoice-dollar text-red-600"></i>
-          <h3 class="text-lg font-semibold text-gray-800">
-            Información del Adeudo
-          </h3>
-        </div>
-      </ng-template>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-tag text-blue-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Concepto</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.concepto?.nombre }}</p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-calendar-alt text-purple-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Periodo</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">
-            {{ adeudo()?.concepto?.periodo?.displayValue }}
-          </p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-info-circle text-yellow-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Estado</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.estado?.displayValue }}</p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-dollar-sign text-green-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Total</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.montoTotal | currency }}</p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-hand-holding-dollar text-green-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Pagado</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.montoPagado | currency }}</p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-hourglass-half text-red-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">Pendiente</h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">{{ adeudo()?.montoPendiente | currency }}</p>
-        </p-card>
-        <p-card>
-          <ng-template pTemplate="title">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-calendar-times text-red-500"></i>
-              <h4 class="text-md font-semibold text-gray-700">
-                Fecha de Vencimiento
-              </h4>
-            </div>
-          </ng-template>
-          <p class="text-gray-600">
-            {{ adeudo()?.fechaVencimiento | date : "dd/MM/yyyy" }}
-          </p>
-        </p-card>
-      </div>
-    </p-card>
-
-    <!-- Sección 3: Detalles del Pago -->
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-money-check-dollar text-purple-600"></i>
-          <h3 class="text-lg font-semibold text-gray-800">Detalles del Pago</h3>
-        </div>
-      </ng-template>
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="fa-solid fa-file-alt"></i>
-            </p-inputgroup-addon>
+    <!-- Payment Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+        Nuevo Pago
+      </h3>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Folio</label>
             <input
               type="text"
               pInputText
               formControlName="folio"
-              placeholder="Folio"
+              placeholder="Número de folio"
+              class="w-full"
             />
-          </p-inputgroup>
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="fa-solid fa-calendar"></i>
-            </p-inputgroup-addon>
-            <p-datepicker
-              formControlName="fecha"
-              placeholder="Fecha"
-            ></p-datepicker>
-          </p-inputgroup>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="fa-solid fa-money-check-dollar"></i>
-            </p-inputgroup-addon>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago</label>
             <p-select
               formControlName="metodo_pago"
               [options]="paymentOptions"
               optionLabel="name"
               optionValue="value"
-              placeholder="Método de pago"
+              placeholder="Seleccionar método"
+              class="w-full"
             ></p-select>
-          </p-inputgroup>
-          <p-inputgroup>
-            <p-inputgroup-addon>
-              <i class="fa-solid fa-money-bill"></i>
-            </p-inputgroup-addon>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+            <p-datepicker
+              formControlName="fecha"
+              placeholder="Seleccionar fecha"
+              class="w-full"
+            ></p-datepicker>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Monto</label>
             <p-inputnumber
               formControlName="monto"
-              placeholder="Monto del pago"
+              placeholder="0.00"
               [showClear]="false"
               mode="decimal"
               [minFractionDigits]="2"
               [maxFractionDigits]="2"
+              class="w-full"
+              currency="MXN"
+              locale="es-MX"
             ></p-inputnumber>
-            <p-inputgroup-addon>.00</p-inputgroup-addon>
-          </p-inputgroup>
+          </div>
         </div>
       </div>
-    </p-card>
+    </div>
 
-    <!-- Sección 4: Acciones -->
-    <div class="flex justify-center pt-4">
+    <!-- Actions -->
+    <div class="flex justify-end">
       <button
         pButton
         type="submit"
+        label="Registrar Pago"
+        icon="pi pi-check"
         class="px-8 py-3"
         [loading]="loading()"
         [disabled]="pagoForm.invalid || loading()"
-      >
-        <i class="fa-solid fa-check" pButtonIcon></i>
-        <span pButtonLabel>Registrar Pago</span>
-      </button>
+      ></button>
     </div>
   </form>
   }

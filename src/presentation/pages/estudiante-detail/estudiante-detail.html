@@ -1,111 +1,135 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Información del Estudiante</h2>
-    <div class="flex gap-2">
-      <button
-        [routerLink]="['/estudiante/edit', estudiante()?.id]"
-        pButton
-        type="button"
-        label="Editar"
-        icon="pi pi-pencil"
-        class="p-button-primary"
-        [disabled]="!estudiante()"
-      ></button>
-      <button
-        [routerLink]="['/estudiantes']"
-        pButton
-        type="button"
-        label="Volver"
-        icon="pi pi-arrow-left"
-        class="p-button-secondary"
-      ></button>
+<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Información del Estudiante</h1>
+        <p class="text-gray-600 text-sm mt-1">Detalles del registro</p>
+      </div>
+      <div class="flex gap-2">
+        <button
+          [routerLink]="['/estudiante/edit', estudiante()?.id]"
+          pButton
+          type="button"
+          label="Editar"
+          icon="pi pi-pencil"
+          [disabled]="!estudiante()"
+        ></button>
+        <button
+          [routerLink]="['/estudiantes']"
+          pButton
+          type="button"
+          label="Volver"
+          icon="pi pi-arrow-left"
+          class="p-button-outlined p-button-secondary"
+        ></button>
+      </div>
     </div>
   </div>
 
-  <!-- Mensaje de error -->
-  <div *ngIf="error()" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-    {{ error() }}
+  <!-- Error Message -->
+  <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    <div class="flex items-center">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      {{ error() }}
+    </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading()" class="flex justify-center items-center p-8">
-    <p-progressSpinner strokeWidth="4" animationDuration="1s"></p-progressSpinner>
+  <div *ngIf="loading()" class="flex justify-center items-center py-12">
+    <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
   </div>
 
-  <!-- Información del estudiante -->
-  <div *ngIf="estudiante() && !loading()" class="bg-white rounded-lg shadow-md p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Información Personal -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Información Personal</h3>
-        
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">ID</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.id }}</p>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Nombres</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.nombres }}</p>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Apellido Paterno</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.apellidoPaterno }}</p>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Apellido Materno</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.apellidoMaterno }}</p>
-        </div>
-      </div>
-
-      <!-- Información Académica -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Información Académica</h3>
-        
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Nivel</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.nivel?.displayValue }}</p>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Grado</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.grado }}</p>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="text-sm font-medium text-gray-600 mb-1">Modalidad</label>
-          <p class="text-gray-800 p-2 bg-gray-50 rounded">{{ estudiante()?.modalidad?.displayValue }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nombre Completo destacado -->
-    <div class="mt-6 pt-6 border-t">
+  <!-- Student Information -->
+  <div *ngIf="estudiante() && !loading()">
+    <!-- Student Identity Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <div class="text-center">
-        <h4 class="text-xl font-bold text-gray-800">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
           {{ estudiante()?.nombres }} {{ estudiante()?.apellidoPaterno }} {{ estudiante()?.apellidoMaterno }}
-        </h4>
-        <p class="text-gray-600 mt-2">
-          {{ estudiante()?.nivel?.displayValue }} - {{ estudiante()?.grado }} - {{ estudiante()?.modalidad?.displayValue }}
-        </p>
+        </h2>
+        <div class="flex justify-center items-center gap-4 text-gray-600">
+          <span class="flex items-center gap-1">
+            <i class="pi pi-graduation-cap"></i>
+            {{ estudiante()?.nivel?.displayValue }}
+          </span>
+          <span class="flex items-center gap-1">
+            <i class="pi pi-star"></i>
+            {{ estudiante()?.grado }}°
+          </span>
+          <span class="flex items-center gap-1">
+            <i class="pi pi-desktop"></i>
+            {{ estudiante()?.modalidad?.displayValue }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Information -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Personal Information -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+          Información Personal
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">ID:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.id }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Nombres:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.nombres }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Apellido Paterno:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.apellidoPaterno }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Apellido Materno:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.apellidoMaterno || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Academic Information -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+          Información Académica
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Nivel Educativo:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.nivel?.displayValue }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Grado:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.grado }}°</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Modalidad:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.modalidad?.displayValue }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Mensaje cuando no se encuentra el estudiante -->
-  <div *ngIf="!estudiante() && !loading() && !error()" class="text-center py-8">
-    <div class="flex flex-col items-center">
+  <!-- Not Found Message -->
+  <div *ngIf="!estudiante() && !loading() && !error()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
+    <div class="text-center">
       <i class="pi pi-user-minus text-4xl text-gray-300 mb-4"></i>
-      <p class="text-gray-500">Estudiante no encontrado</p>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Estudiante no encontrado</h3>
+      <p class="text-gray-600 mb-6">No se pudo encontrar la información del estudiante solicitado</p>
       <button
         [routerLink]="['/estudiantes']"
         pButton
         type="button"
         label="Volver a la lista"
         icon="pi pi-arrow-left"
-        class="p-button-secondary mt-4"
+        class="p-button-outlined p-button-secondary"
       ></button>
     </div>
   </div>

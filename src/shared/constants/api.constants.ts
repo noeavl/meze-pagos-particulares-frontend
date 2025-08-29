@@ -1,4 +1,5 @@
 export const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+// export const API_BASE_URL = 'https://api-particular.itcooper.mx/api/v1';
 
 export const API_ENDPOINTS = {
   ESTUDIANTES: `${API_BASE_URL}/estudiantes`,
@@ -18,6 +19,7 @@ export const API_ENDPOINTS = {
     getAll: `${API_BASE_URL}/adeudos`,
     getById: (id: number) => `${API_BASE_URL}/adeudos/${id}`,
     create: `${API_BASE_URL}/adeudos`,
+    generate: `${API_BASE_URL}/adeudos/generar`,
     update: (id: number) => `${API_BASE_URL}/adeudos/${id}`,
     search: `${API_BASE_URL}/adeudos/search`,
   },

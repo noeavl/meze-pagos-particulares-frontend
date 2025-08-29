@@ -6,8 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { Select } from 'primeng/select';
 import { useAdeudo } from '../../hooks/use-adeudo.hook';
-import { Adeudo } from '../../../domain/entities/adeudo.entity';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -20,6 +20,7 @@ import { RouterLink } from '@angular/router';
     InputTextModule,
     TagModule,
     TooltipModule,
+    Select,
     RouterLink,
   ],
   templateUrl: './adeudos.html',
@@ -27,41 +28,40 @@ import { RouterLink } from '@angular/router';
 })
 export class Adeudos implements OnInit {
   adeudoService = inject(useAdeudo);
-  
+
   // Filtros y búsqueda
   selectedEstado: string = '';
   selectedNivel: string = '';
   selectedGrado: string = '';
   selectedModalidad: string = '';
   searchTerm: string = '';
-  
+
   // Opciones de filtros
   estadoOptions = [
     { label: 'Pendiente', value: 'pendiente' },
     { label: 'Pagado', value: 'pagado' },
-    { label: 'Vencido', value: 'vencido' }
+    { label: 'Vencido', value: 'vencido' },
   ];
-  
+
   nivelOptions = [
     { label: 'Preescolar', value: 'preescolar' },
     { label: 'Primaria', value: 'primaria' },
     { label: 'Secundaria', value: 'secundaria' },
     { label: 'Bachillerato', value: 'bachillerato' },
-    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' }
+    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
   ];
 
   modalidadOptions = [
     { label: 'Presencial', value: 'presencial' },
-    { label: 'En Línea', value: 'en_linea' }
+    { label: 'En Línea', value: 'en_linea' },
   ];
-  
-  // Mapeo de grados por nivel
+
   gradosPorNivel = {
-    'preescolar': [1, 2, 3],
-    'primaria': [1, 2, 3, 4, 5, 6],
-    'secundaria': [1, 2, 3],
-    'bachillerato': [1, 2, 3, 4, 5, 6],
-    'bachillerato_sabatino': [1, 2, 3, 4, 5, 6]
+    preescolar: [1, 2, 3],
+    primaria: [1, 2, 3, 4, 5, 6],
+    secundaria: [1, 2, 3],
+    bachillerato: [1, 2, 3, 4, 5, 6],
+    bachillerato_sabatino: [1, 2, 3, 4, 5, 6],
   };
 
   constructor() {}
@@ -84,72 +84,110 @@ export class Adeudos implements OnInit {
 
   get filteredAdeudos() {
     let filtered = this.adeudos;
-    
+
     // Filtrar por estado si está seleccionado
     if (this.selectedEstado) {
-      filtered = filtered.filter(adeudo => adeudo.estado.displayValue.toLowerCase() === this.selectedEstado.toLowerCase());
-    }
-    
-    // Filtrar por nivel si está seleccionado
-    if (this.selectedNivel) {
-      filtered = filtered.filter(adeudo => adeudo.estudiante.nivel.rawValue === this.selectedNivel);
-    }
-    
-    // Filtrar por grado si está seleccionado
-    if (this.selectedGrado) {
-      filtered = filtered.filter(adeudo => adeudo.estudiante.grado.toString() === this.selectedGrado);
-    }
-    
-    // Filtrar por modalidad si está seleccionada
-    if (this.selectedModalidad) {
-      filtered = filtered.filter(adeudo => adeudo.estudiante.modalidad.rawValue === this.selectedModalidad);
-    }
-    
-    // Filtrar por término de búsqueda
-    if (this.searchTerm.trim()) {
-      filtered = filtered.filter(adeudo => 
-        adeudo.estudiante.nombres.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        adeudo.estudiante.apellidoPaterno.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        adeudo.concepto.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (adeudo) =>
+          adeudo.estado.displayValue.toLowerCase() ===
+          this.selectedEstado.toLowerCase()
       );
     }
-    
+
+    // Filtrar por nivel si está seleccionado
+    if (this.selectedNivel) {
+      filtered = filtered.filter(
+        (adeudo) => adeudo.estudiante.nivel.rawValue === this.selectedNivel
+      );
+    }
+
+    // Filtrar por grado si está seleccionado
+    if (this.selectedGrado) {
+      filtered = filtered.filter(
+        (adeudo) => adeudo.estudiante.grado.toString() === this.selectedGrado
+      );
+    }
+
+    // Filtrar por modalidad si está seleccionada
+    if (this.selectedModalidad) {
+      filtered = filtered.filter(
+        (adeudo) =>
+          adeudo.estudiante.modalidad.rawValue === this.selectedModalidad
+      );
+    }
+
+    // Filtrar por término de búsqueda
+    if (this.searchTerm.trim()) {
+      filtered = filtered.filter(
+        (adeudo) =>
+          adeudo.estudiante.nombres
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          adeudo.estudiante.apellidoPaterno
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          adeudo.concepto.nombre
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase())
+      );
+    }
+
     return filtered;
   }
 
   get totalConceptos() {
-    return this.filteredAdeudos.reduce((sum, adeudo) => sum + adeudo.montoTotal, 0);
+    return this.filteredAdeudos.reduce(
+      (sum, adeudo) => sum + adeudo.montoTotal,
+      0
+    );
   }
 
   get totalPagado() {
-    return this.filteredAdeudos.reduce((sum, adeudo) => sum + adeudo.montoPagado, 0);
+    return this.filteredAdeudos.reduce(
+      (sum, adeudo) => sum + adeudo.montoPagado,
+      0
+    );
   }
 
   get totalPendiente() {
-    return this.filteredAdeudos.reduce((sum, adeudo) => sum + adeudo.montoPendiente, 0);
+    return this.filteredAdeudos.reduce(
+      (sum, adeudo) => sum + adeudo.montoPendiente,
+      0
+    );
   }
 
   onSearch(event: any) {
     this.searchTerm = event.target.value;
   }
-  
+
   onEstadoChange() {
     // El filtro se aplica automáticamente a través del getter filteredAdeudos
   }
-  
+
   get availableGradoOptions(): number[] {
     if (!this.selectedNivel) {
       return [];
     }
-    return this.gradosPorNivel[this.selectedNivel as keyof typeof this.gradosPorNivel] || [];
+    return (
+      this.gradosPorNivel[
+        this.selectedNivel as keyof typeof this.gradosPorNivel
+      ] || []
+    );
   }
-  
+
+  get gradoOptionsForSelect() {
+    return this.availableGradoOptions.map(grado => ({
+      label: `${grado}°`,
+      value: grado.toString()
+    }));
+  }
+
   onNivelChange() {
     // Reset grado selection when nivel changes
     this.selectedGrado = '';
     // El filtro se aplica automáticamente a través del getter filteredAdeudos
   }
-  
+
   onGradoChange() {
     // El filtro se aplica automáticamente a través del getter filteredAdeudos
   }
