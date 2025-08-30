@@ -7,6 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
@@ -23,21 +25,42 @@ interface DropdownOption {
 @Component({
   selector: 'app-estudiante-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InputText, Select, ButtonDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    InputText,
+    Select,
+    ButtonDirective,
+    ToastModule,
+  ],
   templateUrl: './estudiante-create.html',
   styleUrl: './estudiante-create.css',
+  providers: [MessageService],
 })
 export class EstudianteCreate implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private estudianteService = inject(useEstudiante);
+  private messageService = inject(MessageService);
+
+  show(severity: string, summary: string, detail: string) {
+    const toastLife = 1500;
+    this.messageService.add({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      key: 'br',
+      life: toastLife,
+    });
+  }
 
   estudianteForm: FormGroup = this.fb.group({
     nombres: ['', [Validators.required, Validators.minLength(2)]],
     apellidoPaterno: ['', [Validators.required, Validators.minLength(2)]],
     apellidoMaterno: ['', [Validators.minLength(2)]],
     nivel: ['', [Validators.required]],
-    grado: ['', [Validators.required]],
+    grado: [{ value: '', disabled: true }, [Validators.required]],
     modalidad: ['', [Validators.required]],
   });
 
@@ -49,14 +72,15 @@ export class EstudianteCreate implements OnInit {
     { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
   ];
 
-  gradosOptions: DropdownOption[] = [
-    { label: '1°', value: '1' },
-    { label: '2°', value: '2' },
-    { label: '3°', value: '3' },
-    { label: '4°', value: '4' },
-    { label: '5°', value: '5' },
-    { label: '6°', value: '6' },
-  ];
+  gradosPorNivel: { [key: string]: number[] } = {
+    preescolar: [1, 2, 3],
+    primaria: [1, 2, 3, 4, 5, 6],
+    secundaria: [1, 2, 3],
+    bachillerato: [1, 2, 3, 4, 5, 6],
+    bachillerato_sabatino: [1, 2, 3, 4, 5, 6],
+  };
+
+  gradosOptions: DropdownOption[] = [];
 
   modalidadOptions: DropdownOption[] = [
     { label: 'Presencial', value: 'presencial' },
@@ -66,7 +90,27 @@ export class EstudianteCreate implements OnInit {
   loading = false;
   errorMessage = '';
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.estudianteForm.get('nivel')?.valueChanges.subscribe((nivel) => {
+      this.updateGradoOptions(nivel);
+    });
+  }
+
+  updateGradoOptions(nivel: string) {
+    const gradoControl = this.estudianteForm.get('grado');
+    if (nivel) {
+      const grados = this.gradosPorNivel[nivel] || [];
+      this.gradosOptions = grados.map((grado) => ({
+        label: `${grado}°`,
+        value: grado.toString(),
+      }));
+      gradoControl?.enable();
+    } else {
+      this.gradosOptions = [];
+      gradoControl?.disable();
+    }
+    gradoControl?.setValue('');
+  }
 
   isInvalid(fieldName: string): boolean {
     const field = this.estudianteForm.get(fieldName);
@@ -123,18 +167,24 @@ export class EstudianteCreate implements OnInit {
       };
 
       this.estudianteService.createEstudiante(createDto).subscribe({
-        next: () => {
+        next: (response) => {
           this.loading = false;
-          this.router.navigate(['/estudiantes']);
+          this.show('success', 'Completado', response.message);
+          this.estudianteForm.reset();
+          setTimeout(() => {
+            this.router.navigate(['/estudiantes']);
+          }, 1500);
         },
         error: (error: any) => {
           this.errorMessage = error.message || 'Error al crear el estudiante';
+          this.show('error', 'Error', this.errorMessage);
           console.error('Error al crear estudiante:', error);
           this.loading = false;
         },
       });
     } catch (error: any) {
       this.errorMessage = error.message || 'Error inesperado';
+      this.show('error', 'Error', this.errorMessage);
       console.error('Error inesperado:', error);
       this.loading = false;
     }

@@ -4,7 +4,9 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Registrar Estudiante</h1>
-        <p class="text-gray-600 text-sm mt-1">Crear nuevo registro de estudiante</p>
+        <p class="text-gray-600 text-sm mt-1">
+          Crear nuevo registro de estudiante
+        </p>
       </div>
       <button
         [routerLink]="['/estudiantes']"
@@ -18,7 +20,9 @@
   </div>
 
   @if (errorMessage) {
-  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+  <div
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
     <div class="flex items-center">
       <i class="pi pi-exclamation-triangle mr-2"></i>
       {{ errorMessage }}
@@ -29,10 +33,12 @@
   <form [formGroup]="estudianteForm" (ngSubmit)="onSubmit()">
     <!-- Student Information Form -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+      <h3
+        class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200"
+      >
         Información Personal
       </h3>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Nombres -->
         <div class="space-y-2">
@@ -56,7 +62,10 @@
 
         <!-- Apellido Paterno -->
         <div class="space-y-2">
-          <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">
+          <label
+            for="apellidoPaterno"
+            class="block text-sm font-medium text-gray-700"
+          >
             Apellido Paterno <span class="text-red-500">*</span>
           </label>
           <input
@@ -76,7 +85,10 @@
 
         <!-- Apellido Materno -->
         <div class="space-y-2">
-          <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">
+          <label
+            for="apellidoMaterno"
+            class="block text-sm font-medium text-gray-700"
+          >
             Apellido Materno
           </label>
           <input
@@ -98,10 +110,12 @@
 
     <!-- Academic Information -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+      <h3
+        class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200"
+      >
         Información Académica
       </h3>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Nivel -->
         <div class="space-y-2">
@@ -149,7 +163,10 @@
 
         <!-- Modalidad -->
         <div class="space-y-2">
-          <label for="modalidad" class="block text-sm font-medium text-gray-700">
+          <label
+            for="modalidad"
+            class="block text-sm font-medium text-gray-700"
+          >
             Modalidad <span class="text-red-500">*</span>
           </label>
           <p-select
@@ -176,12 +193,11 @@
       <button
         pButton
         type="submit"
-        label="Registrar Estudiante"
+        [label]="loading ? 'Registrando...' : 'Registrar Estudiante'"
         icon="pi pi-check"
         [disabled]="loading || estudianteForm.invalid"
-      >
-        {{ loading ? 'Registrando...' : 'Registrar Estudiante' }}
-      </button>
+      ></button>
     </div>
   </form>
 </div>
+<p-toast position="bottom-right" key="br" />

@@ -181,13 +181,12 @@
       <button
         pButton
         type="submit"
-        label="Actualizar Estudiante"
+        [label]="loading ? 'Actualizando...' : 'Actualizar Estudiante'"
         icon="pi pi-check"
         [disabled]="loading || estudianteForm.invalid"
-      >
-        {{ loading ? 'Actualizando...' : 'Actualizar Estudiante' }}
-      </button>
+      ></button>
     </div>
   </form>
   }
 </div>
+<p-toast position="bottom-right" key="br" />

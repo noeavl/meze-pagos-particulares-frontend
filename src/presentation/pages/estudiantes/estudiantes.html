@@ -214,18 +214,20 @@
               [routerLink]="['/estudiante/detail', estudiante.id]"
               pButton
               type="button"
-              icon="pi pi-eye"
               class="p-button-text p-button-sm mr-1"
               pTooltip="Ver detalles"
-            ></button>
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
             <button
               [routerLink]="['/estudiante/edit', estudiante.id]"
               pButton
               type="button"
-              icon="pi pi-pencil"
               class="p-button-text p-button-sm"
               pTooltip="Editar"
-            ></button>
+            >
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
           </td>
         </tr>
       </ng-template>

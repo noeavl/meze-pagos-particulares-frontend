@@ -7,6 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
@@ -35,9 +37,11 @@ interface DropdownOption {
     Select,
     ButtonDirective,
     ProgressSpinner,
+    ToastModule,
   ],
   templateUrl: './estudiante-edit.html',
   styleUrl: './estudiante-edit.css',
+  providers: [MessageService],
 })
 export class EstudianteEdit implements OnInit {
   private fb = inject(FormBuilder);
@@ -45,6 +49,18 @@ export class EstudianteEdit implements OnInit {
   private route = inject(ActivatedRoute);
   private estudianteService = inject(useEstudiante);
   private cdr = inject(ChangeDetectorRef);
+  private messageService = inject(MessageService);
+
+  show(severity: string, summary: string, detail: string) {
+    const toastLife = 1500;
+    this.messageService.add({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      key: 'br',
+      life: toastLife,
+    });
+  }
 
   estudianteId: number = 0;
   estudiante: Estudiante | null = null;
@@ -186,8 +202,6 @@ export class EstudianteEdit implements OnInit {
     try {
       const formValues = this.estudianteForm.value;
 
-      console.log('Valores del formulario:', formValues);
-
       const updateDto: UpdateEstudianteDto = {
         id: this.estudianteId,
         nombres: formValues.nombres,
@@ -201,17 +215,26 @@ export class EstudianteEdit implements OnInit {
       this.estudianteService.updateEstudiante(updateDto).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/estudiantes']);
+          this.show(
+            'success',
+            'Completado',
+            'Estudiante actualizado exitosamente'
+          );
+          setTimeout(() => {
+            this.router.navigate(['/estudiantes']);
+          }, 1500);
         },
         error: (error: any) => {
           this.errorMessage =
             error.message || 'Error al actualizar el estudiante';
+          this.show('error', 'Error', this.errorMessage);
           console.error('Error al actualizar estudiante:', error);
           this.loading = false;
         },
       });
     } catch (error: any) {
       this.errorMessage = error.message || 'Error inesperado';
+      this.show('error', 'Error', this.errorMessage);
       console.error('Error inesperado:', error);
       this.loading = false;
     }

@@ -36,10 +36,9 @@ export class EstudianteService implements EstudianteRepository {
       .pipe(map((response) => this.mapApiResponseToEstudiante(response.data)));
   }
 
-  create(estudiante: CreateEstudianteDto): Observable<Estudiante> {
-    return this.http
-      .post<ApiResponse<ApiEstudianteResponse>>(this.endpoint, estudiante)
-      .pipe(map((response) => this.mapApiResponseToEstudiante(response.data)));
+
+  create(estudiante: CreateEstudianteDto): Observable<any> {
+    return this.http.post<any>(this.endpoint, estudiante);
   }
 
   update(estudiante: UpdateEstudianteDto): Observable<Estudiante> {

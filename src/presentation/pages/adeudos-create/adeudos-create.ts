@@ -5,12 +5,15 @@ import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
 import { useAdeudo } from '../../hooks/use-adeudo.hook';
 import { Router } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
+
 import {
   ReactiveFormsModule,
   FormBuilder,
   Validators,
   FormGroup,
 } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-adeudos-create',
   imports: [
@@ -19,16 +22,33 @@ import {
     CommonModule,
     ReactiveFormsModule,
     MessageModule,
+    ToastModule,
   ],
   templateUrl: './adeudos-create.html',
   styleUrl: './adeudos-create.css',
+  providers: [MessageService],
 })
 export class AdeudosCreate implements OnInit {
   adeudosGenerarForm!: FormGroup;
-  successMessage = signal<string | null>(null);
+  successMessage = signal<string>('');
   private fb = inject(FormBuilder);
   private useAdeudoService = inject(useAdeudo);
   private router = inject(Router);
+  private messageService = inject(MessageService);
+
+  show(severity: string, summary: string, detail: string) {
+    const toastLife = 55500;
+    this.messageService.add({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      key: 'br',
+      life: toastLife,
+    });
+    setTimeout(() => {
+      this.router.navigate(['/adeudos']);
+    }, toastLife);
+  }
 
   ngOnInit(): void {
     this.initForm();
@@ -65,15 +85,14 @@ export class AdeudosCreate implements OnInit {
   }
   onSubmit() {
     if (this.adeudosGenerarForm.valid) {
-      this.successMessage.set(null);
+      this.successMessage.set('');
       const formValue = this.adeudosGenerarForm.value;
       this.useAdeudoService
         .generateAdeudosMassive({ year: formValue.year })
         .subscribe({
           next: (response) => {
-            this.successMessage.set(
-              response.message || 'Ya hay adeudos en este ciclo'
-            );
+            this.successMessage.set(response.message);
+            this.show('success', 'Exito', response.message);
             this.adeudosGenerarForm.reset();
           },
         });

@@ -17,7 +17,7 @@ export class EstudianteUseCase {
     return this.estudianteRepository.getById(id);
   }
 
-  createEstudiante(estudiante: CreateEstudianteDto): Observable<Estudiante> {
+  createEstudiante(estudiante: CreateEstudianteDto): Observable<any> {
     return this.estudianteRepository.create(estudiante);
   }
 
