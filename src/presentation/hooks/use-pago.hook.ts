@@ -16,6 +16,7 @@ export class usePago {
   selectedPago = signal<Pago | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
+  validationErrors = signal<{[key: string]: string[]} | null>(null);
 
   constructor(private pagoUseCase: PagoUseCase) {}
 
@@ -55,16 +56,41 @@ export class usePago {
     );
   }
 
-  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
+  createPago(pago: CreatePagoAdeudoDto): Observable<any> {
     this.loading.set(true);
     this.error.set(null);
+    this.validationErrors.set(null);
 
     return this.pagoUseCase.createPago(pago).pipe(
-      tap((newPago) => {
-        this.pagos.update((pagos) => [...pagos, newPago]);
+      tap((response) => {
+        // The response is just a success message, no need to update pagos array
+        console.log('Pago created successfully:', response.message);
       }),
       catchError((err) => {
-        this.error.set('Error al crear el pago');
+        let errorMessage = 'Error al crear el pago';
+
+        if (err.status === 409) {
+          errorMessage =
+            err.error?.message || 'El adeudo ya se encuentra pagado.';
+        } else if (err.status === 400) {
+          // Bad Request
+          errorMessage =
+            'Datos del pago inválidos. Verifique la información ingresada.';
+        } else if (err.status === 422) {
+          // Validation error - check for specific field errors
+          if (err.error?.errors) {
+            this.validationErrors.set(err.error.errors);
+            errorMessage = err.error.message || 'Errores de validación. Verifique los datos ingresados.';
+          } else {
+            errorMessage = 'Error de validación. Verifique los datos ingresados.';
+          }
+        } else if (err.status >= 500) {
+          // Server error
+          errorMessage =
+            'Error interno del servidor. Intente nuevamente más tarde.';
+        }
+
+        this.error.set(errorMessage);
         console.error('Error creating pago:', err);
         throw err; // Re-throw the error to be handled by the component
       }),

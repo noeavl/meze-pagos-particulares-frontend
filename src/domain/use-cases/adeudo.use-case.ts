@@ -8,6 +8,7 @@ import {
   GenerarAdeudosDto,
   UpdateAdeudoDto,
 } from '../entities/adeudo.entity';
+import { Pago } from '../entities/pago.entity';
 
 @Injectable({
   providedIn: 'root',
@@ -39,5 +40,9 @@ export class AdeudoUseCase {
 
   searchAdeudos(term: string): Observable<Adeudo[]> {
     return this.adeudoRepository.searchAdeudos(term);
+  }
+
+  historyPayments(id: number): Observable<Pago[]> {
+    return this.adeudoRepository.historyPayments(id);
   }
 }

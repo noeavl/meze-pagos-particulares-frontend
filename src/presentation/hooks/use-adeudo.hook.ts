@@ -9,6 +9,7 @@ import {
   GenerarAdeudosDto,
   UpdateAdeudoDto,
 } from '../../domain/entities/adeudo.entity';
+import { Pago } from '../../domain/entities/pago.entity';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ import {
 export class useAdeudo {
   adeudos = signal<Adeudo[]>([]);
   adeudo = signal<Adeudo | null>(null);
+  paymentHistory = signal<Pago[]>([]);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
 
@@ -46,6 +48,7 @@ export class useAdeudo {
     return this.adeudoUseCase.getAdeudoById(id).pipe(
       tap((adeudo) => {
         this.adeudo.set(adeudo);
+        this.paymentHistory.set(adeudo.pagos || []);
       }),
       catchError((err) => {
         this.error.set('Error al obtener el adeudo: ' + err.message);
@@ -119,5 +122,21 @@ export class useAdeudo {
       .subscribe((adeudos) => {
         this.adeudos.set(adeudos);
       });
+  }
+
+  historyPayments(id: number): Observable<Pago[]> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.adeudoUseCase.historyPayments(id).pipe(
+      tap((payments) => {
+        this.paymentHistory.set(payments);
+      }),
+      catchError((err) => {
+        this.error.set('Error al obtener historial de pagos: ' + err.message);
+        throw err;
+      }),
+      finalize(() => this.loading.set(false))
+    );
   }
 }

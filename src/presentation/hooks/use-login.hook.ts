@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoginUseCase } from '../../domain/use-cases/login.use-case';
 import { AuthService } from '../../infrastructure/api/auth.service';
 import { LoginCredentials } from '../../shared/types/auth.types';
-import { User } from '../../domain/entities/user.entity';
+import { AuthUser } from '../../domain/entities/user.entity';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +13,7 @@ export class useLogin {
 
   private _isLoading = signal(false);
   private _error = signal<string | null>(null);
-  private _user = signal<User | null>(null);
+  private _user = signal<AuthUser | null>(null);
 
   isLoading = this._isLoading.asReadonly();
   error = this._error.asReadonly();

@@ -56,11 +56,10 @@ export class PagosAdeudosCreate implements OnInit {
 
   // Connect component signals to the appropriate hooks
   adeudo = this.adeudoService.adeudo;
+  paymentHistory = this.adeudoService.paymentHistory;
   loading = this.pagoService.loading; // Use loading state from pagoService
   error = this.pagoService.error; // Use error state from pagoService
-
-  // Mock data
-  pagos: any[] = [];
+  validationErrors = this.pagoService.validationErrors; // Use validation errors from pagoService
   paymentOptions = [
     { name: 'Efectivo', value: 'efectivo' },
     { name: 'Transferencia', value: 'transferencia' },
@@ -68,13 +67,21 @@ export class PagosAdeudosCreate implements OnInit {
 
   constructor() {
     this.initForm();
+    this.setupFormSubscriptions();
   }
 
   ngOnInit() {
     // Load initial adeudo information
     this.adeudoId = Number(this.route.snapshot.params['id']);
     if (this.adeudoId) {
+      // Load adeudo details (which now includes pagos)
       this.adeudoService.getAdeudoById(this.adeudoId).subscribe({
+        next: (adeudo) => {
+          // Set payment history from adeudo response
+          if (adeudo.pagos) {
+            this.adeudoService.paymentHistory.set(adeudo.pagos);
+          }
+        },
         error: (err) => {
           // Handle error loading initial data
           this.error.set('No se pudo cargar la información del adeudo.');
@@ -84,16 +91,6 @@ export class PagosAdeudosCreate implements OnInit {
       this.error.set('No se proporcionó un ID de adeudo válido.');
       this.router.navigate(['/adeudos']);
     }
-
-    // Example payment history
-    this.pagos = [
-      {
-        folio: 'P2024-001',
-        monto: 1500.0,
-        metodo_pago: 'Efectivo',
-        fecha: '2024-08-27',
-      },
-    ];
   }
 
   private initForm() {
@@ -102,6 +99,15 @@ export class PagosAdeudosCreate implements OnInit {
       fecha: [new Date(), Validators.required],
       metodo_pago: ['', Validators.required],
       monto: [null, [Validators.required, Validators.min(0.01)]],
+    });
+  }
+
+  private setupFormSubscriptions() {
+    // Clear validation errors when folio field changes
+    this.pagoForm.get('folio')?.valueChanges.subscribe(() => {
+      if (this.hasFieldError('folio')) {
+        this.pagoService.validationErrors.set(null);
+      }
     });
   }
 
@@ -116,20 +122,57 @@ export class PagosAdeudosCreate implements OnInit {
 
     const pagoData: CreatePagoAdeudoDto = {
       adeudo_id: this.adeudoId,
+      estudiante_id: this.adeudo()?.estudiante?.id || 0,
       folio: formValue.folio,
       monto: formValue.monto,
       metodo_pago: formValue.metodo_pago,
       fecha: formValue.fecha.toISOString().split('T')[0],
     };
 
-    // this.pagoService.createPago(pagoData).subscribe({
-    //   next: () => {
-    //     console.log('Pago creado exitosamente, redirigiendo...');
-    //     this.router.navigate(['/adeudos']);
-    //   },
-    //   error: (err: HttpErrorResponse) => {
-    //     console.error('Error caught in component:', err);
-    //   },
-    // });
+    this.pagoService.createPago(pagoData).subscribe({
+      next: (response) => {
+        console.log('Pago creado exitosamente:', response.message);
+        // Reload payment history after successful payment
+        if (this.adeudo()?.pagos) {
+          this.adeudoService.getAdeudoById(this.adeudoId).subscribe({
+            next: (adeudo) => {
+              if (adeudo.pagos) {
+                this.adeudoService.paymentHistory.set(adeudo.pagos);
+              }
+              
+              // Check if debt is fully paid and redirect
+              if (adeudo.montoPendiente <= 0 || adeudo.estado?.rawValue === 'pagado') {
+                // Wait a moment to show success, then redirect
+                setTimeout(() => {
+                  this.router.navigate(['/adeudos']);
+                }, 1500);
+              } else {
+                // Reset form for another payment
+                this.pagoForm.reset();
+                this.pagoForm.patchValue({
+                  fecha: new Date()
+                });
+              }
+            }
+          });
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error caught in component:', err);
+        // El hook ya maneja los errores específicos, no sobrescribir aquí
+      },
+    });
+  }
+
+  getFieldError(fieldName: string): string | null {
+    const errors = this.validationErrors();
+    if (errors && errors[fieldName] && errors[fieldName].length > 0) {
+      return errors[fieldName][0]; // Return first error message
+    }
+    return null;
+  }
+
+  hasFieldError(fieldName: string): boolean {
+    return this.getFieldError(fieldName) !== null;
   }
 }

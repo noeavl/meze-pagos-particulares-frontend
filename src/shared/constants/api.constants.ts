@@ -7,6 +7,10 @@ export const API_ENDPOINTS = {
   PAGOS: `${API_BASE_URL}/pago-adeudos`,
   AUTH: `${API_BASE_URL}/auth`,
   DASHBOARD: `${API_BASE_URL}/dashboard`,
+  usuarios: {
+    getAll: `${API_BASE_URL}/usuarios`,
+    search: `${API_BASE_URL}/usuarios/search`,
+  },
   conceptos: {
     getAll: `${API_BASE_URL}/conceptos`,
     getById: (id: number) => `${API_BASE_URL}/conceptos/${id}`,
@@ -22,6 +26,7 @@ export const API_ENDPOINTS = {
     generate: `${API_BASE_URL}/adeudos/generar`,
     update: (id: number) => `${API_BASE_URL}/adeudos/${id}`,
     search: `${API_BASE_URL}/adeudos/search`,
+    historyPayments: (id: number) => `${API_BASE_URL}/adeudos/historial/pagos/${id}`,
   },
   pagos: {
     adeudos: {

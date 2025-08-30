@@ -108,7 +108,7 @@
         Historial de Pagos
       </h3>
       <p-table
-        [value]="pagos"
+        [value]="paymentHistory()"
         [paginator]="true"
         [rows]="5"
         [showCurrentPageReport]="true"
@@ -126,7 +126,7 @@
           <tr>
             <td class="font-medium">{{ pago.folio }}</td>
             <td class="text-right font-semibold text-green-600">{{ pago.monto | currency : "MXN" }}</td>
-            <td>{{ pago.metodo_pago }}</td>
+            <td>{{ pago.metodo }}</td>
             <td>{{ pago.fecha | date : "dd/MM/yyyy" }}</td>
           </tr>
         </ng-template>
@@ -155,7 +155,13 @@
               formControlName="folio"
               placeholder="Número de folio"
               class="w-full"
+              [class.p-invalid]="hasFieldError('folio') || (pagoForm.get('folio')?.invalid && pagoForm.get('folio')?.touched)"
             />
+            @if (hasFieldError('folio')) {
+              <small class="text-red-600 mt-1 block">{{ getFieldError('folio') }}</small>
+            } @else if (pagoForm.get('folio')?.invalid && pagoForm.get('folio')?.touched) {
+              <small class="text-red-600 mt-1 block">Este campo es requerido</small>
+            }
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago</label>

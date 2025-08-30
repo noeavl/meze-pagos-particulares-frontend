@@ -36,13 +36,12 @@ export class PagoService extends PagoRepository {
       .pipe(map((response) => this.mapToDomain(response.data)));
   }
 
-  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
+  createPago(pago: CreatePagoAdeudoDto): Observable<any> {
     return this.http
-      .post<ApiResponse<ApiPagoResponse>>(
+      .post<{success: boolean, message: string}>(
         API_ENDPOINTS.pagos.adeudos.create,
         pago
-      )
-      .pipe(map((response) => this.mapToDomain(response.data)));
+      );
   }
 
   updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago> {

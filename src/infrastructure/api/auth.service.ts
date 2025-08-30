@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { AuthRepository } from '../../domain/repositories/auth.repository';
-import { User } from '../../domain/entities/user.entity';
+import { AuthUser } from '../../domain/entities/user.entity';
 import { LoginCredentials, LoginResponse } from '../../shared/types/auth.types';
 import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
@@ -39,7 +39,7 @@ export class AuthService implements AuthRepository {
     localStorage.removeItem('user');
   }
 
-  async getCurrentUser(): Promise<User | null> {
+  async getCurrentUser(): Promise<AuthUser | null> {
     const token = localStorage.getItem('token');
     const userString = localStorage.getItem('user');
 

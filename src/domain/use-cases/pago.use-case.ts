@@ -19,7 +19,7 @@ export class PagoUseCase {
     return this.pagoRepository.getPagoById(id);
   }
 
-  createPago(pago: CreatePagoAdeudoDto): Observable<Pago> {
+  createPago(pago: CreatePagoAdeudoDto): Observable<any> {
     return this.pagoRepository.createPago(pago);
   }
 

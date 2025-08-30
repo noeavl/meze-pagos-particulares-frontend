@@ -261,16 +261,16 @@
                 [routerLink]="['/pagos/adeudos/create', adeudo.id]"
                 pButton
                 type="button"
-                icon="pi pi-credit-card"
+                icon="fa-solid fa-credit-card"
                 class="p-button-rounded p-button-text p-button-sm"
                 pTooltip="Registrar Pago"
                 [disabled]="adeudo.estado.displayValue === 'Pagado'"
               ></button>
               <button
-                [routerLink]="['/pagos/adeudos/detail', adeudo.id]"
+                [routerLink]="['/adeudos/detail', adeudo.id]"
                 pButton
                 type="button"
-                icon="pi pi-eye"
+                icon="fa-solid fa-eye"
                 class="p-button-rounded p-button-text p-button-sm"
                 pTooltip="Ver detalle"
               ></button>
@@ -278,7 +278,7 @@
                 [routerLink]="['/adeudo/edit', adeudo.id]"
                 pButton
                 type="button"
-                icon="pi pi-pencil"
+                icon="fa-solid fa-pencil"
                 class="p-button-rounded p-button-text p-button-sm"
                 pTooltip="Editar"
               ></button>

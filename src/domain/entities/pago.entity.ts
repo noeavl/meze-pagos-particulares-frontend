@@ -32,9 +32,10 @@ export interface PagoAdeudo {
 
 export interface CreatePagoAdeudoDto {
   adeudo_id: number;
+  estudiante_id: number;
   folio: string;
   metodo_pago: string;
-  monto: string;
+  monto: number;
   fecha: string;
 }
 

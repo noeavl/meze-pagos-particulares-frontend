@@ -1,107 +1,248 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Lista de Estudiantes</h2>
-    <button
-      [routerLink]="['/estudiante/create']"
-      pButton
-      type="button"
-      label="Nuevo Estudiante"
-      icon="pi pi-plus"
-      class="p-button-primary"
-    ></button>
+<div class="max-w-8xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Estudiantes</h1>
+        <p class="text-gray-600 text-sm mt-1">Gestionar estudiantes del sistema</p>
+      </div>
+      <button
+        [routerLink]="['/estudiante/create']"
+        pButton
+        type="button"
+        label="Nuevo Estudiante"
+        icon="pi pi-plus"
+      ></button>
+    </div>
   </div>
 
-  <!-- Buscador -->
-  <div class="mb-4">
-    <span class="p-input-icon-left w-full md:w-1/3">
-      <i class="pi pi-search"></i>
-      <input
-        type="text"
-        pInputText
-        placeholder="Buscar estudiantes..."
-        (input)="onSearch($event)"
-        class="w-full"
-      />
-    </span>
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+      Filtros
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Search -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Nombre completo..."
+            (input)="onSearch($event)"
+            class="w-full"
+          />
+        </span>
+      </div>
+
+      <!-- Nivel Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
+        <p-select
+          [(ngModel)]="selectedNivel"
+          (ngModelChange)="onNivelChange()"
+          [options]="nivelOptions"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Grado Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+        <p-select
+          [(ngModel)]="selectedGrado"
+          (ngModelChange)="onGradoChange()"
+          [options]="gradoOptionsForSelect"
+          optionLabel="label"
+          optionValue="value"
+          [disabled]="!selectedNivel"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Modalidad Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Modalidad</label>
+        <p-select
+          [(ngModel)]="selectedModalidad"
+          (ngModelChange)="onModalidadChange()"
+          [options]="modalidadOptions"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        ></p-select>
+      </div>
+    </div>
   </div>
 
-  <!-- Mensaje de error -->
-  <div *ngIf="error" class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-    {{ error }}
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center">
+        <div class="p-3 bg-blue-100 rounded-lg">
+          <i class="pi pi-users text-blue-600 text-xl"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-xs font-medium text-gray-600">Total</p>
+          <p class="text-lg font-bold text-gray-900">{{ filteredEstudiantes.length }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center">
+        <div class="p-3 bg-purple-100 rounded-lg">
+          <i class="pi pi-star text-purple-600 text-xl"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-xs font-medium text-gray-600">Preescolar</p>
+          <p class="text-lg font-bold text-purple-600">{{ estudiantesPorNivel.preescolar }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center">
+        <div class="p-3 bg-green-100 rounded-lg">
+          <i class="pi pi-book text-green-600 text-xl"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-xs font-medium text-gray-600">Primaria</p>
+          <p class="text-lg font-bold text-green-600">{{ estudiantesPorNivel.primaria }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center">
+        <div class="p-3 bg-orange-100 rounded-lg">
+          <i class="pi pi-graduation-cap text-orange-600 text-xl"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-xs font-medium text-gray-600">Secundaria</p>
+          <p class="text-lg font-bold text-orange-600">{{ estudiantesPorNivel.secundaria }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center">
+        <div class="p-3 bg-red-100 rounded-lg">
+          <i class="pi pi-trophy text-red-600 text-xl"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-xs font-medium text-gray-600">Bachillerato</p>
+          <p class="text-lg font-bold text-red-600">{{ estudiantesPorNivel.bachillerato + estudiantesPorNivel.bachillerato_sabatino }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Tabla -->
-  <p-table
-    [value]="estudiantes"
-    [loading]="loading"
-    [paginator]="true"
-    [rows]="10"
-    [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} estudiantes"
-    [tableStyle]="{ 'min-width': '60rem' }"
-    styleClass="p-datatable-gridlines"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-        <th pSortableColumn="nombres">
-          Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
-        </th>
-        <th pSortableColumn="nivel">
-          Nivel <p-sortIcon field="nivel"></p-sortIcon>
-        </th>
-        <th pSortableColumn="grado">
-          Grado <p-sortIcon field="grado"></p-sortIcon>
-        </th>
-        <th pSortableColumn="modalidad">
-          Modalidad <p-sortIcon field="modalidad"></p-sortIcon>
-        </th>
-        <th>Acciones</th>
-      </tr>
-    </ng-template>
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+      {{ error() }}
+    </div>
+  }
 
-    <ng-template pTemplate="body" let-estudiante>
-      <tr>
-        <td>{{ estudiante.id }}</td>
-        <td>
-          {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }}
-          {{ estudiante.apellidoMaterno }}
-        </td>
-        <td>{{ estudiante.nivel.displayValue }}</td>
-        <td>{{ estudiante.grado }}</td>
-        <td>{{ estudiante.modalidad.displayValue }}</td>
-        <td>
-          <div class="flex gap-2">
+  <!-- Students Table -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="p-6 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">
+        Lista de Estudiantes ({{ filteredEstudiantes.length }})
+      </h3>
+    </div>
+
+    <p-table
+      [value]="filteredEstudiantes"
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} estudiantes"
+      [globalFilterFields]="['nombres', 'apellidoPaterno', 'apellidoMaterno']"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nombres" class="text-left">
+            Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nivel" class="text-left">
+            Nivel <p-sortIcon field="nivel"></p-sortIcon>
+          </th>
+          <th pSortableColumn="grado" class="text-center">
+            Grado <p-sortIcon field="grado"></p-sortIcon>
+          </th>
+          <th pSortableColumn="modalidad" class="text-left">
+            Modalidad <p-sortIcon field="modalidad"></p-sortIcon>
+          </th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-estudiante>
+        <tr>
+          <td class="font-medium text-gray-900">
+            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }} {{ estudiante.apellidoMaterno }}
+          </td>
+          <td>
+            <p-tag 
+              [value]="estudiante.nivel.displayValue" 
+              [severity]="
+                estudiante.nivel.rawValue === 'preescolar' ? 'secondary' :
+                estudiante.nivel.rawValue === 'primaria' ? 'success' :
+                estudiante.nivel.rawValue === 'secundaria' ? 'warning' : 'danger'
+              "
+            ></p-tag>
+          </td>
+          <td class="text-center">
+            <span class="font-semibold">{{ estudiante.grado }}°</span>
+          </td>
+          <td>
+            <p-tag 
+              [value]="estudiante.modalidad.displayValue"
+              [severity]="estudiante.modalidad.rawValue === 'presencial' ? 'info' : 'help'"
+            ></p-tag>
+          </td>
+          <td class="text-center">
             <button
               [routerLink]="['/estudiante/detail', estudiante.id]"
               pButton
               type="button"
-              icon="fa-solid fa-eye"
-              class="p-button-rounded p-button-text p-button-info"
-              pTooltip="Ver"
+              icon="pi pi-eye"
+              class="p-button-text p-button-sm mr-1"
+              pTooltip="Ver detalles"
             ></button>
             <button
               [routerLink]="['/estudiante/edit', estudiante.id]"
               pButton
               type="button"
-              icon="fa-solid fa-pencil"
-              class="p-button-rounded p-button-text p-button-warn"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm"
               pTooltip="Editar"
             ></button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="7" class="text-center py-8">
-          <div class="flex flex-col items-center">
-            <i class="pi pi-inbox text-4xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500">No se encontraron estudiantes</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-8">
+            <div class="flex flex-col items-center">
+              <i class="pi pi-users text-4xl text-gray-400 mb-3"></i>
+              <p class="text-lg text-gray-500">No hay estudiantes que mostrar</p>
+              <p class="text-sm text-gray-400">
+                Los estudiantes aparecerán aquí cuando se carguen desde el servidor
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>

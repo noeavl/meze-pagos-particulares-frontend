@@ -6,6 +6,7 @@ import {
   GenerarAdeudosDto,
   UpdateAdeudoDto,
 } from '../entities/adeudo.entity';
+import { Pago } from '../entities/pago.entity';
 
 export abstract class AdeudoRepository {
   abstract getAllAdeudos(): Observable<Adeudo[]>;
@@ -16,4 +17,5 @@ export abstract class AdeudoRepository {
   ): Observable<ApiGenerarAdeudosResponse>;
   abstract updateAdeudo(adeudo: UpdateAdeudoDto): Observable<Adeudo>;
   abstract searchAdeudos(term: string): Observable<Adeudo[]>;
+  abstract historyPayments(id: number): Observable<Pago[]>;
 }

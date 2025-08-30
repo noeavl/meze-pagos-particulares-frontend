@@ -9,9 +9,11 @@ import {
   UpdateAdeudoDto,
   GenerarAdeudosDto,
   ApiAdeudoResponse,
+  ApiPagoInAdeudoResponse,
   ApiGenerarAdeudosResponse,
   ApiResponse,
 } from '../../domain/entities/adeudo.entity';
+import { Pago } from '../../domain/entities/pago.entity';
 import { Estado } from '../../domain/value-objects/estado.value-object';
 import { Periodo } from '../../domain/value-objects/periodo.value-object';
 import { Nivel } from '../../domain/value-objects/nivel.value-object';
@@ -75,6 +77,48 @@ export class AdeudoService extends AdeudoRepository {
     );
   }
 
+  historyPayments(id: number): Observable<Pago[]> {
+    return this.http
+      .get<ApiResponse<any[]>>(API_ENDPOINTS.adeudos.historyPayments(id))
+      .pipe(
+        map((response) => response.data.map((payment) => ({
+          id: payment.id,
+          folio: payment.folio,
+          monto: parseFloat(payment.monto),
+          metodo: payment.metodo_pago as 'efectivo' | 'transferencia',
+          fecha: new Date(payment.fecha + 'T00:00:00'),
+          estudiante: {
+            id: payment.estudiante_id,
+            nombres: '',
+            apellidoPaterno: '',
+            apellidoMaterno: '',
+            nivel: {} as any,
+            grado: '',
+            modalidad: {} as any,
+          }
+        } as Pago)))
+      );
+  }
+
+  private mapPagoToDomain(apiPago: ApiPagoInAdeudoResponse): Pago {
+    return {
+      id: apiPago.id,
+      folio: apiPago.folio,
+      monto: parseFloat(apiPago.monto),
+      metodo: apiPago.metodo_pago as 'efectivo' | 'transferencia',
+      fecha: new Date(apiPago.fecha + 'T00:00:00'),
+      estudiante: {
+        id: apiPago.estudiante_id,
+        nombres: '',
+        apellidoPaterno: '',
+        apellidoMaterno: '',
+        nivel: {} as any,
+        grado: '',
+        modalidad: {} as any,
+      }
+    };
+  }
+
   private mapToDomain(apiResponse: ApiAdeudoResponse): Adeudo {
     return {
       id: apiResponse.id,
@@ -103,8 +147,9 @@ export class AdeudoService extends AdeudoRepository {
       montoPendiente: parseFloat(apiResponse.pendiente),
       montoTotal: parseFloat(apiResponse.total),
       montoPagado: parseFloat(apiResponse.pagado),
-      fechaInicio: new Date(apiResponse.fecha_inicio),
-      fechaVencimiento: new Date(apiResponse.fecha_vencimiento),
+      fechaInicio: new Date(apiResponse.fecha_inicio.split('T')[0] + 'T00:00:00'),
+      fechaVencimiento: new Date(apiResponse.fecha_vencimiento.split('T')[0] + 'T00:00:00'),
+      pagos: apiResponse.pagos ? apiResponse.pagos.map(pago => this.mapPagoToDomain(pago)) : [],
     };
   }
 }
