@@ -301,12 +301,42 @@ export class Adeudos implements OnInit {
         Nivel: student.nivel,
         Grado: `${student.grado}°`,
         Modalidad: student.modalidad,
+        "Último Pago": student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados",
         "Total General": this.getStudentTotal(student.adeudos),
         "Total Pagado": this.getStudentTotalPagado(student.adeudos),
         "Total Pendiente": this.getStudentTotalPendiente(student.adeudos),
         "Número de Adeudos": student.adeudos.length
       }))
     );
+
+    // Agregar totales generales al final
+    const totalInfo = [
+      [],
+      ["TOTALES GENERALES"],
+      ["Total de Estudiantes:", this.groupedStudents.length],
+      ["Total General:", `$${this.totalConceptos.toFixed(2)}`],
+      ["Total Pagado:", `$${this.totalPagado.toFixed(2)}`],
+      ["Total Pendiente:", `$${this.totalPendiente.toFixed(2)}`],
+    ];
+
+    // Obtener el rango actual de la hoja
+    const ws = studentsSheet;
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    let startRow = range.e.r + 2;
+
+    // Agregar las filas de totales
+    totalInfo.forEach((row, index) => {
+      row.forEach((cell, colIndex) => {
+        const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex });
+        ws[cellAddress] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+      });
+    });
+
+    // Actualizar el rango de la hoja
+    ws['!ref'] = XLSX.utils.encode_range({
+      s: { r: 0, c: 0 },
+      e: { r: startRow + totalInfo.length - 1, c: Math.max(range.e.c, 1) }
+    });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, studentsSheet, "Resumen Estudiantes");
@@ -337,6 +367,7 @@ export class Adeudos implements OnInit {
       ["Nivel:", student.nivel],
       ["Grado:", `${student.grado}°`],
       ["Modalidad:", student.modalidad],
+      ["Último Pago:", student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados"],
       [],
       ["Total General:", `$${this.getStudentTotal(student.adeudos).toFixed(2)}`],
       ["Total Pagado:", `$${this.getStudentTotalPagado(student.adeudos).toFixed(2)}`],
