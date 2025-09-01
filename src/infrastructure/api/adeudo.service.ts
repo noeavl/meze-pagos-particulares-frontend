@@ -28,9 +28,22 @@ export class AdeudoService extends AdeudoRepository {
 
   getAllAdeudos(): Observable<Adeudo[]> {
     return this.http
-      .get<ApiResponse<ApiAdeudoResponse[]>>(API_ENDPOINTS.adeudos.getAll)
+      .get<any>(API_ENDPOINTS.adeudos.getAll)
       .pipe(
-        map((response) => response.data.map((item) => this.mapToDomain(item)))
+        map((response) => {
+          const data = response?.data || response;
+          
+          // Si es la nueva estructura agrupada por estudiante
+          if (Array.isArray(data) && data.length > 0 && data[0]?.persona && data[0]?.adeudos) {
+            // Devolver los datos sin procesar para que el hook los maneje
+            return data;
+          } else if (Array.isArray(data)) {
+            // Estructura anterior
+            return data.map((item) => this.mapToDomain(item));
+          } else {
+            return [];
+          }
+        })
       );
   }
 

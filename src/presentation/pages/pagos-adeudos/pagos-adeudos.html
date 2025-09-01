@@ -27,7 +27,7 @@
     >
       Filtros
     </h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
       <!-- Search -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2"
@@ -38,11 +38,76 @@
           <input
             type="text"
             pInputText
-            placeholder="Folio, método de pago..."
+            placeholder="Folio, estudiante, concepto..."
             (input)="onSearch($event)"
             class="w-full"
           />
         </span>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Estado</label
+        >
+        <p-select
+          [(ngModel)]="selectedEstado"
+          (ngModelChange)="onEstadoChange()"
+          [options]="estadoOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos los estados"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Modality Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Modalidad</label
+        >
+        <p-select
+          [(ngModel)]="selectedModalidad"
+          (ngModelChange)="onModalidadChange()"
+          [options]="modalidadOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todas"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Level Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Nivel</label
+        >
+        <p-select
+          [(ngModel)]="selectedNivel"
+          (ngModelChange)="onNivelChange()"
+          [options]="nivelOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Grade Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Grado</label
+        >
+        <p-select
+          [(ngModel)]="selectedGrado"
+          (ngModelChange)="onGradoChange()"
+          [options]="gradoOptionsForSelect"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          [disabled]="!selectedNivel"
+          class="w-full"
+        ></p-select>
       </div>
     </div>
   </div>

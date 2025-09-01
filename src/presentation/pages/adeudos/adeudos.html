@@ -167,143 +167,198 @@
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- Accordion with Pagination -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-    <p-table
-      [value]="filteredAdeudos"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="10"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} adeudos"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="id" class="text-left">
-            <div class="flex items-center gap-2">
-              ID <p-sortIcon field="id"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="estudiante" class="text-left">
-            <div class="flex items-center gap-2">
-              Estudiante <p-sortIcon field="estudiante"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="concepto" class="text-left">
-            <div class="flex items-center gap-2">
-              Concepto <p-sortIcon field="concepto"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="estado" class="text-left">
-            <div class="flex items-center gap-2">
-              Estado <p-sortIcon field="estado"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="montoTotal" class="text-right">
-            <div class="flex items-center justify-end gap-2">
-              Total <p-sortIcon field="montoTotal"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="montoPagado" class="text-right">
-            <div class="flex items-center justify-end gap-2">
-              Pagado <p-sortIcon field="montoPagado"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="montoPendiente" class="text-right">
-            <div class="flex items-center justify-end gap-2">
-              Pendiente <p-sortIcon field="montoPendiente"></p-sortIcon>
-            </div>
-          </th>
-          <th pSortableColumn="fechaVencimiento" class="text-center">
-            <div class="flex items-center justify-center gap-2">
-              Vencimiento <p-sortIcon field="fechaVencimiento"></p-sortIcon>
-            </div>
-          </th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-adeudo>
-        <tr class="hover:bg-gray-50">
-          <td class="font-medium">{{ adeudo.id }}</td>
-          <td>
-            <div class="font-medium text-gray-900">
-              {{ adeudo.estudiante.nombres }}
-              {{ adeudo.estudiante.apellidoPaterno }}
-            </div>
-            <div class="text-sm text-gray-500">
-              {{ adeudo.estudiante.nivel.displayValue }} -
-              {{ adeudo.estudiante.grado }}° -
-              {{ adeudo.estudiante.modalidad.displayValue }}
-            </div>
-          </td>
-          <td>
-            <div class="font-medium text-gray-900">
-              {{ adeudo.concepto.nombre }}
-            </div>
-            <div class="text-sm text-gray-500">
-              {{ adeudo.concepto.periodo.displayValue }}
-            </div>
-          </td>
-          <td>
-            <span
-              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-              [ngClass]="adeudo.estado.colorClass"
+    @if (loading) {
+      <div class="flex justify-center items-center py-12">
+        <i class="pi pi-spin pi-spinner text-2xl text-gray-400"></i>
+      </div>
+    }
+    @else if (totalStudents === 0) {
+      <div class="text-center py-12">
+        <div class="flex flex-col items-center">
+          <i class="pi pi-credit-card text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No se encontraron estudiantes con adeudos
+          </h3>
+          <p class="text-gray-600 mb-6">
+            No hay adeudos registrados o no coinciden con los filtros
+          </p>
+        </div>
+      </div>
+    }
+    @else {
+      <!-- Custom Accordion -->
+      <div class="p-6">
+        @for (student of paginatedStudents; track student.id) {
+          <div class="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+            <!-- Student Header (Clickable) -->
+            <div 
+              class="bg-gray-50 px-6 py-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+              (click)="toggleStudent(student.id)"
             >
-              {{ adeudo.estado.displayValue }}
-            </span>
-          </td>
-          <td class="text-right font-semibold text-blue-600">
-            ${{ adeudo.montoTotal | number : "1.2-2" }}
-          </td>
-          <td class="text-right font-semibold text-green-600">
-            ${{ adeudo.montoPagado | number : "1.2-2" }}
-          </td>
-          <td class="text-right font-semibold text-orange-600">
-            ${{ adeudo.montoPendiente | number : "1.2-2" }}
-          </td>
-          <td class="text-center text-sm">
-            {{ adeudo.fechaVencimiento | date : "dd/MM/yyyy" }}
-          </td>
-          <td class="text-center">
-            <div class="flex justify-center gap-1">
-              <button
-                [routerLink]="['/pagos/adeudos/create', adeudo.id]"
-                pButton
-                type="button"
-                icon="fa-solid fa-credit-card"
-                class="p-button-rounded p-button-text p-button-sm"
-                pTooltip="Registrar Pago"
-                [disabled]="adeudo.estado.displayValue === 'Pagado'"
-              ></button>
-              <button
-                [routerLink]="['/adeudos/detail', adeudo.id]"
-                pButton
-                type="button"
-                icon="fa-solid fa-eye"
-                class="p-button-rounded p-button-text p-button-sm"
-                pTooltip="Ver detalle"
-              ></button>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors">
+                    <i 
+                      class="fa-solid text-blue-600 transition-transform duration-200 text-sm"
+                      [ngClass]="{
+                        'fa-chevron-down': isStudentExpanded(student.id),
+                        'fa-chevron-right': !isStudentExpanded(student.id)
+                      }"
+                    ></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      {{ student.persona.nombres }} {{ student.persona.apellido_paterno }} {{ student.persona.apellido_materno }}
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      {{ student.nivel | titlecase }} - {{ student.grado }}° - {{ student.modalidad | titlecase }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p class="text-xs text-gray-600">Total</p>
+                        <p class="text-lg font-bold text-blue-600">
+                          ${{ getStudentTotal(student.adeudos) | number : "1.2-2" }}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-600">Pagado</p>
+                        <p class="text-lg font-bold text-green-600">
+                          ${{ getStudentTotalPagado(student.adeudos) | number : "1.2-2" }}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-600">Pendiente</p>
+                        <p class="text-lg font-bold text-orange-600">
+                          ${{ getStudentTotalPendiente(student.adeudos) | number : "1.2-2" }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    pButton
+                    type="button"
+                    icon="fa-solid fa-file-excel"
+                    class="p-button-rounded p-button-success p-button-sm"
+                    pTooltip="Exportar adeudos del estudiante a Excel"
+                    (click)="exportStudentToExcel(student); $event.stopPropagation()"
+                  ></button>
+                </div>
+              </div>
             </div>
-          </td>
-        </tr>
-      </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="9" class="text-center py-12">
-            <div class="flex flex-col items-center">
-              <i class="pi pi-credit-card text-4xl text-gray-300 mb-4"></i>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">
-                No se encontraron adeudos
-              </h3>
-              <p class="text-gray-600 mb-6">
-                No hay adeudos registrados o no coinciden con los filtros
-              </p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+            <!-- Student Debts Table (Collapsible) -->
+            @if (isStudentExpanded(student.id)) {
+              <div class="border-t border-gray-200 overflow-x-auto">
+                <table class="min-w-full">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Concepto
+                      </th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Total
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pagado
+                      </th>
+                      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pendiente
+                      </th>
+                      <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vencimiento
+                      </th>
+                      <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    @for (adeudo of student.adeudos; track adeudo.id) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <div class="font-medium text-gray-900">
+                            {{ adeudo.concepto.nombre }}
+                          </div>
+                          <div class="text-sm text-gray-500">
+                            {{ adeudo.concepto.periodo | titlecase }}
+                          </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                          <span
+                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                            [ngClass]="{
+                              'bg-yellow-100 text-yellow-800': adeudo.estado === 'pendiente',
+                              'bg-green-100 text-green-800': adeudo.estado === 'pagado',
+                              'bg-red-100 text-red-800': adeudo.estado === 'vencido'
+                            }"
+                          >
+                            {{ adeudo.estado | titlecase }}
+                          </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right font-semibold text-blue-600">
+                          ${{ adeudo.total | number : "1.2-2" }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right font-semibold text-green-600">
+                          ${{ adeudo.pagado | number : "1.2-2" }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right font-semibold text-orange-600">
+                          ${{ adeudo.pendiente | number : "1.2-2" }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm">
+                          {{ adeudo.fecha_vencimiento | date : "dd/MM/yyyy" }}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center">
+                          <div class="flex justify-center gap-1">
+                            <button
+                              [routerLink]="['/pagos/adeudos/create', adeudo.id]"
+                              pButton
+                              type="button"
+                              icon="fa-solid fa-credit-card"
+                              class="p-button-rounded p-button-text p-button-sm"
+                              pTooltip="Registrar Pago"
+                              [disabled]="adeudo.estado === 'pagado'"
+                            ></button>
+                            <button
+                              [routerLink]="['/adeudos/detail', adeudo.id]"
+                              pButton
+                              type="button"
+                              icon="fa-solid fa-eye"
+                              class="p-button-rounded p-button-text p-button-sm"
+                              pTooltip="Ver detalle"
+                            ></button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="border-t border-gray-200 px-6 py-4">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="totalStudents"
+          [rowsPerPageOptions]="[5, 10, 20]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} estudiantes"
+        ></p-paginator>
+      </div>
+    }
   </div>
 </div>

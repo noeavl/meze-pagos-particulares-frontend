@@ -20,6 +20,7 @@ export class useAdeudo {
   paymentHistory = signal<Pago[]>([]);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
+  estudiantesConAdeudos = signal<any[]>([]);
 
   constructor(private adeudoUseCase: AdeudoUseCase) {}
 
@@ -36,8 +37,42 @@ export class useAdeudo {
         }),
         finalize(() => this.loading.set(false))
       )
-      .subscribe((adeudos) => {
-        this.adeudos.set(adeudos);
+      .subscribe((data: any) => {
+        // Si la respuesta tiene la nueva estructura agrupada por estudiante
+        if (Array.isArray(data) && data.length > 0 && data[0]?.persona && data[0]?.adeudos) {
+          this.estudiantesConAdeudos.set(data);
+          // Convertir a lista plana para compatibilidad con la interfaz anterior
+          const adeudosFlat = data.flatMap((estudiante: any) => 
+            estudiante.adeudos?.map((adeudo: any) => ({
+              ...adeudo,
+              id: adeudo.id,
+              estudiante: {
+                nombres: estudiante.persona?.nombres || '',
+                apellidoPaterno: estudiante.persona?.apellido_paterno || '',
+                apellidoMaterno: estudiante.persona?.apellido_materno || '',
+                nivel: { rawValue: estudiante.nivel || '', displayValue: estudiante.nivel || '' },
+                grado: estudiante.grado || 0,
+                modalidad: { rawValue: estudiante.modalidad || '', displayValue: estudiante.modalidad || '' }
+              },
+              concepto: adeudo.concepto || {},
+              montoTotal: parseFloat(adeudo.total || '0'),
+              montoPagado: parseFloat(adeudo.pagado || '0'),
+              montoPendiente: parseFloat(adeudo.pendiente || '0'),
+              fechaVencimiento: adeudo.fecha_vencimiento,
+              estado: {
+                displayValue: adeudo.estado || 'pendiente',
+                colorClass: adeudo.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                           adeudo.estado === 'pagado' ? 'bg-green-100 text-green-800' :
+                           'bg-red-100 text-red-800'
+              }
+            })) || []
+          );
+          this.adeudos.set(adeudosFlat);
+        } else {
+          // Estructura anterior - los datos ya están procesados por el servicio
+          this.adeudos.set(Array.isArray(data) ? data : []);
+          this.estudiantesConAdeudos.set([]);
+        }
       });
   }
 

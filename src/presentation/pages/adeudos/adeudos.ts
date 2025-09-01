@@ -7,6 +7,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { Select } from "primeng/select";
+import { PaginatorModule } from "primeng/paginator";
 import { useAdeudo } from "../../hooks/use-adeudo.hook";
 import { RouterLink } from "@angular/router";
 import * as XLSX from "xlsx";
@@ -22,6 +23,7 @@ import * as XLSX from "xlsx";
     TagModule,
     TooltipModule,
     Select,
+    PaginatorModule,
     RouterLink,
   ],
   templateUrl: "./adeudos.html",
@@ -37,14 +39,23 @@ export class Adeudos implements OnInit {
   selectedModalidad: string = "";
   searchTerm: string = "";
 
+  // Paginación
+  first: number = 0;
+  rows: number = 5;
+
+  // Control del acordeón
+  expandedStudents: Set<number> = new Set();
+
   // Opciones de filtros
   estadoOptions = [
+    { label: "Todos los estados", value: "" },
     { label: "Pendiente", value: "pendiente" },
     { label: "Pagado", value: "pagado" },
     { label: "Vencido", value: "vencido" },
   ];
 
   nivelOptions = [
+    { label: "Todos los niveles", value: "" },
     { label: "Preescolar", value: "preescolar" },
     { label: "Primaria", value: "primaria" },
     { label: "Secundaria", value: "secundaria" },
@@ -53,6 +64,7 @@ export class Adeudos implements OnInit {
   ];
 
   modalidadOptions = [
+    { label: "Todas las modalidades", value: "" },
     { label: "Presencial", value: "presencial" },
     { label: "En Línea", value: "en_linea" },
   ];
@@ -83,57 +95,95 @@ export class Adeudos implements OnInit {
     return this.adeudoService.error();
   }
 
-  get filteredAdeudos() {
-    let filtered = this.adeudos;
+  get groupedStudents() {
+    // Obtener datos del servicio que ya viene agrupado por estudiante
+    const students = this.adeudoService.estudiantesConAdeudos();
 
-    // Filtrar por estado si está seleccionado
-    if (this.selectedEstado) {
-      filtered = filtered.filter(
-        (adeudo) =>
-          adeudo.estado.displayValue.toLowerCase() ===
-          this.selectedEstado.toLowerCase()
-      );
-    }
+    // Aplicar filtros
+    let filtered = students;
 
     // Filtrar por nivel si está seleccionado
     if (this.selectedNivel) {
       filtered = filtered.filter(
-        (adeudo) => adeudo.estudiante.nivel.rawValue === this.selectedNivel
+        (student) => student.nivel === this.selectedNivel
       );
     }
 
     // Filtrar por grado si está seleccionado
     if (this.selectedGrado) {
       filtered = filtered.filter(
-        (adeudo) => adeudo.estudiante.grado.toString() === this.selectedGrado
+        (student) => student.grado.toString() === this.selectedGrado
       );
     }
 
     // Filtrar por modalidad si está seleccionada
     if (this.selectedModalidad) {
       filtered = filtered.filter(
-        (adeudo) =>
-          adeudo.estudiante.modalidad.rawValue === this.selectedModalidad
+        (student) => student.modalidad === this.selectedModalidad
       );
+    }
+
+    // Filtrar por estado de adeudos si está seleccionado
+    if (this.selectedEstado) {
+      filtered = filtered.map((student: any) => ({
+        ...student,
+        adeudos: student.adeudos.filter((adeudo: any) => 
+          adeudo.estado.toLowerCase() === this.selectedEstado.toLowerCase()
+        )
+      })).filter((student: any) => student.adeudos.length > 0);
     }
 
     // Filtrar por término de búsqueda
     if (this.searchTerm.trim()) {
       filtered = filtered.filter(
-        (adeudo) =>
-          adeudo.estudiante.nombres
+        (student) =>
+          student.persona.nombres
             .toLowerCase()
             .includes(this.searchTerm.toLowerCase()) ||
-          adeudo.estudiante.apellidoPaterno
+          student.persona.apellido_paterno
             .toLowerCase()
             .includes(this.searchTerm.toLowerCase()) ||
-          adeudo.concepto.nombre
+          student.persona.apellido_materno
             .toLowerCase()
-            .includes(this.searchTerm.toLowerCase())
+            .includes(this.searchTerm.toLowerCase()) ||
+          student.adeudos.some((adeudo: any) =>
+            adeudo.concepto.nombre
+              .toLowerCase()
+              .includes(this.searchTerm.toLowerCase())
+          )
       );
     }
 
     return filtered;
+  }
+
+  get filteredAdeudos() {
+    // Convertir datos agrupados a lista plana para mantener compatibilidad
+    const allAdeudos = this.groupedStudents.flatMap((student: any) =>
+      student.adeudos.map((adeudo: any) => ({
+        ...adeudo,
+        estudiante: {
+          nombres: student.persona.nombres,
+          apellidoPaterno: student.persona.apellido_paterno,
+          apellidoMaterno: student.persona.apellido_materno,
+          nivel: { rawValue: student.nivel, displayValue: student.nivel },
+          grado: student.grado,
+          modalidad: { rawValue: student.modalidad, displayValue: student.modalidad }
+        },
+        montoTotal: parseFloat(adeudo.total),
+        montoPagado: parseFloat(adeudo.pagado),
+        montoPendiente: parseFloat(adeudo.pendiente),
+        fechaVencimiento: adeudo.fecha_vencimiento,
+        estado: {
+          displayValue: adeudo.estado,
+          colorClass: adeudo.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                     adeudo.estado === 'pagado' ? 'bg-green-100 text-green-800' :
+                     'bg-red-100 text-red-800'
+        }
+      }))
+    );
+
+    return allAdeudos;
   }
 
   get totalConceptos() {
@@ -159,10 +209,11 @@ export class Adeudos implements OnInit {
 
   onSearch(event: any) {
     this.searchTerm = event.target.value;
+    this.resetPagination();
   }
 
   onEstadoChange() {
-    // El filtro se aplica automáticamente a través del getter filteredAdeudos
+    this.resetPagination();
   }
 
   get availableGradoOptions(): number[] {
@@ -177,43 +228,143 @@ export class Adeudos implements OnInit {
   }
 
   get gradoOptionsForSelect() {
-    return this.availableGradoOptions.map((grado) => ({
+    const options = [{ label: "Todos los grados", value: "" }];
+    const gradoOptions = this.availableGradoOptions.map((grado) => ({
       label: `${grado}°`,
       value: grado.toString(),
     }));
+    return [...options, ...gradoOptions];
   }
 
   onNivelChange() {
     // Reset grado selection when nivel changes
     this.selectedGrado = "";
-    // El filtro se aplica automáticamente a través del getter filteredAdeudos
+    this.resetPagination();
   }
 
   onGradoChange() {
-    // El filtro se aplica automáticamente a través del getter filteredAdeudos
+    this.resetPagination();
   }
 
   onModalidadChange() {
-    // El filtro se aplica automáticamente a través del getter filteredAdeudos
+    this.resetPagination();
+  }
+
+  resetPagination() {
+    this.first = 0;
+  }
+
+  getStudentTotalPendiente(adeudos: any[]) {
+    return adeudos.reduce((sum, adeudo) => sum + parseFloat(adeudo.pendiente), 0);
+  }
+
+  getStudentTotal(adeudos: any[]) {
+    return adeudos.reduce((sum, adeudo) => sum + parseFloat(adeudo.total), 0);
+  }
+
+  getStudentTotalPagado(adeudos: any[]) {
+    return adeudos.reduce((sum, adeudo) => sum + parseFloat(adeudo.pagado), 0);
+  }
+
+  get paginatedStudents() {
+    const students = this.groupedStudents;
+    const start = this.first;
+    const end = this.first + this.rows;
+    return students.slice(start, end);
+  }
+
+  get totalStudents() {
+    return this.groupedStudents.length;
+  }
+
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+  }
+
+  toggleStudent(studentId: number) {
+    if (this.expandedStudents.has(studentId)) {
+      this.expandedStudents.delete(studentId);
+    } else {
+      this.expandedStudents.add(studentId);
+    }
+  }
+
+  isStudentExpanded(studentId: number): boolean {
+    return this.expandedStudents.has(studentId);
   }
 
   exportToExcel() {
-    const adeudosSheet = XLSX.utils.json_to_sheet(
-      this.filteredAdeudos.map((adeudo) => ({
-        Estudiante: `${adeudo.estudiante.nombres} ${adeudo.estudiante.apellidoPaterno} ${adeudo.estudiante.apellidoMaterno}`,
-        Concepto: adeudo.concepto.nombre,
-        "Monto Total": adeudo.montoTotal,
-        "Monto Pagado": adeudo.montoPagado,
-        "Monto Pendiente": adeudo.montoPendiente,
-        Estado: adeudo.estado.displayValue,
-        "Fecha de Vencimiento": new Date(
-          adeudo.fechaVencimiento
-        ).toLocaleDateString(),
+    const studentsSheet = XLSX.utils.json_to_sheet(
+      this.groupedStudents.map((student) => ({
+        Estudiante: `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`,
+        Nivel: student.nivel,
+        Grado: `${student.grado}°`,
+        Modalidad: student.modalidad,
+        "Total General": this.getStudentTotal(student.adeudos),
+        "Total Pagado": this.getStudentTotalPagado(student.adeudos),
+        "Total Pendiente": this.getStudentTotalPendiente(student.adeudos),
+        "Número de Adeudos": student.adeudos.length
       }))
     );
 
     const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, studentsSheet, "Resumen Estudiantes");
+    XLSX.writeFile(workbook, "resumen_adeudos_estudiantes.xlsx");
+  }
+
+  exportStudentToExcel(student: any) {
+    const studentName = `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`;
+    
+    const adeudosSheet = XLSX.utils.json_to_sheet(
+      student.adeudos.map((adeudo: any) => ({
+        Concepto: adeudo.concepto.nombre,
+        Periodo: adeudo.concepto.periodo,
+        "Monto Total": parseFloat(adeudo.total),
+        "Monto Pagado": parseFloat(adeudo.pagado),
+        "Monto Pendiente": parseFloat(adeudo.pendiente),
+        Estado: adeudo.estado,
+        "Fecha Inicio": new Date(adeudo.fecha_inicio).toLocaleDateString(),
+        "Fecha Vencimiento": new Date(adeudo.fecha_vencimiento).toLocaleDateString(),
+      }))
+    );
+
+    // Agregar información del estudiante al final
+    const studentInfo = [
+      [],
+      ["Resumen del Estudiante"],
+      ["Nombre:", studentName],
+      ["Nivel:", student.nivel],
+      ["Grado:", `${student.grado}°`],
+      ["Modalidad:", student.modalidad],
+      [],
+      ["Total General:", `$${this.getStudentTotal(student.adeudos).toFixed(2)}`],
+      ["Total Pagado:", `$${this.getStudentTotalPagado(student.adeudos).toFixed(2)}`],
+      ["Total Pendiente:", `$${this.getStudentTotalPendiente(student.adeudos).toFixed(2)}`],
+    ];
+
+    // Agregar las filas de información del estudiante
+    const ws = adeudosSheet;
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    let startRow = range.e.r + 2;
+
+    studentInfo.forEach((row, index) => {
+      row.forEach((cell, colIndex) => {
+        const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex });
+        ws[cellAddress] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+      });
+    });
+
+    // Actualizar el rango
+    ws['!ref'] = XLSX.utils.encode_range({
+      s: { r: 0, c: 0 },
+      e: { r: startRow + studentInfo.length - 1, c: Math.max(range.e.c, 1) }
+    });
+
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, adeudosSheet, "Adeudos");
-    XLSX.writeFile(workbook, "adeudos.xlsx");
+    
+    const fileName = `adeudos_${studentName.replace(/\s+/g, '_')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   }
 }
