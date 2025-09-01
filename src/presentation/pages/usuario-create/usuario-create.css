@@ -2,3 +2,12 @@
 .p-dialog-mask {
   background: rgba(0, 0, 0, 0.3) !important; /* Cambia 0.3 por la opacidad deseada */
 }
+
+/* Estilos para el campo de contraseña */
+:host ::ng-deep .p-password {
+  width: 100%;
+}
+
+:host ::ng-deep .p-password .p-inputtext {
+  width: 100% !important;
+}

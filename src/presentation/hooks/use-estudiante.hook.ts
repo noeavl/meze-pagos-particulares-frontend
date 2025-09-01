@@ -106,4 +106,17 @@ export class useEstudiante {
         this.estudiantes.set(estudiantes);
       });
   }
+
+  updateEstudianteEstado(id: number, estado: boolean) {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.estudianteUseCase.updateEstudianteEstado(id, estado).pipe(
+      catchError((err) => {
+        this.error.set('Error al actualizar estado del estudiante: ' + err.message);
+        throw err;
+      }),
+      finalize(() => this.loading.set(false))
+    );
+  }
 }

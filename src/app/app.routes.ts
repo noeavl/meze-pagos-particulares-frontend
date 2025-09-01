@@ -2,7 +2,10 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from '../presentation/components/login/login';
 import { DashboardComponent } from '../presentation/pages/dashboard/dashboard';
 import { authGuard, loginGuard } from '../shared/guards/auth.guard';
+import { superadminGuard } from '../shared/guards/superadmin.guard';
 import { Usuarios } from '../presentation/pages/usuarios/usuarios';
+import { UsuarioCreate } from '../presentation/pages/usuario-create/usuario-create';
+import { UsuarioEdit } from '../presentation/pages/usuario-edit/usuario-edit';
 import { Estudiantes } from '../presentation/pages/estudiantes/estudiantes';
 import { EstudianteCreate } from '../presentation/pages/estudiante-create/estudiante-create';
 import { EstudianteEdit } from '../presentation/pages/estudiante-edit/estudiante-edit';
@@ -40,6 +43,17 @@ export const routes: Routes = [
       {
         path: 'usuarios',
         component: Usuarios,
+        canActivate: [superadminGuard],
+      },
+      {
+        path: 'usuario/create',
+        component: UsuarioCreate,
+        canActivate: [superadminGuard],
+      },
+      {
+        path: 'usuario/edit/:id',
+        component: UsuarioEdit,
+        canActivate: [superadminGuard],
       },
       {
         path: 'estudiantes',

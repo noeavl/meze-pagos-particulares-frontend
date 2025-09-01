@@ -123,7 +123,7 @@
             }"
           >
             <a
-              [routerLink]="['/pagos-adeudos']"
+              [routerLink]="['/pagos/adeudos']"
               class="flex items-center px-3 py-2 text-gray-400 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 text-sm"
             >
               <i class="fas fa-file-invoice-dollar text-sm w-4 text-center"></i>
@@ -132,7 +132,7 @@
               </span>
             </a>
             <a
-              [routerLink]="['/pagos-requeridos']"
+              [routerLink]="['/pagos/requeridos']"
               class="flex items-center px-3 py-2 text-gray-400 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 text-sm"
             >
               <i class="fas fa-exclamation-circle text-sm w-4 text-center"></i>
@@ -143,23 +143,25 @@
           </div>
         </div>
       </li>
-      <li>
-        <a
-          [routerLink]="['/usuarios']"
-          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
-        >
-          <i class="fas fa-users text-lg w-5 text-center"></i>
-          <span
-            class="ml-3 font-medium transition-all duration-200"
-            [ngClass]="{
-              hidden: isSideBarCollapse,
-              'block overflow-hidden': !isSideBarCollapse
-            }"
+      @if (isSuperAdmin()) {
+        <li>
+          <a
+            [routerLink]="['/usuarios']"
+            class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
           >
-            Usuarios
-          </span>
-        </a>
-      </li>
+            <i class="fas fa-users text-lg w-5 text-center"></i>
+            <span
+              class="ml-3 font-medium transition-all duration-200"
+              [ngClass]="{
+                hidden: isSideBarCollapse,
+                'block overflow-hidden': !isSideBarCollapse
+              }"
+            >
+              Usuarios
+            </span>
+          </a>
+        </li>
+      }
     </ul>
   </nav>
 
@@ -179,8 +181,12 @@
             'block overflow-hidden': !isSideBarCollapse
           }"
         >
-          <p class="text-sm font-medium text-gray-300 overflow-hidden">Admin</p>
-          <p class="text-xs text-gray-400 overflow-hidden">admin@meze.com</p>
+          <p class="text-sm font-medium text-gray-300 overflow-hidden">
+            {{ currentUser()?.name || 'Usuario' }}
+          </p>
+          <p class="text-xs text-gray-400 overflow-hidden">
+            {{ currentUser()?.email || 'email@meze.com' }}
+          </p>
         </div>
       </div>
       <button

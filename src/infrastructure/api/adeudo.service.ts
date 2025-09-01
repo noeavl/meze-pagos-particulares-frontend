@@ -115,6 +115,7 @@ export class AdeudoService extends AdeudoRepository {
         nivel: {} as any,
         grado: '',
         modalidad: {} as any,
+        estado: true
       }
     };
   }
@@ -142,6 +143,7 @@ export class AdeudoService extends AdeudoRepository {
         nivel: Nivel.createFromRaw(apiResponse.estudiante.nivel),
         grado: apiResponse.estudiante.grado,
         modalidad: Modalidad.createFromRaw(apiResponse.estudiante.modalidad),
+        estado: apiResponse.estudiante.estado
       },
       estado: Estado.fromString(apiResponse.estado),
       montoPendiente: parseFloat(apiResponse.pendiente),

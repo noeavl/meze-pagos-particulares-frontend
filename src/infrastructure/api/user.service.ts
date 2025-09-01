@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserRepository } from '../../domain/repositories/user.repository';
-import { User, ApiUserResponse, ApiResponse } from '../../domain/entities/user.entity';
+import { User, ApiUserResponse, ApiResponse, CreateUserDto, UpdateUserDto, UpdateUserEstadoDto } from '../../domain/entities/user.entity';
 import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
 @Injectable()
@@ -20,6 +20,30 @@ export class UserService extends UserRepository {
       );
   }
 
+  getUserById(id: number): Observable<User> {
+    return this.http
+      .get<ApiResponse<ApiUserResponse>>(API_ENDPOINTS.usuarios.getById(id))
+      .pipe(
+        map((response) => this.mapToDomain(response.data))
+      );
+  }
+
+  createUser(userData: CreateUserDto): Observable<User> {
+    return this.http
+      .post<ApiResponse<ApiUserResponse>>(API_ENDPOINTS.usuarios.create, userData)
+      .pipe(
+        map((response) => this.mapToDomain(response.data))
+      );
+  }
+
+  updateUser(id: number, userData: UpdateUserDto): Observable<User> {
+    return this.http
+      .put<ApiResponse<ApiUserResponse>>(API_ENDPOINTS.usuarios.update(id), userData)
+      .pipe(
+        map((response) => this.mapToDomain(response.data))
+      );
+  }
+
   searchUsers(term: string): Observable<User[]> {
     return this.http
       .get<ApiResponse<ApiUserResponse[]>>(
@@ -28,6 +52,11 @@ export class UserService extends UserRepository {
       .pipe(
         map((response) => response.data.map((user) => this.mapToDomain(user)))
       );
+  }
+
+  updateEstado(id: number, estado: boolean): Observable<any> {
+    const updateData: UpdateUserEstadoDto = { estado };
+    return this.http.put<any>(`${API_ENDPOINTS.USUARIOS}/actualizarEstado/${id}`, updateData);
   }
 
   private mapToDomain(apiUser: ApiUserResponse): User {
@@ -39,7 +68,7 @@ export class UserService extends UserRepository {
         ? new Date(apiUser.email_verified_at) 
         : null,
       role: apiUser.role,
-      isActive: Boolean(apiUser.is_active),
+      estado: Boolean(apiUser.estado),
       createdAt: new Date(apiUser.created_at),
       updatedAt: new Date(apiUser.updated_at),
     };

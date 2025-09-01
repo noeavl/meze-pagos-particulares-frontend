@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { AuthRepository } from '../../domain/repositories/auth.repository';
-import { AuthUser } from '../../domain/entities/user.entity';
+import { AuthUser, ApiCurrentUserResponse } from '../../domain/entities/user.entity';
 import { LoginCredentials, LoginResponse } from '../../shared/types/auth.types';
 import { API_ENDPOINTS } from '../../shared/constants/api.constants';
 
@@ -22,7 +22,6 @@ export class AuthService implements AuthRepository {
 
       if (response && response.success) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
         return response;
       }
 
@@ -36,26 +35,36 @@ export class AuthService implements AuthRepository {
 
   async logout(): Promise<void> {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
   }
 
   async getCurrentUser(): Promise<AuthUser | null> {
     const token = localStorage.getItem('token');
-    const userString = localStorage.getItem('user');
 
-    if (!token || !userString) {
+    if (!token) {
       return null;
     }
 
     try {
-      const user = JSON.parse(userString);
-      return {
-        id: user.id.toString(),
-        email: user.email,
-        name: user.name,
-        token,
-      };
-    } catch {
+      const response = await this.http
+        .get<ApiCurrentUserResponse>(API_ENDPOINTS.USER)
+        .pipe(catchError(this.handleError))
+        .toPromise() as ApiCurrentUserResponse;
+
+      if (response) {
+        return {
+          id: response.id.toString(),
+          email: response.email,
+          name: response.name,
+          role: response.role,
+          token,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      // Si falla la llamada, limpiar el token inválido
+      localStorage.removeItem('token');
       return null;
     }
   }

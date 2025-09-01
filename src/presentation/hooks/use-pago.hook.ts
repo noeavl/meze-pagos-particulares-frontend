@@ -4,6 +4,7 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { PagoUseCase } from '../../domain/use-cases/pago.use-case';
 import {
   Pago,
+  PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
 } from '../../domain/entities/pago.entity';
@@ -13,6 +14,7 @@ import {
 })
 export class usePago {
   pagos = signal<Pago[]>([]);
+  pagosAdeudos = signal<PagoAdeudo[]>([]);
   selectedPago = signal<Pago | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -134,6 +136,25 @@ export class usePago {
       )
       .subscribe((pagos) => {
         this.pagos.set(pagos);
+      });
+  }
+
+  loadPagosAdeudos(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.pagoUseCase
+      .getAllPagosAdeudos()
+      .pipe(
+        catchError((err) => {
+          this.error.set('Error al cargar los pagos de adeudos');
+          console.error('Error loading pagos adeudos:', err);
+          return of([]);
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe((pagosAdeudos) => {
+        this.pagosAdeudos.set(pagosAdeudos);
       });
   }
 }

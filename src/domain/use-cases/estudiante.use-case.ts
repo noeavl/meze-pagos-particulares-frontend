@@ -36,4 +36,8 @@ export class EstudianteUseCase {
   filterEstudiantesByParams(params: { [key: string]: any }): Observable<Estudiante[]> {
     return this.estudianteRepository.filterByParams(params);
   }
+
+  updateEstudianteEstado(id: number, estado: boolean): Observable<any> {
+    return this.estudianteRepository.updateEstado(id, estado);
+  }
 }

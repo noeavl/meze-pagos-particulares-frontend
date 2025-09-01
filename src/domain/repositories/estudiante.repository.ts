@@ -10,6 +10,7 @@ export interface EstudianteRepository {
   delete(id: number): Observable<void>;
   search(term: string): Observable<Estudiante[]>;
   filterByParams(params: { [key: string]: any }): Observable<Estudiante[]>;
+  updateEstado(id: number, estado: boolean): Observable<any>;
 }
 
 export const ESTUDIANTE_REPOSITORY = new InjectionToken<EstudianteRepository>('EstudianteRepository');

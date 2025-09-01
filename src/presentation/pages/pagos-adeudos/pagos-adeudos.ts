@@ -1,11 +1,63 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { usePago } from '../../hooks/use-pago.hook';
 
 @Component({
   selector: 'app-pagos-adeudos',
-  imports: [],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    TagModule,
+    TooltipModule,
+  ],
   templateUrl: './pagos-adeudos.html',
   styleUrl: './pagos-adeudos.css'
 })
-export class PagosAdeudos {
+export class PagosAdeudos implements OnInit {
+  pagoService = inject(usePago);
+  
+  // Filtros y búsqueda
+  searchTerm: string = '';
 
+  constructor() {}
+
+  ngOnInit() {
+    this.pagoService.loadPagosAdeudos();
+  }
+
+  pagosAdeudos = this.pagoService.pagosAdeudos;
+  loading = this.pagoService.loading;
+  error = this.pagoService.error;
+
+  get filteredPagosAdeudos() {
+    let filtered = this.pagosAdeudos();
+
+    // Filtrar por término de búsqueda
+    if (this.searchTerm.trim()) {
+      filtered = filtered.filter(
+        (pagoAdeudo) =>
+          pagoAdeudo.folio
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase()) ||
+          pagoAdeudo.metodoPago
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
+  }
+
+  onSearch(event: any) {
+    this.searchTerm = event.target.value;
+  }
 }

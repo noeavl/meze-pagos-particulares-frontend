@@ -9,6 +9,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
 import { RouterLink } from '@angular/router';
+import { DialogModule } from 'primeng/dialog';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { Estudiante } from '../../../domain/entities/estudiante.entity';
 
 @Component({
   selector: 'app-estudiantes',
@@ -22,12 +26,67 @@ import { RouterLink } from '@angular/router';
     TooltipModule,
     Select,
     RouterLink,
+    DialogModule,
+    ToastModule
   ],
   templateUrl: './estudiantes.html',
   styleUrl: './estudiantes.css',
+  providers: [MessageService],
 })
 export class Estudiantes implements OnInit {
+  visible: boolean = false;
+  selectedEstudiante: Estudiante | null = null;
   estudianteService = inject(useEstudiante);
+  messageService = inject(MessageService);
+
+  showDialog(estudiante: Estudiante) {
+    this.selectedEstudiante = estudiante;
+    this.visible = true;
+  }
+
+  async updateEstadoEstudiante() {
+    if (!this.selectedEstudiante) return;
+
+    const newEstado = !this.selectedEstudiante.estado;
+    
+    try {
+      await this.estudianteService.updateEstudianteEstado(
+        this.selectedEstudiante.id, 
+        newEstado
+      ).toPromise();
+
+      // Actualizar el estudiante en la lista local
+      const estudiantes = this.estudianteService.estudiantes();
+      const updatedEstudiantes = estudiantes.map(est => 
+        est.id === this.selectedEstudiante!.id 
+          ? { ...est, estado: newEstado }
+          : est
+      );
+      this.estudianteService.estudiantes.set(updatedEstudiantes);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: `Estado del estudiante ${newEstado ? 'activado' : 'desactivado'} correctamente`,
+        life: 1500
+      });
+
+      this.visible = false;
+      this.selectedEstudiante = null;
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo actualizar el estado del estudiante',
+        life: 1500
+      });
+    }
+  }
+
+  cancelDialog() {
+    this.visible = false;
+    this.selectedEstudiante = null;
+  }
 
   // Filtros y búsqueda
   selectedNivel: string = '';

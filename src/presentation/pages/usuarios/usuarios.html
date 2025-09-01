@@ -7,11 +7,11 @@
         <p class="text-gray-600 text-sm mt-1">Gestionar usuarios del sistema</p>
       </div>
       <button
+        [routerLink]="['/usuario/create']"
         pButton
         type="button"
         label="Nuevo Usuario"
         icon="pi pi-plus"
-        disabled
       ></button>
     </div>
   </div>
@@ -148,20 +148,35 @@
           </td>
           <td class="text-center">
             <p-tag 
-              [value]="usuario.isActive ? 'Activo' : 'Inactivo'"
-              [severity]="usuario.isActive ? 'success' : 'danger'"
+              [value]="usuario.estado ? 'Activo' : 'Inactivo'"
+              [severity]="usuario.estado ? 'success' : 'danger'"
             ></p-tag>
           </td>
           <td class="text-gray-600">{{ usuario.createdAt | date : "dd/MM/yyyy" }}</td>
           <td class="text-center">
             <button
+              [routerLink]="['/usuario/edit', usuario.id]"
               pButton
               type="button"
-              icon="pi pi-pencil"
-              class="p-button-text p-button-sm"
+              class="p-button-text p-button-sm mr-1"
               pTooltip="Editar"
-              disabled
-            ></button>
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+            <button 
+              pButton 
+              type="button" 
+              [pTooltip]="canDeactivateUser(usuario) ? 'Estado' : 'Un superadmin no puede desactivarse a sí mismo'"
+              class="p-button-sm p-button-text" 
+              [disabled]="!canDeactivateUser(usuario)"
+              (click)="showDialog(usuario)"
+            >
+              @if (usuario.estado) {
+                <i class="fa-solid fa-toggle-on" [class]="canDeactivateUser(usuario) ? 'text-green-500' : 'text-gray-400'"></i>
+              } @else {
+                <i class="fa-solid fa-toggle-off text-red-400"></i>
+              }
+            </button>
           </td>
         </tr>
       </ng-template>
@@ -181,4 +196,20 @@
       </ng-template>
     </p-table>
   </div>
+
+  <!-- Dialog para actualizar estado -->
+  <p-dialog maskStyleClass="backdrop-blur-sm" header="Actualizar Estado" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    @if (selectedUsuario) {
+      <span class="p-text-secondary block mb-8">
+        ¿Deseas {{ selectedUsuario.estado ? 'desactivar' : 'activar' }} el usuario {{ selectedUsuario.name }}?
+      </span>
+      <div class="flex justify-end gap-2">
+        <p-button label="Cancelar" severity="secondary" (click)="cancelDialog()" />
+        <p-button label="Confirmar" (click)="updateEstadoUsuario()" />
+      </div>
+    }
+  </p-dialog>
+
+  <!-- Toast para notificaciones -->
+  <p-toast position="bottom-right" />
 </div>

@@ -125,18 +125,20 @@
                 [routerLink]="['/concepto/detail', concepto.id]"
                 pButton
                 type="button"
-                icon="pi pi-eye"
                 class="p-button-rounded p-button-text p-button-sm"
                 pTooltip="Ver detalle"
-              ></button>
+              >
+                <i class="fas fa-eye"></i>
+              </button>
               <button
                 [routerLink]="['/concepto/edit', concepto.id]"
                 pButton
                 type="button"
-                icon="pi pi-pencil"
                 class="p-button-rounded p-button-text p-button-sm"
                 pTooltip="Editar"
-              ></button>
+              >
+                <i class="fas fa-edit"></i>
+              </button>
             </div>
           </td>
         </tr>

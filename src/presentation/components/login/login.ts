@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { useLogin } from '../../hooks/use-login.hook';
 
 @Component({
@@ -20,14 +22,17 @@ import { useLogin } from '../../hooks/use-login.hook';
     InputTextModule,
     ButtonModule,
     MessageModule,
+    ToastModule,
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
+  providers: [MessageService],
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private loginService = inject(useLogin);
+  private messageService = inject(MessageService);
 
   exampleForm: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -36,6 +41,17 @@ export class LoginComponent {
 
   loading = false;
   errorMessage = '';
+
+  private show(severity: string, summary: string, detail: string) {
+    const toastLife = 1500;
+    this.messageService.add({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      key: 'br',
+      life: toastLife,
+    });
+  }
 
   isInvalid(fieldName: string): boolean {
     const field = this.exampleForm.get(fieldName);
@@ -60,7 +76,9 @@ export class LoginComponent {
 
       this.router.navigate(['/dashboard']);
     } catch (error: any) {
-      this.errorMessage = error.message || 'Error en el inicio de sesión';
+      this.errorMessage = '';
+      const errorMessage = error.message || 'Error en el inicio de sesión';
+      this.show('error', 'Error', errorMessage);
       console.error('Error en login:', error);
     } finally {
       this.loading = false;

@@ -6,9 +6,13 @@ export const API_ENDPOINTS = {
   USUARIOS: `${API_BASE_URL}/usuarios`,
   PAGOS: `${API_BASE_URL}/pago-adeudos`,
   AUTH: `${API_BASE_URL}/auth`,
+  USER: `${API_BASE_URL}/user`,
   DASHBOARD: `${API_BASE_URL}/dashboard`,
   usuarios: {
     getAll: `${API_BASE_URL}/usuarios`,
+    getById: (id: number) => `${API_BASE_URL}/usuarios/${id}`,
+    create: `${API_BASE_URL}/usuarios`,
+    update: (id: number) => `${API_BASE_URL}/usuarios/${id}`,
     search: `${API_BASE_URL}/usuarios/search`,
   },
   conceptos: {

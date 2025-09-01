@@ -20,6 +20,8 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { useAdeudo } from '../../hooks/use-adeudo.hook';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { usePago } from '../../hooks/use-pago.hook';
 import { CreatePagoAdeudoDto } from '../../../domain/entities/pago.entity';
 
@@ -40,14 +42,17 @@ import { CreatePagoAdeudoDto } from '../../../domain/entities/pago.entity';
     RouterLink,
     ProgressSpinnerModule,
     ReactiveFormsModule,
+    ToastModule,
   ],
   templateUrl: './pagos-adeudos-create.html',
   styleUrl: './pagos-adeudos-create.css',
+  providers: [MessageService],
 })
 export class PagosAdeudosCreate implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private messageService = inject(MessageService);
   public adeudoService = inject(useAdeudo);
   public pagoService = inject(usePago);
 
@@ -132,6 +137,15 @@ export class PagosAdeudosCreate implements OnInit {
     this.pagoService.createPago(pagoData).subscribe({
       next: (response) => {
         console.log('Pago creado exitosamente:', response.message);
+        
+        // Mostrar toast de éxito
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: response.message || 'Pago registrado exitosamente',
+          life: 1500
+        });
+        
         // Reload payment history after successful payment
         if (this.adeudo()?.pagos) {
           this.adeudoService.getAdeudoById(this.adeudoId).subscribe({

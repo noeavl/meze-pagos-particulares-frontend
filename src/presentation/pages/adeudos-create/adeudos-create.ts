@@ -37,7 +37,7 @@ export class AdeudosCreate implements OnInit {
   private messageService = inject(MessageService);
 
   show(severity: string, summary: string, detail: string) {
-    const toastLife = 55500;
+    const toastLife = 1500;
     this.messageService.add({
       severity: severity,
       summary: summary,

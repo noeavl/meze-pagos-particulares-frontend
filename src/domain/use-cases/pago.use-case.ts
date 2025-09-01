@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { PagoRepository } from '../repositories/pago.repository';
 import {
   Pago,
+  PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
 } from '../entities/pago.entity';
@@ -29,5 +30,9 @@ export class PagoUseCase {
 
   searchPagos(term: string): Observable<Pago[]> {
     return this.pagoRepository.searchPagos(term);
+  }
+
+  getAllPagosAdeudos(): Observable<PagoAdeudo[]> {
+    return this.pagoRepository.getAllPagosAdeudos();
   }
 }

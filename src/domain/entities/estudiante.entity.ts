@@ -16,6 +16,7 @@ export interface ApiEstudianteResponse {
   nivel: string;
   grado: string;
   modalidad: string;
+  estado: boolean;
   created_at: string;
   updated_at: string;
   persona: ApiPersonaResponse;
@@ -34,6 +35,7 @@ export interface Estudiante {
   nivel: Nivel;
   grado: string;
   modalidad: Modalidad;
+  estado: boolean
 }
 
 export interface CreateEstudianteDto {
@@ -47,4 +49,8 @@ export interface CreateEstudianteDto {
 
 export interface UpdateEstudianteDto extends Partial<CreateEstudianteDto> {
   id: number;
+}
+
+export interface UpdateEstudianteEstadoDto {
+  estado: boolean;
 }

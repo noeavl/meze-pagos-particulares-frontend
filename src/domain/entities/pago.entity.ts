@@ -26,8 +26,71 @@ export interface Pago {
   fecha: Date;
 }
 
-export interface PagoAdeudo {
+// Interfaces para la nueva API de pagos-adeudos
+export interface ApiPagoAdeudoResponse {
+  id: number;
+  pago_id: number;
   adeudo_id: number;
+  created_at: string;
+  updated_at: string;
+  pago: {
+    id: number;
+    estudiante_id: number;
+    folio: string;
+    monto: string;
+    metodo_pago: string;
+    fecha: string;
+    created_at: string;
+    updated_at: string;
+    estudiante: {
+      id: number;
+      persona_id: number;
+      nombres: string;
+      apellido_paterno: string;
+      apellido_materno: string;
+      persona: {
+        id: number;
+        nombres: string;
+        apellido_paterno: string;
+        apellido_materno: string;
+      };
+    };
+  };
+  adeudo: {
+    id: number;
+    concepto_id: number;
+    estudiante_id: number;
+    estado: string;
+    pendiente: string;
+    pagado: string;
+    total: string;
+    fecha_inicio: string;
+    fecha_vencimiento: string;
+    created_at: string;
+    updated_at: string;
+    concepto: {
+      id: number;
+      nombre: string;
+    };
+  };
+}
+
+export interface PagoAdeudo {
+  id: number;
+  pagoId: number;
+  adeudoId: number;
+  folio: string;
+  monto: number;
+  metodoPago: string;
+  fecha: Date;
+  estadoAdeudo: string;
+  montoTotal: number;
+  montoPagado: number;
+  montoPendiente: number;
+  fechaVencimiento: Date;
+  createdAt: Date;
+  nombreCompleto: string;
+  concepto: string;
 }
 
 export interface CreatePagoAdeudoDto {

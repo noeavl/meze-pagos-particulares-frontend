@@ -26,12 +26,10 @@ export class useLogin {
       this._error.set(null);
 
       const response = await this.loginUseCase.execute(credentials);
-      this._user.set({
-        id: response.data.user.id.toString(),
-        email: response.data.user.email,
-        name: response.data.user.name,
-        token: response.data.token,
-      });
+      
+      // Después del login exitoso, obtener el usuario completo
+      const currentUser = await this.authService.getCurrentUser();
+      this._user.set(currentUser);
 
       return response;
     } catch (err) {

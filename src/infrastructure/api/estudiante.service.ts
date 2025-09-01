@@ -7,6 +7,7 @@ import {
   Estudiante,
   CreateEstudianteDto,
   UpdateEstudianteDto,
+  UpdateEstudianteEstadoDto,
   ApiEstudianteResponse,
   ApiResponse,
 } from '../../domain/entities/estudiante.entity';
@@ -55,6 +56,11 @@ export class EstudianteService implements EstudianteRepository {
     return this.http.delete<void>(`${this.endpoint}/${id}`);
   }
 
+  updateEstado(id: number, estado: boolean): Observable<any> {
+    const updateData: UpdateEstudianteEstadoDto = { estado };
+    return this.http.put<any>(`${this.endpoint}/actualizarEstado/${id}`, updateData);
+  }
+
   search(term: string): Observable<Estudiante[]> {
     const params = new HttpParams().set('q', term);
     return this.http
@@ -95,6 +101,7 @@ export class EstudianteService implements EstudianteRepository {
       nivel: Nivel.createFromRaw(apiResponse.nivel),
       grado: apiResponse.grado,
       modalidad: Modalidad.createFromRaw(apiResponse.modalidad),
+      estado: apiResponse.estado
     };
   }
 }
