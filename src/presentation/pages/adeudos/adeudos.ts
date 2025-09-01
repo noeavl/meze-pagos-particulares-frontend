@@ -1,17 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { Select } from 'primeng/select';
-import { useAdeudo } from '../../hooks/use-adeudo.hook';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { Select } from "primeng/select";
+import { useAdeudo } from "../../hooks/use-adeudo.hook";
+import { RouterLink } from "@angular/router";
+import * as XLSX from "xlsx";
 
 @Component({
-  selector: 'app-adeudos',
+  selector: "app-adeudos",
   imports: [
     CommonModule,
     FormsModule,
@@ -23,37 +24,37 @@ import { RouterLink } from '@angular/router';
     Select,
     RouterLink,
   ],
-  templateUrl: './adeudos.html',
-  styleUrl: './adeudos.css',
+  templateUrl: "./adeudos.html",
+  styleUrl: "./adeudos.css",
 })
 export class Adeudos implements OnInit {
   adeudoService = inject(useAdeudo);
 
   // Filtros y búsqueda
-  selectedEstado: string = '';
-  selectedNivel: string = '';
-  selectedGrado: string = '';
-  selectedModalidad: string = '';
-  searchTerm: string = '';
+  selectedEstado: string = "";
+  selectedNivel: string = "";
+  selectedGrado: string = "";
+  selectedModalidad: string = "";
+  searchTerm: string = "";
 
   // Opciones de filtros
   estadoOptions = [
-    { label: 'Pendiente', value: 'pendiente' },
-    { label: 'Pagado', value: 'pagado' },
-    { label: 'Vencido', value: 'vencido' },
+    { label: "Pendiente", value: "pendiente" },
+    { label: "Pagado", value: "pagado" },
+    { label: "Vencido", value: "vencido" },
   ];
 
   nivelOptions = [
-    { label: 'Preescolar', value: 'preescolar' },
-    { label: 'Primaria', value: 'primaria' },
-    { label: 'Secundaria', value: 'secundaria' },
-    { label: 'Bachillerato', value: 'bachillerato' },
-    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
+    { label: "Preescolar", value: "preescolar" },
+    { label: "Primaria", value: "primaria" },
+    { label: "Secundaria", value: "secundaria" },
+    { label: "Bachillerato", value: "bachillerato" },
+    { label: "Bachillerato Sabatino", value: "bachillerato_sabatino" },
   ];
 
   modalidadOptions = [
-    { label: 'Presencial', value: 'presencial' },
-    { label: 'En Línea', value: 'en_linea' },
+    { label: "Presencial", value: "presencial" },
+    { label: "En Línea", value: "en_linea" },
   ];
 
   gradosPorNivel = {
@@ -176,15 +177,15 @@ export class Adeudos implements OnInit {
   }
 
   get gradoOptionsForSelect() {
-    return this.availableGradoOptions.map(grado => ({
+    return this.availableGradoOptions.map((grado) => ({
       label: `${grado}°`,
-      value: grado.toString()
+      value: grado.toString(),
     }));
   }
 
   onNivelChange() {
     // Reset grado selection when nivel changes
-    this.selectedGrado = '';
+    this.selectedGrado = "";
     // El filtro se aplica automáticamente a través del getter filteredAdeudos
   }
 
@@ -194,5 +195,25 @@ export class Adeudos implements OnInit {
 
   onModalidadChange() {
     // El filtro se aplica automáticamente a través del getter filteredAdeudos
+  }
+
+  exportToExcel() {
+    const adeudosSheet = XLSX.utils.json_to_sheet(
+      this.filteredAdeudos.map((adeudo) => ({
+        Estudiante: `${adeudo.estudiante.nombres} ${adeudo.estudiante.apellidoPaterno} ${adeudo.estudiante.apellidoMaterno}`,
+        Concepto: adeudo.concepto.nombre,
+        "Monto Total": adeudo.montoTotal,
+        "Monto Pagado": adeudo.montoPagado,
+        "Monto Pendiente": adeudo.montoPendiente,
+        Estado: adeudo.estado.displayValue,
+        "Fecha de Vencimiento": new Date(
+          adeudo.fechaVencimiento
+        ).toLocaleDateString(),
+      }))
+    );
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, adeudosSheet, "Adeudos");
+    XLSX.writeFile(workbook, "adeudos.xlsx");
   }
 }

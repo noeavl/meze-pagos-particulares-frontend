@@ -6,13 +6,22 @@
         <h1 class="text-2xl font-bold text-gray-900">Conceptos de Pago</h1>
         <p class="text-gray-600 text-sm mt-1">Gestionar conceptos y costos</p>
       </div>
-      <button
-        [routerLink]="['/concepto/create']"
-        pButton
-        type="button"
-        label="Nuevo Concepto"
-        icon="pi pi-plus"
-      ></button>
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          type="button"
+          icon="fa-solid fa-file-excel"
+          label="Exportar a excel"
+          (click)="exportToExcel()"
+        ></button>
+        <button
+          [routerLink]="['/concepto/create']"
+          pButton
+          type="button"
+          label="Nuevo concepto"
+          icon="pi pi-plus"
+        ></button>
+      </div>
     </div>
   </div>
 
@@ -20,7 +29,9 @@
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
     <div class="flex justify-between items-center">
       <div class="flex-1 max-w-md">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar conceptos</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Buscar conceptos</label
+        >
         <span class="p-input-icon-left w-full">
           <i class="pi pi-search"></i>
           <input
@@ -36,7 +47,10 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+  <div
+    *ngIf="error"
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
     <div class="flex items-center">
       <i class="pi pi-exclamation-triangle mr-2"></i>
       {{ error }}
@@ -94,30 +108,45 @@
           <td class="font-medium">{{ concepto.id }}</td>
           <td class="font-medium text-gray-900">{{ concepto.nombre }}</td>
           <td>
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <span
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+            >
               {{ concepto.periodo.displayValue }}
             </span>
           </td>
           <td>
-            <span 
-              [pTooltip]="concepto.nivel?.displayValue || 'Aplica a todos los niveles'"
+            <span
+              [pTooltip]="
+                concepto.nivel?.displayValue || 'Aplica a todos los niveles'
+              "
               tooltipPosition="top"
               class="cursor-help text-gray-700"
             >
-              {{ concepto.nivel ? concepto.nivel.displayValue.split('(')[0].trim() : 'Todos' }}
+              {{
+                concepto.nivel
+                  ? concepto.nivel.displayValue.split("(")[0].trim()
+                  : "Todos"
+              }}
             </span>
           </td>
           <td>
-            <span 
-              [pTooltip]="concepto.modalidad?.displayValue || 'Aplica a todas las modalidades'"
+            <span
+              [pTooltip]="
+                concepto.modalidad?.displayValue ||
+                'Aplica a todas las modalidades'
+              "
               tooltipPosition="top"
               class="cursor-help text-gray-700"
             >
-              {{ concepto.modalidad ? concepto.modalidad.displayValue.split('(')[0].trim() : 'Todas' }}
+              {{
+                concepto.modalidad
+                  ? concepto.modalidad.displayValue.split("(")[0].trim()
+                  : "Todas"
+              }}
             </span>
           </td>
           <td class="text-right font-semibold text-green-600">
-            ${{ concepto.costo | number:'1.2-2' }}
+            ${{ concepto.costo | number : "1.2-2" }}
           </td>
           <td class="text-center">
             <div class="flex justify-center gap-1">
@@ -149,8 +178,12 @@
           <td colspan="7" class="text-center py-12">
             <div class="flex flex-col items-center">
               <i class="pi pi-inbox text-4xl text-gray-300 mb-4"></i>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">No se encontraron conceptos</h3>
-              <p class="text-gray-600 mb-6">No hay conceptos registrados o no coinciden con la búsqueda</p>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">
+                No se encontraron conceptos
+              </h3>
+              <p class="text-gray-600 mb-6">
+                No hay conceptos registrados o no coinciden con la búsqueda
+              </p>
               <button
                 [routerLink]="['/concepto/create']"
                 pButton

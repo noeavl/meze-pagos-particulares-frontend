@@ -4,27 +4,42 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Estudiantes</h1>
-        <p class="text-gray-600 text-sm mt-1">Gestionar estudiantes del sistema</p>
+        <p class="text-gray-600 text-sm mt-1">
+          Gestionar estudiantes del sistema
+        </p>
       </div>
-      <button
-        [routerLink]="['/estudiante/create']"
-        pButton
-        type="button"
-        label="Nuevo Estudiante"
-        icon="pi pi-plus"
-      ></button>
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          type="button"
+          icon="fa-solid fa-file-excel"
+          label="Exportar a excel"
+          (click)="exportToExcel()"
+        ></button>
+        <button
+          [routerLink]="['/estudiante/create']"
+          pButton
+          type="button"
+          label="Nuevo Estudiante"
+          icon="pi pi-plus"
+        ></button>
+      </div>
     </div>
   </div>
 
   <!-- Filters -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+    <h3
+      class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200"
+    >
       Filtros
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Search -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Buscar</label
+        >
         <span class="p-input-icon-left w-full">
           <i class="pi pi-search"></i>
           <input
@@ -39,7 +54,9 @@
 
       <!-- Nivel Filter -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Nivel</label
+        >
         <p-select
           [(ngModel)]="selectedNivel"
           (ngModelChange)="onNivelChange()"
@@ -52,7 +69,9 @@
 
       <!-- Grado Filter -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Grado</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Grado</label
+        >
         <p-select
           [(ngModel)]="selectedGrado"
           (ngModelChange)="onGradoChange()"
@@ -66,7 +85,9 @@
 
       <!-- Modalidad Filter -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Modalidad</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Modalidad</label
+        >
         <p-select
           [(ngModel)]="selectedModalidad"
           (ngModelChange)="onModalidadChange()"
@@ -88,7 +109,9 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Total</p>
-          <p class="text-lg font-bold text-gray-900">{{ filteredEstudiantes.length }}</p>
+          <p class="text-lg font-bold text-gray-900">
+            {{ filteredEstudiantes.length }}
+          </p>
         </div>
       </div>
     </div>
@@ -100,7 +123,9 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Preescolar</p>
-          <p class="text-lg font-bold text-purple-600">{{ estudiantesPorNivel.preescolar }}</p>
+          <p class="text-lg font-bold text-purple-600">
+            {{ estudiantesPorNivel.preescolar }}
+          </p>
         </div>
       </div>
     </div>
@@ -112,7 +137,9 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Primaria</p>
-          <p class="text-lg font-bold text-green-600">{{ estudiantesPorNivel.primaria }}</p>
+          <p class="text-lg font-bold text-green-600">
+            {{ estudiantesPorNivel.primaria }}
+          </p>
         </div>
       </div>
     </div>
@@ -124,7 +151,9 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Secundaria</p>
-          <p class="text-lg font-bold text-orange-600">{{ estudiantesPorNivel.secundaria }}</p>
+          <p class="text-lg font-bold text-orange-600">
+            {{ estudiantesPorNivel.secundaria }}
+          </p>
         </div>
       </div>
     </div>
@@ -136,7 +165,12 @@
         </div>
         <div class="ml-3">
           <p class="text-xs font-medium text-gray-600">Bachillerato</p>
-          <p class="text-lg font-bold text-red-600">{{ estudiantesPorNivel.bachillerato + estudiantesPorNivel.bachillerato_sabatino }}</p>
+          <p class="text-lg font-bold text-red-600">
+            {{
+              estudiantesPorNivel.bachillerato +
+                estudiantesPorNivel.bachillerato_sabatino
+            }}
+          </p>
         </div>
       </div>
     </div>
@@ -144,9 +178,11 @@
 
   <!-- Error Message -->
   @if (error()) {
-    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-      {{ error() }}
-    </div>
+  <div
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
+    {{ error() }}
+  </div>
   }
 
   <!-- Students Table -->
@@ -188,15 +224,20 @@
       <ng-template pTemplate="body" let-estudiante>
         <tr>
           <td class="font-medium text-gray-900">
-            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }} {{ estudiante.apellidoMaterno }}
+            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }}
+            {{ estudiante.apellidoMaterno }}
           </td>
           <td>
-            <p-tag 
-              [value]="estudiante.nivel.displayValue" 
+            <p-tag
+              [value]="estudiante.nivel.displayValue"
               [severity]="
-                estudiante.nivel.rawValue === 'preescolar' ? 'secondary' :
-                estudiante.nivel.rawValue === 'primaria' ? 'success' :
-                estudiante.nivel.rawValue === 'secundaria' ? 'warning' : 'danger'
+                estudiante.nivel.rawValue === 'preescolar'
+                  ? 'secondary'
+                  : estudiante.nivel.rawValue === 'primaria'
+                  ? 'success'
+                  : estudiante.nivel.rawValue === 'secundaria'
+                  ? 'warning'
+                  : 'danger'
               "
             ></p-tag>
           </td>
@@ -204,9 +245,11 @@
             <span class="font-semibold">{{ estudiante.grado }}°</span>
           </td>
           <td>
-            <p-tag 
+            <p-tag
               [value]="estudiante.modalidad.displayValue"
-              [severity]="estudiante.modalidad.rawValue === 'presencial' ? 'info' : 'help'"
+              [severity]="
+                estudiante.modalidad.rawValue === 'presencial' ? 'info' : 'help'
+              "
             ></p-tag>
           </td>
           <td class="text-center">
@@ -228,11 +271,17 @@
             >
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            <button pButton type="button" pTooltip="Estado" class="p-button-sm p-button-text" (click)="showDialog(estudiante)">
+            <button
+              pButton
+              type="button"
+              pTooltip="Estado"
+              class="p-button-sm p-button-text"
+              (click)="showDialog(estudiante)"
+            >
               @if (estudiante.estado == true) {
-                <i class="fa-solid fa-toggle-on text-green-500"></i>
+              <i class="fa-solid fa-toggle-on text-green-500"></i>
               } @else {
-                <i class="fa-solid fa-toggle-off text-red-400"></i>
+              <i class="fa-solid fa-toggle-off text-red-400"></i>
               }
             </button>
           </td>
@@ -243,9 +292,12 @@
           <td colspan="5" class="text-center py-8">
             <div class="flex flex-col items-center">
               <i class="pi pi-users text-4xl text-gray-400 mb-3"></i>
-              <p class="text-lg text-gray-500">No hay estudiantes que mostrar</p>
+              <p class="text-lg text-gray-500">
+                No hay estudiantes que mostrar
+              </p>
               <p class="text-sm text-gray-400">
-                Los estudiantes aparecerán aquí cuando se carguen desde el servidor
+                Los estudiantes aparecerán aquí cuando se carguen desde el
+                servidor
               </p>
             </div>
           </td>
@@ -255,20 +307,29 @@
   </div>
 
   <!-- Dialog para actualizar estado -->
-  <p-dialog maskStyleClass="backdrop-blur-sm" header="Actualizar Estado" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+  <p-dialog
+    maskStyleClass="backdrop-blur-sm"
+    header="Actualizar Estado"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '25rem' }"
+  >
     @if (selectedEstudiante) {
-      <span class="p-text-secondary block mb-8">
-        ¿Deseas {{ selectedEstudiante.estado ? 'desactivar' : 'activar' }} el estado del estudiante {{ selectedEstudiante.nombres }}?
-      </span>
-      <div class="flex justify-end gap-2">
-        <p-button label="Cancelar" severity="secondary" (click)="cancelDialog()" />
-        <p-button label="Confirmar" (click)="updateEstadoEstudiante()" />
-      </div>
+    <span class="p-text-secondary block mb-8">
+      ¿Deseas {{ selectedEstudiante.estado ? "desactivar" : "activar" }} el
+      estado del estudiante {{ selectedEstudiante.nombres }}?
+    </span>
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        (click)="cancelDialog()"
+      />
+      <p-button label="Confirmar" (click)="updateEstadoEstudiante()" />
+    </div>
     }
   </p-dialog>
 
   <!-- Toast para notificaciones -->
   <p-toast position="bottom-right" />
 </div>
-
-

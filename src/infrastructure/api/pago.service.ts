@@ -110,6 +110,9 @@ export class PagoService extends PagoRepository {
       createdAt: new Date(apiResponse.created_at),
       nombreCompleto: `${apiResponse.pago.estudiante.persona.nombres} ${apiResponse.pago.estudiante.persona.apellido_paterno} ${apiResponse.pago.estudiante.persona.apellido_materno}`,
       concepto: apiResponse.adeudo.concepto.nombre,
+      nivel: apiResponse.pago.estudiante.nivel,
+      grado: apiResponse.pago.estudiante.grado,
+      modalidad: apiResponse.pago.estudiante.modalidad,
     };
   }
 }

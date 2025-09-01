@@ -4,20 +4,35 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Pagos de Adeudos</h1>
-        <p class="text-gray-600 text-sm mt-1">Visualizar todos los pagos realizados</p>
+        <p class="text-gray-600 text-sm mt-1">
+          Visualizar todos los pagos realizados
+        </p>
+      </div>
+      <div>
+        <button
+          pButton
+          type="button"
+          icon="fa-solid fa-file-excel"
+          label="Exportar a excel"
+          (click)="exportToExcel()"
+        ></button>
       </div>
     </div>
   </div>
 
   <!-- Search -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+    <h3
+      class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200"
+    >
       Filtros
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Search -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Buscar</label
+        >
         <span class="p-input-icon-left w-full">
           <i class="pi pi-search"></i>
           <input
@@ -34,9 +49,11 @@
 
   <!-- Error Message -->
   @if (error()) {
-    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-      {{ error() }}
-    </div>
+  <div
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
+    {{ error() }}
+  </div>
   }
 
   <!-- Pagos Table -->
@@ -67,17 +84,17 @@
           <th pSortableColumn="folio" class="text-left">
             Concepto <p-sortIcon field="folio"></p-sortIcon>
           </th>
-          <th pSortableColumn="monto" class="text-right">
-            Monto <p-sortIcon field="monto"></p-sortIcon>
-          </th>
           <th pSortableColumn="metodoPago" class="text-left">
             Método <p-sortIcon field="metodoPago"></p-sortIcon>
           </th>
-          <th pSortableColumn="fecha" class="text-center">
-            Fecha pago<p-sortIcon field="fecha"></p-sortIcon>
+          <th pSortableColumn="monto" class="text-right">
+            Monto <p-sortIcon field="monto"></p-sortIcon>
           </th>
           <th pSortableColumn="montoTotal" class="text-right">
             Total Adeudo <p-sortIcon field="montoTotal"></p-sortIcon>
+          </th>
+          <th pSortableColumn="fecha" class="text-center">
+            Fecha pago<p-sortIcon field="fecha"></p-sortIcon>
           </th>
           <th pSortableColumn="fechaVencimiento" class="text-center">
             Vencimiento <p-sortIcon field="fechaVencimiento"></p-sortIcon>
@@ -88,25 +105,37 @@
       <ng-template pTemplate="body" let-pagoAdeudo>
         <tr>
           <td class="font-medium text-gray-900">{{ pagoAdeudo.folio }}</td>
-          <td class="font-medium text-gray-900">{{ pagoAdeudo.nombreCompleto }}</td>
-          <td class="font-medium text-gray-900">{{ pagoAdeudo.concepto }}</td>
-          <td class="text-right font-semibold text-green-600">
-            ${{ pagoAdeudo.monto | number:'1.2-2' }}
+          <td class="font-medium text-gray-900">
+            <div>{{ pagoAdeudo.nombreCompleto }}</div>
+            <div class="text-sm text-gray-500">
+              {{ pagoAdeudo.nivel }} - {{ pagoAdeudo.grado }}° -
+              {{ pagoAdeudo.modalidad }}
+            </div>
           </td>
+          <td class="font-medium text-gray-900">{{ pagoAdeudo.concepto }}</td>
           <td>
-            <p-tag 
-              [value]="pagoAdeudo.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia'" 
-              [severity]="pagoAdeudo.metodoPago === 'efectivo' ? 'info' : 'success'"
+            <p-tag
+              [value]="
+                pagoAdeudo.metodoPago === 'efectivo'
+                  ? 'Efectivo'
+                  : 'Transferencia'
+              "
+              [severity]="
+                pagoAdeudo.metodoPago === 'efectivo' ? 'info' : 'success'
+              "
             ></p-tag>
           </td>
-          <td class="text-center text-sm">
-            {{ pagoAdeudo.fecha | date:'dd/MM/yyyy' }}
+          <td class="text-right font-semibold text-green-600">
+            ${{ pagoAdeudo.monto | number : "1.2-2" }}
           </td>
           <td class="text-right font-semibold text-blue-600">
-            ${{ pagoAdeudo.montoTotal | number:'1.2-2' }}
+            ${{ pagoAdeudo.montoTotal | number : "1.2-2" }}
           </td>
           <td class="text-center text-sm">
-            {{ pagoAdeudo.fechaVencimiento | date:'dd/MM/yyyy' }}
+            {{ pagoAdeudo.fecha | date : "dd/MM/yyyy" }}
+          </td>
+          <td class="text-center text-sm">
+            {{ pagoAdeudo.fechaVencimiento | date : "dd/MM/yyyy" }}
           </td>
         </tr>
       </ng-template>
@@ -118,7 +147,8 @@
               <i class="pi pi-credit-card text-4xl text-gray-400 mb-3"></i>
               <p class="text-lg text-gray-500">No hay pagos que mostrar</p>
               <p class="text-sm text-gray-400">
-                Los pagos de adeudos aparecerán aquí cuando se carguen desde el servidor
+                Los pagos de adeudos aparecerán aquí cuando se carguen desde el
+                servidor
               </p>
             </div>
           </td>

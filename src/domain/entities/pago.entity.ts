@@ -48,6 +48,9 @@ export interface ApiPagoAdeudoResponse {
       nombres: string;
       apellido_paterno: string;
       apellido_materno: string;
+      nivel: string;
+      grado: string;
+      modalidad: string;
       persona: {
         id: number;
         nombres: string;
@@ -91,6 +94,9 @@ export interface PagoAdeudo {
   createdAt: Date;
   nombreCompleto: string;
   concepto: string;
+  nivel: string;
+  grado: string;
+  modalidad: string;
 }
 
 export interface CreatePagoAdeudoDto {

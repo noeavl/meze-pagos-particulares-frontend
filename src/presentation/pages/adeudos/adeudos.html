@@ -6,6 +6,15 @@
         <h1 class="text-2xl font-bold text-gray-900">Adeudos</h1>
         <p class="text-gray-600 text-sm mt-1">Gestionar adeudos y pagos</p>
       </div>
+      <div class="flex justify-center gap-2">
+
+  
+      <button pButton type="button"
+      label="Exportar a Excel"
+      icon="fa-solid fa-file-excel"
+      (click)="exportToExcel()"
+      >
+      </button>
       <button
         pButton
         [routerLink]="['/adeudos/create']"
@@ -13,6 +22,7 @@
         label="Generar Adeudos"
         icon="pi pi-plus"
       ></button>
+    </div>
     </div>
   </div>
 

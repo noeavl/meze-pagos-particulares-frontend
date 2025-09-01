@@ -1,16 +1,17 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { useConcepto } from '../../hooks/use-concepto.hook';
-import { Concepto } from '../../../domain/entities/concepto.entity';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { useConcepto } from "../../hooks/use-concepto.hook";
+import { Concepto } from "../../../domain/entities/concepto.entity";
+import { RouterLink } from "@angular/router";
+import * as XLSX from "xlsx";
 
 @Component({
-  selector: 'app-conceptos',
+  selector: "app-conceptos",
   imports: [
     CommonModule,
     TableModule,
@@ -20,8 +21,8 @@ import { RouterLink } from '@angular/router';
     TooltipModule,
     RouterLink,
   ],
-  templateUrl: './conceptos.html',
-  styleUrl: './conceptos.css',
+  templateUrl: "./conceptos.html",
+  styleUrl: "./conceptos.css",
 })
 export class Conceptos implements OnInit {
   conceptoService = inject(useConcepto);
@@ -53,4 +54,19 @@ export class Conceptos implements OnInit {
     }
   }
 
+  exportToExcel() {
+    const conceptosSheet = XLSX.utils.json_to_sheet(
+      this.conceptos.map((c) => ({
+        Concepto: c.nombre,
+        Periodo: c.periodo,
+        Nivel: c.nivel,
+        Modalidad: c.modalidad,
+        Costo: c.costo,
+      }))
+    );
+
+    const conceptosBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(conceptosBook, conceptosSheet, "Conceptos");
+    XLSX.writeFile(conceptosBook, "conceptos.xlsx");
+  }
 }

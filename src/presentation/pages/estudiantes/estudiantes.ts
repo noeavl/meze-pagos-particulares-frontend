@@ -1,21 +1,22 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { Select } from 'primeng/select';
-import { useEstudiante } from '../../hooks/use-estudiante.hook';
-import { RouterLink } from '@angular/router';
-import { DialogModule } from 'primeng/dialog';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { Estudiante } from '../../../domain/entities/estudiante.entity';
+import { Component, OnInit, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { InputTextModule } from "primeng/inputtext";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { Select } from "primeng/select";
+import { useEstudiante } from "../../hooks/use-estudiante.hook";
+import { RouterLink } from "@angular/router";
+import { DialogModule } from "primeng/dialog";
+import { MessageService } from "primeng/api";
+import { ToastModule } from "primeng/toast";
+import { Estudiante } from "../../../domain/entities/estudiante.entity";
+import * as XLSX from "xlsx";
 
 @Component({
-  selector: 'app-estudiantes',
+  selector: "app-estudiantes",
   imports: [
     CommonModule,
     FormsModule,
@@ -27,10 +28,10 @@ import { Estudiante } from '../../../domain/entities/estudiante.entity';
     Select,
     RouterLink,
     DialogModule,
-    ToastModule
+    ToastModule,
   ],
-  templateUrl: './estudiantes.html',
-  styleUrl: './estudiantes.css',
+  templateUrl: "./estudiantes.html",
+  styleUrl: "./estudiantes.css",
   providers: [MessageService],
 })
 export class Estudiantes implements OnInit {
@@ -48,37 +49,38 @@ export class Estudiantes implements OnInit {
     if (!this.selectedEstudiante) return;
 
     const newEstado = !this.selectedEstudiante.estado;
-    
+
     try {
-      await this.estudianteService.updateEstudianteEstado(
-        this.selectedEstudiante.id, 
-        newEstado
-      ).toPromise();
+      await this.estudianteService
+        .updateEstudianteEstado(this.selectedEstudiante.id, newEstado)
+        .toPromise();
 
       // Actualizar el estudiante en la lista local
       const estudiantes = this.estudianteService.estudiantes();
-      const updatedEstudiantes = estudiantes.map(est => 
-        est.id === this.selectedEstudiante!.id 
+      const updatedEstudiantes = estudiantes.map((est) =>
+        est.id === this.selectedEstudiante!.id
           ? { ...est, estado: newEstado }
           : est
       );
       this.estudianteService.estudiantes.set(updatedEstudiantes);
 
       this.messageService.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: `Estado del estudiante ${newEstado ? 'activado' : 'desactivado'} correctamente`,
-        life: 1500
+        severity: "success",
+        summary: "Éxito",
+        detail: `Estado del estudiante ${
+          newEstado ? "activado" : "desactivado"
+        } correctamente`,
+        life: 1500,
       });
 
       this.visible = false;
       this.selectedEstudiante = null;
     } catch (error) {
       this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudo actualizar el estado del estudiante',
-        life: 1500
+        severity: "error",
+        summary: "Error",
+        detail: "No se pudo actualizar el estado del estudiante",
+        life: 1500,
       });
     }
   }
@@ -89,25 +91,25 @@ export class Estudiantes implements OnInit {
   }
 
   // Filtros y búsqueda
-  selectedNivel: string = '';
-  selectedModalidad: string = '';
-  selectedGrado: string = '';
-  searchTerm: string = '';
+  selectedNivel: string = "";
+  selectedModalidad: string = "";
+  selectedGrado: string = "";
+  searchTerm: string = "";
 
   // Opciones de filtros
   nivelOptions = [
-    { label: 'Todos los niveles', value: '' },
-    { label: 'Preescolar', value: 'preescolar' },
-    { label: 'Primaria', value: 'primaria' },
-    { label: 'Secundaria', value: 'secundaria' },
-    { label: 'Bachillerato', value: 'bachillerato' },
-    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
+    { label: "Todos los niveles", value: "" },
+    { label: "Preescolar", value: "preescolar" },
+    { label: "Primaria", value: "primaria" },
+    { label: "Secundaria", value: "secundaria" },
+    { label: "Bachillerato", value: "bachillerato" },
+    { label: "Bachillerato Sabatino", value: "bachillerato_sabatino" },
   ];
 
   modalidadOptions = [
-    { label: 'Todas las modalidades', value: '' },
-    { label: 'Presencial', value: 'presencial' },
-    { label: 'En Línea', value: 'en_linea' },
+    { label: "Todas las modalidades", value: "" },
+    { label: "Presencial", value: "presencial" },
+    { label: "En Línea", value: "en_linea" },
   ];
 
   gradosPorNivel = {
@@ -180,7 +182,7 @@ export class Estudiantes implements OnInit {
       bachillerato_sabatino: 0,
     };
 
-    this.filteredEstudiantes.forEach(estudiante => {
+    this.filteredEstudiantes.forEach((estudiante) => {
       const nivel = estudiante.nivel.rawValue as keyof typeof conteos;
       if (conteos.hasOwnProperty(nivel)) {
         conteos[nivel]++;
@@ -202,11 +204,11 @@ export class Estudiantes implements OnInit {
   }
 
   get gradoOptionsForSelect() {
-    const options = [{ label: 'Todos los grados', value: '' }];
+    const options = [{ label: "Todos los grados", value: "" }];
     return options.concat(
-      this.availableGradoOptions.map(grado => ({
+      this.availableGradoOptions.map((grado) => ({
         label: `${grado}°`,
-        value: grado.toString()
+        value: grado.toString(),
       }))
     );
   }
@@ -217,7 +219,7 @@ export class Estudiantes implements OnInit {
 
   onNivelChange() {
     // Reset grado selection when nivel changes
-    this.selectedGrado = '';
+    this.selectedGrado = "";
   }
 
   onModalidadChange() {
@@ -226,5 +228,25 @@ export class Estudiantes implements OnInit {
 
   onGradoChange() {
     // El filtro se aplica automáticamente a través del getter filteredEstudiantes
+  }
+
+  exportToExcel() {
+    const estudiantesSheet = XLSX.utils.json_to_sheet(
+      this.filteredEstudiantes.map((e) => ({
+        Nombre: `${e.nombres} ${e.apellidoPaterno} ${e.apellidoMaterno}`,
+        Nivel: e.nivel.displayValue,
+        Grado: e.grado,
+        Modalidad: e.modalidad.displayValue,
+        Estado: e.estado ? "Activo" : "Inactivo",
+      }))
+    );
+
+    const estudiantesBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      estudiantesBook,
+      estudiantesSheet,
+      "Estudiantes"
+    );
+    XLSX.writeFile(estudiantesBook, "estudiantes.xlsx");
   }
 }

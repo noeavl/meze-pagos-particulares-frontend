@@ -1,49 +1,18 @@
-/* Estilos específicos para editar concepto */
-.form-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.form-field {
-  margin-bottom: 1.5rem;
-}
-
-.form-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-}
-
-.form-field input,
-.form-field select {
-  width: 100%;
-}
-
-.required {
-  color: #dc2626;
-}
-
-.error-message {
-  color: #dc2626;
+/* Estilos específicos para el componente de editar concepto */
+.p-error {
+  color: #dc3545;
   font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
-@media (max-width: 768px) {
-  .form-container {
-    padding: 1rem;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .button-group {
-    flex-direction: column;
-    gap: 0.5rem;
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -10,6 +10,10 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Select } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { useConcepto } from '../../hooks/use-concepto.hook';
 import { Periodo } from '../../../domain/value-objects/periodo.value-object';
 import { Nivel } from '../../../domain/value-objects/nivel.value-object';
@@ -29,9 +33,13 @@ import {
     ButtonModule,
     InputTextModule,
     ProgressSpinnerModule,
+    Select,
+    InputNumberModule,
+    ToastModule,
   ],
   templateUrl: './concepto-edit.html',
   styleUrls: ['./concepto-edit.css'],
+  providers: [MessageService],
 })
 export class ConceptoEdit implements OnInit {
   private fb = inject(FormBuilder);
@@ -39,6 +47,18 @@ export class ConceptoEdit implements OnInit {
   private route = inject(ActivatedRoute);
   private conceptoService = inject(useConcepto);
   private cdr = inject(ChangeDetectorRef);
+  private messageService = inject(MessageService);
+
+  show(severity: string, summary: string, detail: string) {
+    const toastLife = 1500;
+    this.messageService.add({
+      severity: severity,
+      summary: summary,
+      detail: detail,
+      key: 'br',
+      life: toastLife,
+    });
+  }
 
   conceptoId: number = 0;
   concepto: Concepto | null = null;
@@ -177,11 +197,19 @@ export class ConceptoEdit implements OnInit {
       this.conceptoService.updateConcepto(updateDto).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/conceptos']);
+          this.show(
+            'success',
+            'Completado',
+            'Concepto actualizado exitosamente'
+          );
+          setTimeout(() => {
+            this.router.navigate(['/conceptos']);
+          }, 1500);
         },
         error: (error: any) => {
           this.errorMessage =
             error.message || 'Error al actualizar el concepto';
+          this.show('error', 'Error', this.errorMessage);
           console.error('Error al actualizar concepto:', error);
           this.loading = false;
         },
