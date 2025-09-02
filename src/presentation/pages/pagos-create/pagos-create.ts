@@ -26,7 +26,7 @@ import { usePago } from '../../hooks/use-pago.hook';
 import { CreatePagoAdeudoDto } from '../../../domain/entities/pago.entity';
 
 @Component({
-  selector: 'app-pagos-adeudos-create',
+  selector: 'app-pagos-create',
   imports: [
     InputGroupAddonModule,
     InputGroupModule,
@@ -44,11 +44,11 @@ import { CreatePagoAdeudoDto } from '../../../domain/entities/pago.entity';
     ReactiveFormsModule,
     ToastModule,
   ],
-  templateUrl: './pagos-adeudos-create.html',
-  styleUrl: './pagos-adeudos-create.css',
+  templateUrl: './pagos-create.html',
+  styleUrl: './pagos-create.css',
   providers: [MessageService],
 })
-export class PagosAdeudosCreate implements OnInit {
+export class PagosCreate implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);

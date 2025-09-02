@@ -73,6 +73,7 @@ export class ConceptoService extends ConceptoRepository {
     return {
       id: apiResponse.id,
       nombre: apiResponse.nombre,
+      tipo: apiResponse.tipo as 'adeudo' | 'requerido',
       periodo: Periodo.fromString(apiResponse.periodo),
       nivel: apiResponse.nivel ? Nivel.fromString(apiResponse.nivel) : null,
       modalidad: apiResponse.modalidad ? Modalidad.fromString(apiResponse.modalidad) : null,

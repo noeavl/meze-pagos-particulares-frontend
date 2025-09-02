@@ -65,12 +65,17 @@ export class ConceptoEdit implements OnInit {
 
   conceptoForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
+    tipo: ['', [Validators.required]],
     periodo: ['', [Validators.required]],
     nivel: ['', [Validators.required]],
     modalidad: ['', [Validators.required]],
     costo: [0, [Validators.required, Validators.min(0.01)]],
   });
 
+  tipos = [
+    { value: 'adeudo', displayValue: 'Adeudo' },
+    { value: 'requerido', displayValue: 'Requerido' }
+  ];
   periodos = Periodo.getAll();
   niveles = Nivel.getAll();
   modalidades = Modalidad.getAll();
@@ -119,6 +124,7 @@ export class ConceptoEdit implements OnInit {
     try {
       this.conceptoForm.patchValue({
         nombre: concepto.nombre,
+        tipo: concepto.tipo,
         periodo: concepto.periodo.value,
         nivel: concepto.nivel?.rawValue,
         modalidad: concepto.modalidad?.rawValue,
@@ -163,6 +169,7 @@ export class ConceptoEdit implements OnInit {
   private getFieldLabel(fieldName: string): string {
     const labels: { [key: string]: string } = {
       nombre: 'Nombre',
+      tipo: 'Tipo',
       periodo: 'Periodo',
       nivel: 'Nivel',
       modalidad: 'Modalidad',
@@ -188,6 +195,7 @@ export class ConceptoEdit implements OnInit {
       const updateDto: UpdateConceptoDto = {
         id: this.conceptoId,
         nombre: formValues.nombre,
+        tipo: formValues.tipo,
         periodo: formValues.periodo,
         nivel: formValues.nivel,
         modalidad: formValues.modalidad,

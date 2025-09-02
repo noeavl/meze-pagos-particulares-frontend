@@ -5,6 +5,7 @@ import { Periodo } from '../value-objects/periodo.value-object';
 export interface ApiConceptoResponse {
   id: number;
   nombre: string;
+  tipo: string;
   periodo: string;
   nivel: string | null;
   modalidad: string | null;
@@ -19,6 +20,7 @@ export interface ApiResponse<T> {
 export interface Concepto {
   id: number;
   nombre: string;
+  tipo: 'adeudo' | 'requerido';
   periodo: Periodo;
   nivel: Nivel | null;
   modalidad: Modalidad | null;
@@ -27,6 +29,7 @@ export interface Concepto {
 
 export interface CreateConceptoDto {
   nombre: string;
+  tipo: string;
   periodo: string;
   nivel: string | null;
   modalidad: string | null;

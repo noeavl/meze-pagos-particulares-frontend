@@ -4,6 +4,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  EstudianteConPagos,
 } from '../entities/pago.entity';
 
 export abstract class PagoRepository {
@@ -13,4 +14,5 @@ export abstract class PagoRepository {
   abstract updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago>;
   abstract searchPagos(term: string): Observable<Pago[]>;
   abstract getAllPagosAdeudos(): Observable<PagoAdeudo[]>;
+  abstract getEstudiantesConPagos(): Observable<EstudianteConPagos[]>;
 }

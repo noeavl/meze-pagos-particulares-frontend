@@ -6,6 +6,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  EstudianteConPagos,
 } from '../entities/pago.entity';
 
 @Injectable()
@@ -34,5 +35,9 @@ export class PagoUseCase {
 
   getAllPagosAdeudos(): Observable<PagoAdeudo[]> {
     return this.pagoRepository.getAllPagosAdeudos();
+  }
+
+  getEstudiantesConPagos(): Observable<EstudianteConPagos[]> {
+    return this.pagoRepository.getEstudiantesConPagos();
   }
 }

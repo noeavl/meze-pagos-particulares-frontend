@@ -7,6 +7,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  EstudianteConPagos,
 } from '../../domain/entities/pago.entity';
 
 @Injectable({
@@ -15,6 +16,7 @@ import {
 export class usePago {
   pagos = signal<Pago[]>([]);
   pagosAdeudos = signal<PagoAdeudo[]>([]);
+  estudiantesConPagos = signal<EstudianteConPagos[]>([]);
   selectedPago = signal<Pago | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -155,6 +157,25 @@ export class usePago {
       )
       .subscribe((pagosAdeudos) => {
         this.pagosAdeudos.set(pagosAdeudos);
+      });
+  }
+
+  loadEstudiantesConPagos(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.pagoUseCase
+      .getEstudiantesConPagos()
+      .pipe(
+        catchError((err) => {
+          this.error.set('Error al cargar los estudiantes con pagos');
+          console.error('Error loading estudiantes con pagos:', err);
+          return of([]);
+        }),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe((estudiantesConPagos) => {
+        this.estudiantesConPagos.set(estudiantesConPagos);
       });
   }
 }

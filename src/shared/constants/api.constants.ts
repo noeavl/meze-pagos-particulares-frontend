@@ -1,10 +1,9 @@
-export const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
-// export const API_BASE_URL = 'https://api-particular.itcooper.mx/api/v1';
+export const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+// export const API_BASE_URL = "https://api-particular.itcooper.mx/api/v1";
 
 export const API_ENDPOINTS = {
   ESTUDIANTES: `${API_BASE_URL}/estudiantes`,
   USUARIOS: `${API_BASE_URL}/usuarios`,
-  PAGOS: `${API_BASE_URL}/pago-adeudos`,
   AUTH: `${API_BASE_URL}/auth`,
   USER: `${API_BASE_URL}/user`,
   DASHBOARD: `${API_BASE_URL}/dashboard`,
@@ -30,22 +29,27 @@ export const API_ENDPOINTS = {
     generate: `${API_BASE_URL}/adeudos/generar`,
     update: (id: number) => `${API_BASE_URL}/adeudos/${id}`,
     search: `${API_BASE_URL}/adeudos/search`,
-    historyPayments: (id: number) => `${API_BASE_URL}/adeudos/historial/pagos/${id}`,
+    historyPayments: (id: number) =>
+      `${API_BASE_URL}/adeudos/historial/pagos/${id}`,
   },
   pagos: {
+    getAll: `${API_BASE_URL}/pagos`,
+    search: `${API_BASE_URL}/pagos/search`,
+    getById: (id: number) => `${API_BASE_URL}/pagos/${id}`,
     adeudos: {
-      getAll: `${API_BASE_URL}/pagos/adeudos`,
-      getById: (id: number) => `${API_BASE_URL}/pago/adeudos/${id}`,
       create: `${API_BASE_URL}/pagos/adeudos`,
       update: (id: number) => `${API_BASE_URL}/pagos/adeudos/${id}`,
-      search: `${API_BASE_URL}/pagos/adeudos/search`,
     },
     requeridos: {
-      getAll: `${API_BASE_URL}/pagos/requeridos`,
-      getById: (id: number) => `${API_BASE_URL}/pagos/requeridos/${id}`,
       create: `${API_BASE_URL}/pagos/requeridos`,
       update: (id: number) => `${API_BASE_URL}/pagos/requeridos/${id}`,
-      search: `${API_BASE_URL}/pagos/requeridos/search`,
+    },
+  },
+  estudiantes: {
+    pagos: {
+      getAll: `${API_BASE_URL}/pagos`,
+      getByEstudiante: (id: number) =>
+        `${API_BASE_URL}/estudiantes/${id}/pagos`,
     },
   },
 } as const;

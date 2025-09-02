@@ -139,6 +139,7 @@ export class AdeudoService extends AdeudoRepository {
       concepto: {
         id: apiResponse.concepto.id,
         nombre: apiResponse.concepto.nombre,
+        tipo: (apiResponse.concepto as any).tipo || 'adeudo' as 'adeudo' | 'requerido',
         periodo: Periodo.fromString(apiResponse.concepto.periodo),
         nivel: apiResponse.concepto.nivel
           ? Nivel.fromString(apiResponse.concepto.nivel)

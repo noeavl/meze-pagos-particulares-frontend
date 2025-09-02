@@ -8,7 +8,7 @@
       </div>
       <div class="flex gap-2">
         <button
-          [routerLink]="['/pagos/adeudos/create', adeudoId]"
+          [routerLink]="['/pagos/create', adeudoId]"
           pButton
           type="button"
           label="Registrar Pago"
@@ -172,7 +172,7 @@
                 <h4 class="text-lg font-medium text-gray-900 mb-2">Sin pagos registrados</h4>
                 <p class="text-gray-600 mb-4">Este adeudo aún no tiene pagos registrados</p>
                 <button
-                  [routerLink]="['/pagos/adeudos/create', adeudoId]"
+                  [routerLink]="['/pagos/create', adeudoId]"
                   pButton
                   type="button"
                   label="Registrar primer pago"

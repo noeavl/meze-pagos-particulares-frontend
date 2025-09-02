@@ -298,9 +298,9 @@ export class Adeudos implements OnInit {
     const studentsSheet = XLSX.utils.json_to_sheet(
       this.groupedStudents.map((student) => ({
         Estudiante: `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`,
-        Nivel: student.nivel,
+        Nivel: this.formatNivel(student.nivel),
         Grado: `${student.grado}°`,
-        Modalidad: student.modalidad,
+        Modalidad: this.formatModalidad(student.modalidad),
         "Último Pago": student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados",
         "Total General": this.getStudentTotal(student.adeudos),
         "Total Pagado": this.getStudentTotalPagado(student.adeudos),
@@ -349,7 +349,8 @@ export class Adeudos implements OnInit {
     const adeudosSheet = XLSX.utils.json_to_sheet(
       student.adeudos.map((adeudo: any) => ({
         Concepto: adeudo.concepto.nombre,
-        Periodo: adeudo.concepto.periodo,
+        Periodo: this.formatPeriodo(adeudo.concepto.periodo),
+        "Descripción Período": adeudo.descripcion_periodo || "Sin descripción",
         "Monto Total": parseFloat(adeudo.total),
         "Monto Pagado": parseFloat(adeudo.pagado),
         "Monto Pendiente": parseFloat(adeudo.pendiente),
@@ -364,9 +365,9 @@ export class Adeudos implements OnInit {
       [],
       ["Resumen del Estudiante"],
       ["Nombre:", studentName],
-      ["Nivel:", student.nivel],
+      ["Nivel:", this.formatNivel(student.nivel)],
       ["Grado:", `${student.grado}°`],
-      ["Modalidad:", student.modalidad],
+      ["Modalidad:", this.formatModalidad(student.modalidad)],
       ["Último Pago:", student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados"],
       [],
       ["Total General:", `$${this.getStudentTotal(student.adeudos).toFixed(2)}`],
@@ -397,5 +398,33 @@ export class Adeudos implements OnInit {
     
     const fileName = `adeudos_${studentName.replace(/\s+/g, '_')}.xlsx`;
     XLSX.writeFile(workbook, fileName);
+  }
+
+  formatNivel(nivel: string): string {
+    const niveles: Record<string, string> = {
+      preescolar: 'Preescolar',
+      primaria: 'Primaria', 
+      secundaria: 'Secundaria',
+      bachillerato: 'Bachillerato',
+      bachillerato_sabatino: 'Bachillerato Sabatino'
+    };
+    return niveles[nivel] || nivel;
+  }
+
+  formatModalidad(modalidad: string): string {
+    const modalidades: Record<string, string> = {
+      presencial: 'Presencial',
+      en_linea: 'En Línea'
+    };
+    return modalidades[modalidad] || modalidad;
+  }
+
+  formatPeriodo(periodo: string): string {
+    const periodos: Record<string, string> = {
+      pago_unico: 'Pago Único',
+      mensual: 'Mensual',
+      semestral: 'Semestral'
+    };
+    return periodos[periodo] || periodo;
   }
 }

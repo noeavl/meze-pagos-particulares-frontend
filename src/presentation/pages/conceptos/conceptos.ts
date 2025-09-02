@@ -57,10 +57,12 @@ export class Conceptos implements OnInit {
   exportToExcel() {
     const conceptosSheet = XLSX.utils.json_to_sheet(
       this.conceptos.map((c) => ({
+        ID: c.id,
         Concepto: c.nombre,
-        Periodo: c.periodo,
-        Nivel: c.nivel,
-        Modalidad: c.modalidad,
+        Tipo: c.tipo === 'adeudo' ? 'Adeudo' : 'Requerido',
+        Periodo: c.periodo.displayValue,
+        Nivel: c.nivel?.displayValue || 'General',
+        Modalidad: c.modalidad?.displayValue || 'General',
         Costo: c.costo,
       }))
     );

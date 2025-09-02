@@ -50,6 +50,17 @@
         </h2>
         <div class="flex justify-center items-center gap-4 text-gray-600">
           <span class="flex items-center gap-1">
+            <span
+              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-blue-100 text-blue-800': concepto()?.tipo === 'adeudo',
+                'bg-green-100 text-green-800': concepto()?.tipo === 'requerido'
+              }"
+            >
+              {{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}
+            </span>
+          </span>
+          <span class="flex items-center gap-1">
             <i class="pi pi-tag"></i>
             {{ concepto()?.periodo?.displayValue }}
           </span>
@@ -77,6 +88,10 @@
           <div class="flex justify-between">
             <span class="text-gray-600 text-sm">Nombre:</span>
             <span class="font-medium text-gray-900">{{ concepto()?.nombre }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Tipo:</span>
+            <span class="font-medium text-gray-900">{{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-600 text-sm">Periodo:</span>

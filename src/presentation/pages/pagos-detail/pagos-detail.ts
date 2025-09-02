@@ -7,7 +7,7 @@ import { TableModule } from 'primeng/table';
 import { useAdeudo } from '../../hooks/use-adeudo.hook';
 
 @Component({
-  selector: 'app-pagos-adeudos-detail',
+  selector: 'app-pagos-detail',
   imports: [
     CommonModule,
     RouterLink,
@@ -15,10 +15,10 @@ import { useAdeudo } from '../../hooks/use-adeudo.hook';
     ProgressSpinner,
     TableModule
   ],
-  templateUrl: './pagos-adeudos-detail.html',
-  styleUrl: './pagos-adeudos-detail.css'
+  templateUrl: './pagos-detail.html',
+  styleUrl: './pagos-detail.css'
 })
-export class PagosAdeudosDetail implements OnInit {
+export class PagosDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private adeudoService = inject(useAdeudo);
   

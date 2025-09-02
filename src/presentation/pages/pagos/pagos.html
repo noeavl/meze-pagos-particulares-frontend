@@ -1,0 +1,345 @@
+<div class="max-w-8xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Pagos</h1>
+        <p class="text-gray-600 text-sm mt-1">
+          Visualizar todos los pagos realizados
+        </p>
+      </div>
+      <div>
+        <button
+          pButton
+          type="button"
+          icon="fa-solid fa-file-excel"
+          label="Exportar a excel"
+          (click)="exportToExcel()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <h3
+      class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200"
+    >
+      Filtros
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Search -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Buscar</label
+        >
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Folio, estudiante, concepto..."
+            (input)="onSearch($event)"
+            class="w-full"
+          />
+        </span>
+      </div>
+
+      <!-- Modality Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Modalidad</label
+        >
+        <p-select
+          [(ngModel)]="selectedModalidad"
+          (ngModelChange)="onModalidadChange()"
+          [options]="modalidadOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todas"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Level Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Nivel</label
+        >
+        <p-select
+          [(ngModel)]="selectedNivel"
+          (ngModelChange)="onNivelChange()"
+          [options]="nivelOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          class="w-full"
+        ></p-select>
+      </div>
+
+      <!-- Grade Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Grado</label
+        >
+        <p-select
+          [(ngModel)]="selectedGrado"
+          (ngModelChange)="onGradoChange()"
+          [options]="gradoOptionsForSelect"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          [disabled]="!selectedNivel"
+          class="w-full"
+        ></p-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+  <div
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
+    {{ error() }}
+  </div>
+  }
+
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Total Estudiantes</p>
+          <p class="text-2xl font-bold text-blue-600">
+            {{ filteredEstudiantesConPagos.length }}
+          </p>
+        </div>
+        <i class="pi pi-users text-blue-500 text-2xl"></i>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Total Pagos</p>
+          <p class="text-2xl font-bold text-green-600">
+            {{ getTotalPagos() }}
+          </p>
+        </div>
+        <i class="pi pi-credit-card text-green-500 text-2xl"></i>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-600">Monto Total</p>
+          <p class="text-2xl font-bold text-orange-600">
+            ${{ getMontoTotal() | number : "1.2-2" }}
+          </p>
+        </div>
+        <i class="pi pi-dollar text-orange-500 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accordion with Pagination -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    @if (loading()) {
+      <div class="flex justify-center items-center py-12">
+        <i class="pi pi-spin pi-spinner text-2xl text-gray-400"></i>
+      </div>
+    }
+    @else if (filteredEstudiantesConPagos.length === 0) {
+      <div class="text-center py-12">
+        <div class="flex flex-col items-center">
+          <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No se encontraron estudiantes con pagos
+          </h3>
+          <p class="text-gray-600 mb-6">
+            No hay pagos registrados o no coinciden con los filtros
+          </p>
+        </div>
+      </div>
+    }
+    @else {
+      <!-- Custom Accordion -->
+      <div class="p-6">
+        @for (estudiante of paginatedStudents; track estudiante.id) {
+          <div class="mb-4 border border-gray-200 rounded-lg overflow-hidden">
+            <!-- Student Header (Clickable) -->
+            <div 
+              class="bg-gray-50 px-6 py-4 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+              (click)="toggleStudent(estudiante.id)"
+            >
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors">
+                    <i 
+                      class="fa-solid text-blue-600 transition-transform duration-200 text-sm"
+                      [ngClass]="{
+                        'fa-chevron-down': isStudentExpanded(estudiante.id),
+                        'fa-chevron-right': !isStudentExpanded(estudiante.id)
+                      }"
+                    ></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      {{ estudiante.nombreCompleto }}
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      {{ estudiante.nivel }} - {{ estudiante.grado }}° - {{ estudiante.modalidad }}
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p class="text-xs text-gray-600">Total Pagos</p>
+                        <p class="text-lg font-bold text-blue-600">
+                          {{ estudiante.totalPagos }}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-600">Monto Total</p>
+                        <p class="text-lg font-bold text-green-600">
+                          ${{ estudiante.montoTotalPagado | number : "1.2-2" }}
+                        </p>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-600">Último Pago</p>
+                        <p class="text-sm font-semibold text-gray-700">
+                          @if (estudiante.fechaUltimoPago) {
+                            {{ estudiante.fechaUltimoPago | date : "dd/MM/yyyy" }}
+                          } @else {
+                            <span class="text-gray-400 text-xs">Sin pagos</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    pButton
+                    type="button"
+                    icon="fa-solid fa-file-excel"
+                    class="p-button-rounded p-button-success p-button-sm"
+                    pTooltip="Exportar pagos del estudiante a Excel"
+                    (click)="exportStudentToExcel(estudiante); $event.stopPropagation()"
+                  ></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Student Payments Table (Collapsible) -->
+            @if (isStudentExpanded(estudiante.id)) {
+              <div class="border-t border-gray-200 overflow-x-auto">
+                @if (estudiante.pagos.length === 0) {
+                  <div class="text-center py-8">
+                    <i class="pi pi-info-circle text-2xl text-gray-400 mb-2"></i>
+                    <p class="text-gray-500">Este estudiante no tiene pagos registrados</p>
+                  </div>
+                } @else {
+                  <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Folio
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Método
+                        </th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Monto
+                        </th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Fecha
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Conceptos
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      @for (pago of estudiante.pagos; track pago.id) {
+                        <tr class="hover:bg-gray-50">
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="font-medium text-gray-900">
+                              {{ pago.folio }}
+                            </div>
+                          </td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <span
+                              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                              [ngClass]="{
+                                'bg-blue-100 text-blue-800': pago.metodoPago === 'efectivo',
+                                'bg-green-100 text-green-800': pago.metodoPago === 'transferencia'
+                              }"
+                            >
+                              {{ pago.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia' }}
+                            </span>
+                          </td>
+                          <td class="px-4 py-3 whitespace-nowrap text-right font-semibold text-green-600">
+                            ${{ pago.monto | number : "1.2-2" }}
+                          </td>
+                          <td class="px-4 py-3 whitespace-nowrap text-center text-sm">
+                            {{ pago.fecha | date : "dd/MM/yyyy" }}
+                          </td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex flex-wrap gap-1">
+                              @for (adeudo of pago.adeudos; track adeudo.nombre) {
+                                <span class="text-sm text-gray-900">
+                                  {{ adeudo.nombre }}
+                                </span>
+                              }
+                              @for (requerido of pago.requeridos; track requerido.nombre) {
+                                <span class="text-sm text-gray-900">
+                                  {{ requerido.nombre }}
+                                </span>
+                              }
+                            </div>
+                          </td>
+                          <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="flex flex-wrap gap-1">
+                              @for (adeudo of pago.adeudos; track adeudo.nombre) {
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  Adeudo
+                                </span>
+                              }
+                              @for (requerido of pago.requeridos; track requerido.nombre) {
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Requerido
+                                </span>
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="border-t border-gray-200 px-6 py-4">
+        <p-paginator
+          [first]="first"
+          [rows]="rows"
+          [totalRecords]="filteredEstudiantesConPagos.length"
+          [rowsPerPageOptions]="[5, 10, 20]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} estudiantes"
+        ></p-paginator>
+      </div>
+    }
+  </div>
+</div>

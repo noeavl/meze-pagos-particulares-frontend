@@ -213,7 +213,7 @@
                       {{ student.persona.nombres }} {{ student.persona.apellido_paterno }} {{ student.persona.apellido_materno }}
                     </h3>
                     <p class="text-sm text-gray-600">
-                      {{ student.nivel | titlecase }} - {{ student.grado }}° - {{ student.modalidad | titlecase }}
+                      {{ formatNivel(student.nivel) }} - {{ student.grado }}° - {{ formatModalidad(student.modalidad) }}
                     </p>
                   </div>
                 </div>
@@ -272,6 +272,9 @@
                         Concepto
                       </th>
                       <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Descripción Período
+                      </th>
+                      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Estado
                       </th>
                       <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -299,8 +302,11 @@
                             {{ adeudo.concepto.nombre }}
                           </div>
                           <div class="text-sm text-gray-500">
-                            {{ adeudo.concepto.periodo | titlecase }}
+                            {{ formatPeriodo(adeudo.concepto.periodo) }}
                           </div>
+                        </td>
+                        <td class="px-4 py-3 text-left text-sm text-gray-900">
+                          {{ adeudo.descripcion_periodo || 'Sin descripción' }}
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
                           <span
@@ -329,7 +335,7 @@
                         <td class="px-4 py-3 whitespace-nowrap text-center">
                           <div class="flex justify-center gap-1">
                             <button
-                              [routerLink]="['/pagos/adeudos/create', adeudo.id]"
+                              [routerLink]="['/pagos/create', adeudo.id]"
                               pButton
                               type="button"
                               icon="fa-solid fa-credit-card"
