@@ -52,4 +52,10 @@ export const API_ENDPOINTS = {
         `${API_BASE_URL}/estudiantes/${id}/pagos`,
     },
   },
+  ciclosEscolares: {
+    getAll: `${API_BASE_URL}/ciclos-escolares`,
+    getById: (id: number) => `${API_BASE_URL}/ciclos-escolares/${id}`,
+    create: `${API_BASE_URL}/ciclos-escolares`,
+    update: (id: number) => `${API_BASE_URL}/ciclos-escolares/${id}`,
+  },
 } as const;

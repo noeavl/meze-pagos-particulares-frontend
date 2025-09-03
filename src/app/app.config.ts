@@ -15,6 +15,7 @@ import { conceptoProviders } from '../shared/providers/concepto.providers';
 import { adeudoProviders } from '../shared/providers/adeudo.providers';
 import { pagoProviders } from '../shared/providers/pago.providers';
 import { userProviders } from '../shared/providers/user.providers';
+import { cicloEscolarProviders } from '../shared/providers/ciclo-escolar.providers';
 import { authInterceptor } from '../shared/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -37,5 +38,6 @@ export const appConfig: ApplicationConfig = {
     ...adeudoProviders,
     ...pagoProviders,
     ...userProviders,
+    ...cicloEscolarProviders,
   ],
 };

@@ -23,6 +23,9 @@ import { PagosDetail } from "../presentation/pages/pagos-detail/pagos-detail";
 import { PagosRequeridosCreate } from "../presentation/pages/pagos-requeridos-create/pagos-requeridos-create";
 import { AdeudosCreate } from "../presentation/pages/adeudos-create/adeudos-create";
 import { AdeudoDetail } from "../presentation/pages/adeudo-detail/adeudo-detail";
+import { CiclosEscolares } from "../presentation/pages/ciclos-escolares/ciclos-escolares";
+import { CicloEscolarCreate } from "../presentation/pages/ciclo-escolar-create/ciclo-escolar-create";
+import { CicloEscolarEdit } from "../presentation/pages/ciclo-escolar-edit/ciclo-escolar-edit";
 
 export const routes: Routes = [
   { path: "", redirectTo: "/dashboard", pathMatch: "full" },
@@ -118,6 +121,18 @@ export const routes: Routes = [
       {
         path: "pagos/detail/:id",
         component: PagosDetail,
+      },
+      {
+        path: "ciclos-escolares",
+        component: CiclosEscolares,
+      },
+      {
+        path: "ciclo-escolar/create",
+        component: CicloEscolarCreate,
+      },
+      {
+        path: "ciclo-escolar/edit/:id",
+        component: CicloEscolarEdit,
       },
     ],
   },

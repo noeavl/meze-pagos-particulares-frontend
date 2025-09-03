@@ -93,6 +93,23 @@
       </li>
       <li>
         <a
+          [routerLink]="['/ciclos-escolares']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-calendar-alt text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+          >
+            Ciclos Escolares
+          </span>
+        </a>
+      </li>
+      <li>
+        <a
           [routerLink]="['/pagos']"
           class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
         >

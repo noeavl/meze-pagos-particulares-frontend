@@ -1,0 +1,119 @@
+<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Crear Ciclo Escolar</h1>
+        <p class="text-gray-600 text-sm mt-1">Definir un nuevo período académico</p>
+      </div>
+      <button
+        [routerLink]="['/ciclos-escolares']"
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-outlined p-button-secondary"
+      ></button>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    <div class="flex items-center">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      {{ errorMessage }}
+    </div>
+  </div>
+  }
+  
+  <form [formGroup]="cicloEscolarForm" (ngSubmit)="onSubmit()">
+    <!-- Ciclo Escolar Information Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+        Información del Período Académico
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Fecha de Inicio -->
+        <div class="space-y-2">
+          <label for="fechaInicio" class="block text-sm font-medium text-gray-700">
+            Fecha de Inicio <span class="text-red-500">*</span>
+          </label>
+          <p-datepicker
+            inputId="fechaInicio"
+            formControlName="fechaInicio"
+            dateFormat="dd/mm/yy"
+            placeholder="Seleccione fecha de inicio"
+            [showIcon]="true"
+            iconDisplay="input"
+            [class]="isInvalid('fechaInicio') ? 'ng-invalid ng-dirty' : ''"
+            [style]="{ width: '100%' }"
+          ></p-datepicker>
+          @if (isInvalid('fechaInicio')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('fechaInicio') }}</small>
+          }
+        </div>
+
+        <!-- Fecha de Fin -->
+        <div class="space-y-2">
+          <label for="fechaFin" class="block text-sm font-medium text-gray-700">
+            Fecha de Fin <span class="text-red-500">*</span>
+          </label>
+          <p-datepicker
+            inputId="fechaFin"
+            formControlName="fechaFin"
+            dateFormat="dd/mm/yy"
+            placeholder="Seleccione fecha de fin"
+            [showIcon]="true"
+            iconDisplay="input"
+            [class]="isInvalid('fechaFin') ? 'ng-invalid ng-dirty' : ''"
+            [style]="{ width: '100%' }"
+          ></p-datepicker>
+          @if (isInvalid('fechaFin')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('fechaFin') }}</small>
+          }
+        </div>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-start">
+          <i class="pi pi-info-circle text-blue-500 mt-0.5 mr-2"></i>
+          <div>
+            <p class="text-blue-800 text-sm font-medium">Nota importante</p>
+            <p class="text-blue-700 text-sm mt-1">
+              El nombre del ciclo escolar se generará automáticamente basado en las fechas proporcionadas.
+              Solo se pueden modificar las fechas de inicio y fin después de la creación.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex justify-end gap-3">
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary"
+          (click)="onCancel()"
+          [disabled]="loading"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          [label]="loading ? 'Creando...' : 'Crear Ciclo Escolar'"
+          [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="loading"
+          [disabled]="cicloEscolarForm.invalid || loading"
+        ></button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Toast Messages -->
+  <p-toast key="br" position="bottom-right"></p-toast>
+</div>
