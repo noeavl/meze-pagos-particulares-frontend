@@ -40,16 +40,35 @@
         <label class="block text-sm font-medium text-gray-700 mb-2"
           >Buscar</label
         >
-        <span class="p-input-icon-left w-full">
-          <i class="pi pi-search"></i>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <button
+              pButton
+              class="p-button-text"
+              icon="fa-solid fa-info"
+              (click)="op.toggle($event)"
+            ></button>
+            <p-popover #op>
+              <div class="p-3 text-sm">
+                <h3 class="font-semibold mb-2">Parametros de busqueda</h3>
+                <ul class="space-y-2">
+                  <li>Nombres</li>
+                  <li>Apellido paterno</li>
+                  <li>Apellido materno</li>
+                  <li>CURP</li>
+                  <li>Grupo</li>
+                </ul>
+              </div>
+            </p-popover>
+          </p-inputgroup-addon>
           <input
             type="text"
             pInputText
-            placeholder="Nombre completo..."
+            placeholder="Estudiante"
             (input)="onSearch($event)"
             class="w-full"
           />
-        </span>
+        </p-inputgroup>
       </div>
 
       <!-- Nivel Filter -->
@@ -211,11 +230,17 @@
           <th pSortableColumn="nombres" class="text-left">
             Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
           </th>
+          <th pSortableColumn="curp" class="text-left">
+            CURP <p-sortIcon field="curp"></p-sortIcon>
+          </th>
           <th pSortableColumn="nivel" class="text-left">
             Nivel <p-sortIcon field="nivel"></p-sortIcon>
           </th>
           <th pSortableColumn="grado" class="text-center">
             Grado <p-sortIcon field="grado"></p-sortIcon>
+          </th>
+          <th pSortableColumn="grupo" class="text-center">
+            Grupo <p-sortIcon field="grupo"></p-sortIcon>
           </th>
           <th pSortableColumn="modalidad" class="text-left">
             Modalidad <p-sortIcon field="modalidad"></p-sortIcon>
@@ -230,8 +255,11 @@
             {{ estudiante.id }}
           </td>
           <td class="font-medium text-gray-900">
-            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }}
+            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }} 
             {{ estudiante.apellidoMaterno }}
+          </td>
+          <td>
+            {{ estudiante.curp }}
           </td>
           <td>
             <p-tag
@@ -249,6 +277,9 @@
           </td>
           <td class="text-center">
             <span class="font-semibold">{{ estudiante.grado }}°</span>
+          </td>
+          <td class="text-center">
+            <span class="font-semibold">{{ estudiante.grupo || 'N/A' }}</span>
           </td>
           <td>
             <p-tag

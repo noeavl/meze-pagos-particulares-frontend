@@ -20,6 +20,7 @@ import { PagosEdit } from "../presentation/pages/pagos-edit/pagos-edit";
 import { Pagos } from "../presentation/pages/pagos/pagos";
 import { PagosCreate } from "../presentation/pages/pagos-create/pagos-create";
 import { PagosDetail } from "../presentation/pages/pagos-detail/pagos-detail";
+import { PagosRequeridosCreate } from "../presentation/pages/pagos-requeridos-create/pagos-requeridos-create";
 import { AdeudosCreate } from "../presentation/pages/adeudos-create/adeudos-create";
 import { AdeudoDetail } from "../presentation/pages/adeudo-detail/adeudo-detail";
 
@@ -105,6 +106,10 @@ export const routes: Routes = [
       {
         path: "pagos/create/:id",
         component: PagosCreate,
+      },
+      {
+        path: "pagos/requeridos/create",
+        component: PagosRequeridosCreate,
       },
       {
         path: "pagos/edit/:id",

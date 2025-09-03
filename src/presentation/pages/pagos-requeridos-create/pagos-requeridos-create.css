@@ -1,0 +1,42 @@
+/* Estilos adicionales para la página de creación de pagos requeridos */
+.ng-invalid.ng-touched {
+  border-color: #fca5a5;
+}
+
+.ng-invalid.ng-touched:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+.p-select.ng-invalid,
+.p-inputnumber.ng-invalid,
+.p-datepicker.ng-invalid {
+  border-color: #fca5a5;
+}
+
+.p-select.ng-invalid .p-select-trigger,
+.p-inputnumber.ng-invalid .p-inputnumber-input,
+.p-datepicker.ng-invalid .p-inputtext {
+  border-color: #fca5a5;
+}
+
+.p-select.ng-invalid .p-select-trigger:focus,
+.p-inputnumber.ng-invalid .p-inputnumber-input:focus,
+.p-datepicker.ng-invalid .p-inputtext:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+/* Loading state */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}

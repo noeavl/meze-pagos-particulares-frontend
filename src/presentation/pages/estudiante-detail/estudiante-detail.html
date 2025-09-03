@@ -90,6 +90,10 @@
             <span class="text-gray-600 text-sm">Apellido Materno:</span>
             <span class="font-medium text-gray-900">{{ estudiante()?.apellidoMaterno || 'N/A' }}</span>
           </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">CURP:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.curp }}</span>
+          </div>
         </div>
       </div>
 
@@ -111,6 +115,10 @@
           <div class="flex justify-between">
             <span class="text-gray-600 text-sm">Modalidad:</span>
             <span class="font-medium text-gray-900">{{ estudiante()?.modalidad?.displayValue }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Grupo:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.grupo || 'N/A' }}</span>
           </div>
         </div>
       </div>

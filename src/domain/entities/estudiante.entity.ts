@@ -20,6 +20,8 @@ export interface ApiEstudianteResponse {
   created_at: string;
   updated_at: string;
   persona: ApiPersonaResponse;
+  grupo?: string;
+  curp: string;
 }
 
 export interface ApiResponse<T> {
@@ -35,7 +37,9 @@ export interface Estudiante {
   nivel: Nivel;
   grado: string;
   modalidad: Modalidad;
-  estado: boolean
+  estado: boolean;
+  grupo?: string;
+  curp: string;
 }
 
 export interface CreateEstudianteDto {
@@ -45,6 +49,8 @@ export interface CreateEstudianteDto {
   nivel: string;
   grado: string;
   modalidad: string;
+  grupo?: string;
+  curp: string;
 }
 
 export interface UpdateEstudianteDto extends Partial<CreateEstudianteDto> {

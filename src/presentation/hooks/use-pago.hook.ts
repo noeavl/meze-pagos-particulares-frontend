@@ -7,6 +7,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  CreatePagoRequeridoDto,
   EstudianteConPagos,
 } from '../../domain/entities/pago.entity';
 
@@ -97,6 +98,35 @@ export class usePago {
         this.error.set(errorMessage);
         console.error('Error creating pago:', err);
         throw err; // Re-throw the error to be handled by the component
+      }),
+      finalize(() => this.loading.set(false))
+    );
+  }
+
+  createPagoRequerido(pago: CreatePagoRequeridoDto): Observable<any> {
+    this.loading.set(true);
+    this.error.set(null);
+    this.validationErrors.set(null);
+    return this.pagoUseCase.createPagoRequerido(pago).pipe(
+      tap((response) => {
+        console.log('Pago requerido created successfully:', response.message);
+      }),
+      catchError((err) => {
+        let errorMessage = 'Error al crear el pago requerido';
+        if (err.status === 422) {
+          // Validation error
+          if (err.error?.errors) {
+            this.validationErrors.set(err.error.errors);
+            errorMessage = err.error.message || 'Errores de validación. Verifique los datos ingresados.';
+          } else {
+            errorMessage = 'Datos del pago inválidos. Verifique la información ingresada.';
+          }
+        } else if (err.status === 400) {
+          errorMessage = 'Datos del pago inválidos. Verifique la información ingresada.';
+        }
+        this.error.set(errorMessage);
+        console.error('Error creating pago requerido:', err);
+        throw err;
       }),
       finalize(() => this.loading.set(false))
     );

@@ -59,9 +59,11 @@ export class EstudianteCreate implements OnInit {
     nombres: ['', [Validators.required, Validators.minLength(2)]],
     apellidoPaterno: ['', [Validators.required, Validators.minLength(2)]],
     apellidoMaterno: ['', [Validators.minLength(2)]],
+    curp: ['', [Validators.required, Validators.pattern(/^[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[0-9,A-Z]{2}$/)]],
     nivel: ['', [Validators.required]],
     grado: [{ value: '', disabled: true }, [Validators.required]],
     modalidad: ['', [Validators.required]],
+    grupo: [''],
   });
 
   nivelesOptions: DropdownOption[] = [
@@ -129,6 +131,10 @@ export class EstudianteCreate implements OnInit {
       return `${this.getFieldLabel(fieldName)} debe tener al menos ${
         errors['minlength'].requiredLength
       } caracteres`;
+    if (errors['pattern'])
+      return `El formato del ${this.getFieldLabel(fieldName)} no es válido`;
+    if (errors['serverError'])
+      return errors['serverError'];
 
     return 'Campo inválido';
   }
@@ -138,9 +144,11 @@ export class EstudianteCreate implements OnInit {
       nombres: 'Nombres',
       apellidoPaterno: 'Apellido Paterno',
       apellidoMaterno: 'Apellido Materno',
+      curp: 'CURP',
       nivel: 'Nivel',
       grado: 'Grado',
       modalidad: 'Modalidad',
+      grupo: 'Grupo',
     };
     return labels[fieldName] || fieldName;
   }
@@ -161,9 +169,11 @@ export class EstudianteCreate implements OnInit {
         nombres: formValues.nombres,
         apellido_paterno: formValues.apellidoPaterno,
         apellido_materno: formValues.apellidoMaterno,
+        curp: formValues.curp,
         nivel: formValues.nivel,
         grado: formValues.grado,
         modalidad: formValues.modalidad,
+        grupo: formValues.grupo,
       };
 
       this.estudianteService.createEstudiante(createDto).subscribe({
@@ -176,10 +186,21 @@ export class EstudianteCreate implements OnInit {
           }, 1500);
         },
         error: (error: any) => {
-          this.errorMessage = error.message || 'Error al crear el estudiante';
+          this.loading = false;
+          if (error.status === 422) {
+            this.errorMessage = error.error.message;
+            const errorFields = Object.keys(error.error.errors);
+            errorFields.forEach(field => {
+              const control = this.estudianteForm.get(field);
+              if (control) {
+                control.setErrors({ serverError: error.error.errors[field][0] });
+              }
+            });
+          } else {
+            this.errorMessage = error.message || 'Error al crear el estudiante';
+          }
           this.show('error', 'Error', this.errorMessage);
           console.error('Error al crear estudiante:', error);
-          this.loading = false;
         },
       });
     } catch (error: any) {

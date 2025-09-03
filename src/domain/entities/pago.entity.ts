@@ -112,6 +112,15 @@ export interface UpdatePagoAdeudoDto extends Partial<CreatePagoAdeudoDto> {
   id: number;
 }
 
+export interface CreatePagoRequeridoDto {
+  concepto_id: number;
+  estudiante_id: number;
+  folio: string;
+  monto: number;
+  metodo_pago: 'efectivo' | 'transferencia';
+  fecha: string;
+}
+
 export type MetodoPago = 'efectivo' | 'transferencia';
 
 export const METODOS_PAGO: { label: string; value: MetodoPago }[] = [

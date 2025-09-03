@@ -105,9 +105,11 @@ export class AdeudoService extends AdeudoRepository {
             nombres: '',
             apellidoPaterno: '',
             apellidoMaterno: '',
+            curp: '',
             nivel: {} as any,
             grado: '',
             modalidad: {} as any,
+            grupo: '',
           }
         } as Pago)))
       );
@@ -125,10 +127,12 @@ export class AdeudoService extends AdeudoRepository {
         nombres: '',
         apellidoPaterno: '',
         apellidoMaterno: '',
+        curp: '',
         nivel: {} as any,
         grado: '',
         modalidad: {} as any,
-        estado: true
+        estado: true,
+        grupo: '',
       }
     };
   }
@@ -154,10 +158,12 @@ export class AdeudoService extends AdeudoRepository {
         nombres: apiResponse.estudiante.persona.nombres,
         apellidoPaterno: apiResponse.estudiante.persona.apellido_paterno,
         apellidoMaterno: apiResponse.estudiante.persona.apellido_materno,
+        curp: apiResponse.estudiante.curp,
         nivel: Nivel.createFromRaw(apiResponse.estudiante.nivel),
         grado: apiResponse.estudiante.grado,
         modalidad: Modalidad.createFromRaw(apiResponse.estudiante.modalidad),
-        estado: apiResponse.estudiante.estado
+        estado: apiResponse.estudiante.estado,
+        grupo: apiResponse.estudiante.grupo,
       },
       estado: Estado.fromString(apiResponse.estado),
       montoPendiente: parseFloat(apiResponse.pendiente),

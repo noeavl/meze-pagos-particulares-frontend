@@ -105,6 +105,26 @@
           </small>
           }
         </div>
+
+        <!-- CURP -->
+        <div class="space-y-2">
+          <label for="curp" class="block text-sm font-medium text-gray-700">
+            CURP <span class="text-red-500">*</span>
+          </label>
+          <input
+            pInputText
+            id="curp"
+            formControlName="curp"
+            placeholder="CURP del estudiante"
+            [invalid]="isInvalid('curp')"
+            class="w-full"
+          />
+          @if (isInvalid('curp')) {
+          <small class="text-red-600 text-xs">
+            {{ getErrorMessage("curp") }}
+          </small>
+          }
+        </div>
       </div>
     </div>
 
@@ -182,6 +202,26 @@
           @if (isInvalid('modalidad')) {
           <small class="text-red-600 text-xs">
             {{ getErrorMessage("modalidad") }}
+          </small>
+          }
+        </div>
+
+        <!-- Grupo -->
+        <div class="space-y-2">
+          <label for="grupo" class="block text-sm font-medium text-gray-700">
+            Grupo
+          </label>
+          <input
+            pInputText
+            id="grupo"
+            formControlName="grupo"
+            placeholder="Grupo del estudiante"
+            [invalid]="isInvalid('grupo')"
+            class="w-full"
+          />
+          @if (isInvalid('grupo')) {
+          <small class="text-red-600 text-xs">
+            {{ getErrorMessage("grupo") }}
           </small>
           }
         </div>

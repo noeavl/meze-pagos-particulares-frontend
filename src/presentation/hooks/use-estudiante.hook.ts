@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { catchError, finalize } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { EstudianteUseCase } from '../../domain/use-cases/estudiante.use-case';
 import {
   Estudiante,
@@ -105,6 +105,20 @@ export class useEstudiante {
       .subscribe((estudiantes) => {
         this.estudiantes.set(estudiantes);
       });
+  }
+
+  getEstudianteByCurp(curp: string): Observable<Estudiante> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.estudianteUseCase.getEstudianteByCurp(curp).pipe(
+      catchError((err) => {
+        // Pasar el error completo para que el componente pueda acceder al mensaje
+        this.error.set(err.error?.message || 'Estudiante no encontrado');
+        throw err;
+      }),
+      finalize(() => this.loading.set(false))
+    );
   }
 
   updateEstudianteEstado(id: number, estado: boolean) {

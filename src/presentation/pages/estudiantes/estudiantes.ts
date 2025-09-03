@@ -4,9 +4,12 @@ import { FormsModule } from "@angular/forms";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { Select } from "primeng/select";
+import { Popover } from "primeng/popover";
 import { useEstudiante } from "../../hooks/use-estudiante.hook";
 import { RouterLink } from "@angular/router";
 import { DialogModule } from "primeng/dialog";
@@ -23,9 +26,12 @@ import * as XLSX from "xlsx";
     TableModule,
     ButtonModule,
     InputTextModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     TagModule,
     TooltipModule,
     Select,
+    Popover,
     RouterLink,
     DialogModule,
     ToastModule,
@@ -154,20 +160,25 @@ export class Estudiantes implements OnInit {
       );
     }
 
-    // Filtrar por término de búsqueda
+    // Filtrar por término de búsqueda (nombre, apellidos, CURP y grupo)
     if (this.searchTerm.trim()) {
-      filtered = filtered.filter(
-        (estudiante) =>
-          estudiante.nombres
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          estudiante.apellidoPaterno
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          estudiante.apellidoMaterno
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase())
-      );
+      const searchTerms = this.searchTerm.toLowerCase().trim().split(/\s+/);
+      filtered = filtered.filter((estudiante) => {
+        return searchTerms.every((term) => {
+          const fullName = this.normalizeText(
+            `${estudiante.nombres} ${estudiante.apellidoPaterno} ${estudiante.apellidoMaterno}`
+          );
+          const curp = this.normalizeText(estudiante.curp || "");
+          const grupo = this.normalizeText(estudiante.grupo || "");
+          const normalizedTerm = this.normalizeText(term);
+          
+          return (
+            fullName.includes(normalizedTerm) || 
+            curp.includes(normalizedTerm) || 
+            grupo.includes(normalizedTerm)
+          );
+        });
+      });
     }
 
     return filtered;
@@ -234,8 +245,10 @@ export class Estudiantes implements OnInit {
     const estudiantesSheet = XLSX.utils.json_to_sheet(
       this.filteredEstudiantes.map((e) => ({
         Nombre: `${e.nombres} ${e.apellidoPaterno} ${e.apellidoMaterno}`,
+        CURP: e.curp,
         Nivel: e.nivel.displayValue,
         Grado: e.grado,
+        Grupo: e.grupo || 'N/A',
         Modalidad: e.modalidad.displayValue,
         Estado: e.estado ? "Activo" : "Inactivo",
       }))
@@ -248,5 +261,12 @@ export class Estudiantes implements OnInit {
       "Estudiantes"
     );
     XLSX.writeFile(estudiantesBook, "estudiantes.xlsx");
+  }
+
+  normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
   }
 }

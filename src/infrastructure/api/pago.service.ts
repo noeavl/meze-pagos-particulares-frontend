@@ -8,6 +8,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  CreatePagoRequeridoDto,
   ApiPagoResponse,
   ApiPagoAdeudoResponse,
   ApiResponse,
@@ -41,6 +42,13 @@ export class PagoService extends PagoRepository {
   createPago(pago: CreatePagoAdeudoDto): Observable<any> {
     return this.http.post<{ success: boolean; message: string }>(
       API_ENDPOINTS.pagos.adeudos.create,
+      pago
+    );
+  }
+
+  createPagoRequerido(pago: CreatePagoRequeridoDto): Observable<any> {
+    return this.http.post<{ success: boolean; message: string }>(
+      API_ENDPOINTS.pagos.requeridos.create,
       pago
     );
   }
@@ -94,10 +102,12 @@ export class PagoService extends PagoRepository {
         nombres: apiResponse.estudiante.persona.nombres,
         apellidoPaterno: apiResponse.estudiante.persona.apellido_paterno,
         apellidoMaterno: apiResponse.estudiante.persona.apellido_materno,
+        curp: apiResponse.estudiante.curp,
         nivel: Nivel.createFromRaw(apiResponse.estudiante.nivel),
         grado: apiResponse.estudiante.grado,
         modalidad: Modalidad.createFromRaw(apiResponse.estudiante.modalidad),
         estado: apiResponse.estudiante.estado,
+        grupo: apiResponse.estudiante.grupo,
       },
       folio: apiResponse.folio,
       metodo: apiResponse.metodo as "efectivo" | "transferencia",

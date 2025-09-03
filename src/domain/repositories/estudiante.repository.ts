@@ -5,6 +5,7 @@ import { Estudiante, CreateEstudianteDto, UpdateEstudianteDto } from '../entitie
 export interface EstudianteRepository {
   getAll(): Observable<Estudiante[]>;
   getById(id: number): Observable<Estudiante>;
+  getByCurp(curp: string): Observable<Estudiante>;
   create(estudiante: CreateEstudianteDto): Observable<any>;
   update(estudiante: UpdateEstudianteDto): Observable<Estudiante>;
   delete(id: number): Observable<void>;

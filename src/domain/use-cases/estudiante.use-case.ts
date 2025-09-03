@@ -17,6 +17,10 @@ export class EstudianteUseCase {
     return this.estudianteRepository.getById(id);
   }
 
+  getEstudianteByCurp(curp: string): Observable<Estudiante> {
+    return this.estudianteRepository.getByCurp(curp);
+  }
+
   createEstudiante(estudiante: CreateEstudianteDto): Observable<any> {
     return this.estudianteRepository.create(estudiante);
   }

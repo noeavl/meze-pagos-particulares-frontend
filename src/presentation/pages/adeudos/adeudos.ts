@@ -4,6 +4,8 @@ import { FormsModule } from "@angular/forms";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { Select } from "primeng/select";
@@ -11,6 +13,7 @@ import { PaginatorModule } from "primeng/paginator";
 import { useAdeudo } from "../../hooks/use-adeudo.hook";
 import { RouterLink } from "@angular/router";
 import * as XLSX from "xlsx";
+import { Popover } from "primeng/popover";
 
 @Component({
   selector: "app-adeudos",
@@ -20,11 +23,13 @@ import * as XLSX from "xlsx";
     TableModule,
     ButtonModule,
     InputTextModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     TagModule,
-    TooltipModule,
     Select,
     PaginatorModule,
     RouterLink,
+    Popover,
   ],
   templateUrl: "./adeudos.html",
   styleUrl: "./adeudos.css",
@@ -125,40 +130,42 @@ export class Adeudos implements OnInit {
 
     // Filtrar por estado de adeudos si está seleccionado
     if (this.selectedEstado) {
-      filtered = filtered.map((student: any) => ({
-        ...student,
-        adeudos: student.adeudos.filter((adeudo: any) => 
-          adeudo.estado.toLowerCase() === this.selectedEstado.toLowerCase()
-        )
-      })).filter((student: any) => student.adeudos.length > 0);
+      filtered = filtered
+        .map((student: any) => ({
+          ...student,
+          adeudos: student.adeudos.filter(
+            (adeudo: any) =>
+              adeudo.estado.toLowerCase() === this.selectedEstado.toLowerCase()
+          ),
+        }))
+        .filter((student: any) => student.adeudos.length > 0);
     }
 
-    // Filtrar por término de búsqueda
-    if (this.searchTerm.trim()) {
-      filtered = filtered.filter(
-        (student) =>
-          student.persona.nombres
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          student.persona.apellido_paterno
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          student.persona.apellido_materno
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          student.adeudos.some((adeudo: any) =>
-            adeudo.concepto.nombre
-              .toLowerCase()
-              .includes(this.searchTerm.toLowerCase())
-          )
-      );
+    // Filtrar por término de búsqueda (nombre completo del estudiante y CURP)
+    if (this.searchTerm) {
+      const searchTerms = this.searchTerm.toLowerCase().trim().split(/\s+/);
+      filtered = filtered.filter((student: any) => {
+        const fullName = this.normalizeText(
+          `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`
+        );
+        const curp = this.normalizeText(student.curp || "");
+
+        return searchTerms.every((term) => {
+          const normalizedTerm = this.normalizeText(term);
+          const grupo = this.normalizeText(student.grupo || "");
+          return (
+            fullName.includes(normalizedTerm) || 
+            curp.includes(normalizedTerm) || 
+            grupo.includes(normalizedTerm)
+          );
+        });
+      });
     }
 
     return filtered;
   }
 
   get filteredAdeudos() {
-    // Convertir datos agrupados a lista plana para mantener compatibilidad
     const allAdeudos = this.groupedStudents.flatMap((student: any) =>
       student.adeudos.map((adeudo: any) => ({
         ...adeudo,
@@ -168,7 +175,10 @@ export class Adeudos implements OnInit {
           apellidoMaterno: student.persona.apellido_materno,
           nivel: { rawValue: student.nivel, displayValue: student.nivel },
           grado: student.grado,
-          modalidad: { rawValue: student.modalidad, displayValue: student.modalidad }
+          modalidad: {
+            rawValue: student.modalidad,
+            displayValue: student.modalidad,
+          },
         },
         montoTotal: parseFloat(adeudo.total),
         montoPagado: parseFloat(adeudo.pagado),
@@ -176,10 +186,13 @@ export class Adeudos implements OnInit {
         fechaVencimiento: adeudo.fecha_vencimiento,
         estado: {
           displayValue: adeudo.estado,
-          colorClass: adeudo.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                     adeudo.estado === 'pagado' ? 'bg-green-100 text-green-800' :
-                     'bg-red-100 text-red-800'
-        }
+          colorClass:
+            adeudo.estado === "pendiente"
+              ? "bg-yellow-100 text-yellow-800"
+              : adeudo.estado === "pagado"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800",
+        },
       }))
     );
 
@@ -255,7 +268,10 @@ export class Adeudos implements OnInit {
   }
 
   getStudentTotalPendiente(adeudos: any[]) {
-    return adeudos.reduce((sum, adeudo) => sum + parseFloat(adeudo.pendiente), 0);
+    return adeudos.reduce(
+      (sum, adeudo) => sum + parseFloat(adeudo.pendiente),
+      0
+    );
   }
 
   getStudentTotal(adeudos: any[]) {
@@ -301,11 +317,13 @@ export class Adeudos implements OnInit {
         Nivel: this.formatNivel(student.nivel),
         Grado: `${student.grado}°`,
         Modalidad: this.formatModalidad(student.modalidad),
-        "Último Pago": student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados",
+        "Último Pago": student.ultimo_pago_fecha
+          ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
+          : "Sin pagos registrados",
         "Total General": this.getStudentTotal(student.adeudos),
         "Total Pagado": this.getStudentTotalPagado(student.adeudos),
         "Total Pendiente": this.getStudentTotalPendiente(student.adeudos),
-        "Número de Adeudos": student.adeudos.length
+        "Número de Adeudos": student.adeudos.length,
       }))
     );
 
@@ -321,31 +339,38 @@ export class Adeudos implements OnInit {
 
     // Obtener el rango actual de la hoja
     const ws = studentsSheet;
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
     let startRow = range.e.r + 2;
 
     // Agregar las filas de totales
     totalInfo.forEach((row, index) => {
       row.forEach((cell, colIndex) => {
-        const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex });
-        ws[cellAddress] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+        const cellAddress = XLSX.utils.encode_cell({
+          r: startRow + index,
+          c: colIndex,
+        });
+        ws[cellAddress] = { v: cell, t: typeof cell === "number" ? "n" : "s" };
       });
     });
 
     // Actualizar el rango de la hoja
-    ws['!ref'] = XLSX.utils.encode_range({
+    ws["!ref"] = XLSX.utils.encode_range({
       s: { r: 0, c: 0 },
-      e: { r: startRow + totalInfo.length - 1, c: Math.max(range.e.c, 1) }
+      e: { r: startRow + totalInfo.length - 1, c: Math.max(range.e.c, 1) },
     });
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, studentsSheet, "Resumen Estudiantes");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      studentsSheet,
+      "Resumen Estudiantes"
+    );
     XLSX.writeFile(workbook, "resumen_adeudos_estudiantes.xlsx");
   }
 
   exportStudentToExcel(student: any) {
     const studentName = `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`;
-    
+
     const adeudosSheet = XLSX.utils.json_to_sheet(
       student.adeudos.map((adeudo: any) => ({
         Concepto: adeudo.concepto.nombre,
@@ -356,7 +381,9 @@ export class Adeudos implements OnInit {
         "Monto Pendiente": parseFloat(adeudo.pendiente),
         Estado: adeudo.estado,
         "Fecha Inicio": new Date(adeudo.fecha_inicio).toLocaleDateString(),
-        "Fecha Vencimiento": new Date(adeudo.fecha_vencimiento).toLocaleDateString(),
+        "Fecha Vencimiento": new Date(
+          adeudo.fecha_vencimiento
+        ).toLocaleDateString(),
       }))
     );
 
@@ -368,63 +395,87 @@ export class Adeudos implements OnInit {
       ["Nivel:", this.formatNivel(student.nivel)],
       ["Grado:", `${student.grado}°`],
       ["Modalidad:", this.formatModalidad(student.modalidad)],
-      ["Último Pago:", student.ultimo_pago_fecha ? new Date(student.ultimo_pago_fecha).toLocaleDateString() : "Sin pagos registrados"],
+      [
+        "Último Pago:",
+        student.ultimo_pago_fecha
+          ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
+          : "Sin pagos registrados",
+      ],
       [],
-      ["Total General:", `$${this.getStudentTotal(student.adeudos).toFixed(2)}`],
-      ["Total Pagado:", `$${this.getStudentTotalPagado(student.adeudos).toFixed(2)}`],
-      ["Total Pendiente:", `$${this.getStudentTotalPendiente(student.adeudos).toFixed(2)}`],
+      [
+        "Total General:",
+        `$${this.getStudentTotal(student.adeudos).toFixed(2)}`,
+      ],
+      [
+        "Total Pagado:",
+        `$${this.getStudentTotalPagado(student.adeudos).toFixed(2)}`,
+      ],
+      [
+        "Total Pendiente:",
+        `$${this.getStudentTotalPendiente(student.adeudos).toFixed(2)}`,
+      ],
     ];
 
     // Agregar las filas de información del estudiante
     const ws = adeudosSheet;
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
     let startRow = range.e.r + 2;
 
     studentInfo.forEach((row, index) => {
       row.forEach((cell, colIndex) => {
-        const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex });
-        ws[cellAddress] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+        const cellAddress = XLSX.utils.encode_cell({
+          r: startRow + index,
+          c: colIndex,
+        });
+        ws[cellAddress] = { v: cell, t: typeof cell === "number" ? "n" : "s" };
       });
     });
 
     // Actualizar el rango
-    ws['!ref'] = XLSX.utils.encode_range({
+    ws["!ref"] = XLSX.utils.encode_range({
       s: { r: 0, c: 0 },
-      e: { r: startRow + studentInfo.length - 1, c: Math.max(range.e.c, 1) }
+      e: { r: startRow + studentInfo.length - 1, c: Math.max(range.e.c, 1) },
     });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, adeudosSheet, "Adeudos");
-    
-    const fileName = `adeudos_${studentName.replace(/\s+/g, '_')}.xlsx`;
+
+    const fileName = `adeudos_${studentName.replace(/\s+/g, "_")}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   }
 
   formatNivel(nivel: string): string {
     const niveles: Record<string, string> = {
-      preescolar: 'Preescolar',
-      primaria: 'Primaria', 
-      secundaria: 'Secundaria',
-      bachillerato: 'Bachillerato',
-      bachillerato_sabatino: 'Bachillerato Sabatino'
+      preescolar: "Preescolar",
+      primaria: "Primaria",
+      secundaria: "Secundaria",
+      bachillerato: "Bachillerato",
+      bachillerato_sabatino: "Bachillerato Sabatino",
     };
     return niveles[nivel] || nivel;
   }
 
   formatModalidad(modalidad: string): string {
     const modalidades: Record<string, string> = {
-      presencial: 'Presencial',
-      en_linea: 'En Línea'
+      presencial: "Presencial",
+      en_linea: "En Línea",
     };
     return modalidades[modalidad] || modalidad;
   }
 
   formatPeriodo(periodo: string): string {
     const periodos: Record<string, string> = {
-      pago_unico: 'Pago Único',
-      mensual: 'Mensual',
-      semestral: 'Semestral'
+      pago_unico: "Pago Único",
+      mensual: "Mensual",
+      semestral: "Semestral",
     };
     return periodos[periodo] || periodo;
+  }
+
+  normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
   }
 }

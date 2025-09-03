@@ -6,6 +6,7 @@ import {
   PagoAdeudo,
   CreatePagoAdeudoDto,
   UpdatePagoAdeudoDto,
+  CreatePagoRequeridoDto,
   EstudianteConPagos,
 } from '../entities/pago.entity';
 
@@ -23,6 +24,10 @@ export class PagoUseCase {
 
   createPago(pago: CreatePagoAdeudoDto): Observable<any> {
     return this.pagoRepository.createPago(pago);
+  }
+
+  createPagoRequerido(pago: CreatePagoRequeridoDto): Observable<any> {
+    return this.pagoRepository.createPagoRequerido(pago);
   }
 
   updatePago(pago: UpdatePagoAdeudoDto): Observable<Pago> {

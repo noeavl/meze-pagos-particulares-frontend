@@ -4,10 +4,14 @@ import { FormsModule } from "@angular/forms";
 import { TableModule } from "primeng/table";
 import { ButtonModule } from "primeng/button";
 import { InputTextModule } from "primeng/inputtext";
+import { InputGroupModule } from "primeng/inputgroup";
+import { InputGroupAddonModule } from "primeng/inputgroupaddon";
 import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { Select } from "primeng/select";
+import { Popover } from "primeng/popover";
 import { PaginatorModule } from "primeng/paginator";
+import { RouterLink } from "@angular/router";
 import { usePago } from "../../hooks/use-pago.hook";
 import * as XLSX from "xlsx";
 
@@ -19,10 +23,14 @@ import * as XLSX from "xlsx";
     TableModule,
     ButtonModule,
     InputTextModule,
+    InputGroupModule,
+    InputGroupAddonModule,
     TagModule,
     TooltipModule,
     Select,
+    Popover,
     PaginatorModule,
+    RouterLink,
   ],
   templateUrl: "./pagos.html",
   styleUrl: "./pagos.css",
@@ -101,24 +109,26 @@ export class Pagos implements OnInit {
       );
     }
 
-    // Filtrar por término de búsqueda
+    // Filtrar por término de búsqueda (nombre, folio, concepto)
     if (this.searchTerm.trim()) {
-      filtered = filtered.filter(
-        (estudiante) =>
-          estudiante.nombreCompleto
-            .toLowerCase()
-            .includes(this.searchTerm.toLowerCase()) ||
-          estudiante.pagos.some(pago => 
-            pago.folio
-              .toLowerCase()
-              .includes(this.searchTerm.toLowerCase()) ||
-            pago.conceptos.some(concepto => 
-              concepto
-                .toLowerCase()
-                .includes(this.searchTerm.toLowerCase())
-            )
-          )
-      );
+      const searchTerms = this.searchTerm.toLowerCase().trim().split(/\s+/);
+      filtered = filtered.filter((estudiante) => {
+        return searchTerms.every((term) => {
+          const normalizedTerm = this.normalizeText(term);
+          const fullName = this.normalizeText(estudiante.nombreCompleto);
+          
+          // Buscar en folio y conceptos de pagos
+          const pagoMatch = estudiante.pagos.some(pago => {
+            const folio = this.normalizeText(pago.folio);
+            const conceptoMatch = pago.conceptos.some(concepto => 
+              this.normalizeText(concepto).includes(normalizedTerm)
+            );
+            return folio.includes(normalizedTerm) || conceptoMatch;
+          });
+          
+          return fullName.includes(normalizedTerm) || pagoMatch;
+        });
+      });
     }
 
     return filtered;
@@ -291,5 +301,12 @@ export class Pagos implements OnInit {
     
     const fileName = `pagos_${studentName.replace(/\s+/g, '_')}.xlsx`;
     XLSX.writeFile(workbook, fileName);
+  }
+
+  normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
   }
 }

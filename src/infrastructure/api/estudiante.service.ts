@@ -37,6 +37,12 @@ export class EstudianteService implements EstudianteRepository {
       .pipe(map((response) => this.mapApiResponseToEstudiante(response.data)));
   }
 
+  getByCurp(curp: string): Observable<Estudiante> {
+    return this.http
+      .get<ApiResponse<ApiEstudianteResponse>>(`${this.endpoint}/showByParam/${curp}`)
+      .pipe(map((response) => this.mapApiResponseToEstudiante(response.data)));
+  }
+
 
   create(estudiante: CreateEstudianteDto): Observable<any> {
     return this.http.post<any>(this.endpoint, estudiante);
@@ -98,10 +104,12 @@ export class EstudianteService implements EstudianteRepository {
       nombres: apiResponse.persona.nombres,
       apellidoPaterno: apiResponse.persona.apellido_paterno,
       apellidoMaterno: apiResponse.persona.apellido_materno,
+      curp: apiResponse.curp,
       nivel: Nivel.createFromRaw(apiResponse.nivel),
       grado: apiResponse.grado,
       modalidad: Modalidad.createFromRaw(apiResponse.modalidad),
-      estado: apiResponse.estado
+      estado: apiResponse.estado,
+      grupo: apiResponse.grupo,
     };
   }
 }
