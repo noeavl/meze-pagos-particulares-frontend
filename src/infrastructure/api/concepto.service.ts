@@ -75,9 +75,9 @@ export class ConceptoService extends ConceptoRepository {
       nombre: apiResponse.nombre,
       tipo: apiResponse.tipo as 'adeudo' | 'requerido',
       periodo: Periodo.fromString(apiResponse.periodo),
-      nivel: apiResponse.nivel ? Nivel.fromString(apiResponse.nivel) : null,
-      modalidad: apiResponse.modalidad ? Modalidad.fromString(apiResponse.modalidad) : null,
-      costo: apiResponse.costo,
+      nivel: apiResponse.nivel ? Nivel.fromString(apiResponse.nivel.nombre) : null,
+      modalidad: apiResponse.modalidad ? Modalidad.fromString(apiResponse.modalidad.nombre) : null,
+      costo: parseFloat(apiResponse.costo),
     };
   }
 }

@@ -2,14 +2,32 @@ import { Modalidad } from '../value-objects/modalidad.value-object';
 import { Nivel } from '../value-objects/nivel.value-object';
 import { Periodo } from '../value-objects/periodo.value-object';
 
+export interface ApiNivelResponse {
+  id: number;
+  nombre: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiModalidadResponse {
+  id: number;
+  nombre: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApiConceptoResponse {
   id: number;
   nombre: string;
   tipo: string;
   periodo: string;
-  nivel: string | null;
-  modalidad: string | null;
-  costo: number;
+  nivel_id: number;
+  modalidad_id: number;
+  costo: string;
+  created_at: string;
+  updated_at: string;
+  nivel: ApiNivelResponse;
+  modalidad: ApiModalidadResponse;
 }
 
 export interface ApiResponse<T> {

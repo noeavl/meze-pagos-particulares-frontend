@@ -58,4 +58,15 @@ export const API_ENDPOINTS = {
     create: `${API_BASE_URL}/ciclos-escolares`,
     update: (id: number) => `${API_BASE_URL}/ciclos-escolares/${id}`,
   },
+  niveles: {
+    getAll: `${API_BASE_URL}/niveles`,
+    getById: (id: number) => `${API_BASE_URL}/niveles/${id}`,
+  },
+  modalidades: {
+    getAll: `${API_BASE_URL}/modalidades`,
+    getById: (id: number) => `${API_BASE_URL}/modalidades/${id}`,
+  },
+  grados: {
+    getByNivel: (nivel: string) => `${API_BASE_URL}/grados/${nivel}`,
+  },
 } as const;

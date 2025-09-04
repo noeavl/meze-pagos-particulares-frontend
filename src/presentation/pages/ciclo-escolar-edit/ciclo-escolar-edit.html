@@ -42,9 +42,18 @@
       
       <!-- Información del ciclo actual -->
       <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg" *ngIf="currentCicloEscolar">
-        <div class="flex items-center mb-2">
-          <i class="pi pi-calendar mr-2 text-gray-600"></i>
-          <span class="font-medium text-gray-900">{{ currentCicloEscolar.nombre }}</span>
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center">
+            <i class="pi pi-calendar mr-2 text-gray-600"></i>
+            <span class="font-medium text-gray-900">{{ currentCicloEscolar.nombre }}</span>
+          </div>
+          @if (currentCicloEscolar) {
+          <span 
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            [class]="getClaseEstado(getEstadoCiclo())">
+            {{ getTextoEstado(getEstadoCiclo()) }}
+          </span>
+          }
         </div>
         <p class="text-gray-600 text-sm">
           Recuerda que solo puedes modificar las fechas de inicio y fin. El nombre se genera automáticamente.
@@ -68,7 +77,7 @@
             [style]="{ width: '100%' }"
           ></p-datepicker>
           @if (isInvalid('fechaInicio')) {
-          <small class="text-red-600 text-xs">{{ getErrorMessage('fechaInicio') }}</small>
+          <small class="text-red-600 text-xs block mt-1">{{ getErrorMessage('fechaInicio') }}</small>
           }
         </div>
 
@@ -88,7 +97,7 @@
             [style]="{ width: '100%' }"
           ></p-datepicker>
           @if (isInvalid('fechaFin')) {
-          <small class="text-red-600 text-xs">{{ getErrorMessage('fechaFin') }}</small>
+          <small class="text-red-600 text-xs block mt-1">{{ getErrorMessage('fechaFin') }}</small>
           }
         </div>
       </div>

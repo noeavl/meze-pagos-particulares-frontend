@@ -26,6 +26,9 @@ import { AdeudoDetail } from "../presentation/pages/adeudo-detail/adeudo-detail"
 import { CiclosEscolares } from "../presentation/pages/ciclos-escolares/ciclos-escolares";
 import { CicloEscolarCreate } from "../presentation/pages/ciclo-escolar-create/ciclo-escolar-create";
 import { CicloEscolarEdit } from "../presentation/pages/ciclo-escolar-edit/ciclo-escolar-edit";
+import { Grupos } from "../presentation/pages/grupos/grupos";
+import { GrupoCreate } from "../presentation/pages/grupos-create/grupos-create";
+import { GrupoEdit } from "../presentation/pages/grupos-edit/grupos-edit";
 
 export const routes: Routes = [
   { path: "", redirectTo: "/dashboard", pathMatch: "full" },
@@ -133,6 +136,18 @@ export const routes: Routes = [
       {
         path: "ciclo-escolar/edit/:id",
         component: CicloEscolarEdit,
+      },
+      {
+        path: "grupos",
+        component: Grupos,
+      },
+      {
+        path: "grupos/create",
+        component: GrupoCreate,
+      },
+      {
+        path: "grupos/:id/edit",
+        component: GrupoEdit,
       },
     ],
   },

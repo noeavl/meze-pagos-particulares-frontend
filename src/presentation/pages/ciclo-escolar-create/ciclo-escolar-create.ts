@@ -58,16 +58,34 @@ export class CicloEscolarCreate implements OnInit {
 
   loading = false;
   errorMessage = '';
+  fieldErrors: { [key: string]: string[] } = {};
 
   ngOnInit() {}
 
   isInvalid(fieldName: string): boolean {
     const field = this.cicloEscolarForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    const serverFieldName = this.mapFormFieldToServer(fieldName);
+    const hasServerError =
+      (this.fieldErrors[fieldName] && this.fieldErrors[fieldName].length > 0) ||
+      (this.fieldErrors[serverFieldName] && this.fieldErrors[serverFieldName].length > 0);
+    const hasFieldError =
+      field && field.invalid && (field.dirty || field.touched);
+    return !!(hasServerError || hasFieldError);
   }
 
   getErrorMessage(fieldName: string): string {
     const field = this.cicloEscolarForm.get(fieldName);
+    const serverFieldName = this.mapFormFieldToServer(fieldName);
+
+    // Priorizar errores del servidor
+    if (this.fieldErrors[fieldName] && this.fieldErrors[fieldName].length > 0) {
+      return this.fieldErrors[fieldName][0];
+    }
+
+    if (this.fieldErrors[serverFieldName] && this.fieldErrors[serverFieldName].length > 0) {
+      return this.fieldErrors[serverFieldName][0];
+    }
+
     if (!field || !field.errors) return '';
 
     const errors = field.errors;
@@ -82,8 +100,51 @@ export class CicloEscolarCreate implements OnInit {
     const labels: { [key: string]: string } = {
       fechaInicio: 'Fecha de inicio',
       fechaFin: 'Fecha de fin',
+      fecha_inicio: 'Fecha de inicio',
+      fecha_fin: 'Fecha de fin',
     };
     return labels[fieldName] || fieldName;
+  }
+
+  private clearFieldErrors(): void {
+    this.fieldErrors = {};
+  }
+
+  private handleValidationErrors(error: any): void {
+    if (error.status === 422 && error.error && error.error.errors) {
+      this.fieldErrors = error.error.errors;
+      // Marcar campos con errores del servidor como touched para mostrar errores
+      Object.keys(this.fieldErrors).forEach((fieldName) => {
+        const control =
+          this.cicloEscolarForm.get(fieldName) ||
+          this.cicloEscolarForm.get(this.mapServerFieldToForm(fieldName));
+        if (control) {
+          control.markAsTouched();
+        }
+      });
+    } else {
+      this.fieldErrors = {};
+      this.errorMessage =
+        error.error?.message ||
+        error.message ||
+        'Error al crear el ciclo escolar';
+    }
+  }
+
+  private mapServerFieldToForm(serverField: string): string {
+    const fieldMap: { [key: string]: string } = {
+      fecha_inicio: 'fechaInicio',
+      fecha_fin: 'fechaFin',
+    };
+    return fieldMap[serverField] || serverField;
+  }
+
+  private mapFormFieldToServer(formField: string): string {
+    const fieldMap: { [key: string]: string } = {
+      fechaInicio: 'fecha_inicio',
+      fechaFin: 'fecha_fin',
+    };
+    return fieldMap[formField] || formField;
   }
 
   formatDateForAPI(date: Date): string {
@@ -98,6 +159,7 @@ export class CicloEscolarCreate implements OnInit {
 
     this.loading = true;
     this.errorMessage = '';
+    this.clearFieldErrors();
 
     try {
       const formValues = this.cicloEscolarForm.value;
@@ -120,13 +182,17 @@ export class CicloEscolarCreate implements OnInit {
           }, 1500);
         },
         error: (error: any) => {
-          let errorMessage = 'Error al crear el ciclo escolar';
-          if (error?.error?.message === 'Ya existe un ciclo escolar con ese nombre') {
-            errorMessage = 'Ya existe un ciclo escolar con ese nombre';
+          this.handleValidationErrors(error);
+
+          if (error.status === 422) {
+            this.show(
+              'error',
+              'Error de validación',
+              'Por favor revisa los campos marcados en rojo'
+            );
+          } else {
+            this.show('error', 'Error', this.errorMessage);
           }
-          this.errorMessage = errorMessage;
-          this.show('error', 'Error', this.errorMessage);
-          console.error('Error al crear ciclo escolar:', error);
           this.loading = false;
         },
       });

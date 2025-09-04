@@ -1,0 +1,92 @@
+<div class="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Crear Grupo</h1>
+        <p class="text-gray-600 text-sm mt-1">Añadir un nuevo grupo de estudiantes</p>
+      </div>
+      <button
+        [routerLink]="['/grupos']"
+        pButton
+        type="button"
+        label="Volver"
+        icon="pi pi-arrow-left"
+        class="p-button-outlined p-button-secondary"
+      ></button>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    <div class="flex items-center">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      {{ errorMessage }}
+    </div>
+  </div>
+  }
+  
+  <form [formGroup]="grupoForm" (ngSubmit)="onSubmit()">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+        Información del Grupo
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Nombre -->
+        <div class="space-y-2">
+          <label for="nombre" class="block text-sm font-medium text-gray-700">
+            Nombre <span class="text-red-500">*</span>
+          </label>
+          <input id="nombre" type="text" pInputText formControlName="nombre" class="w-full">
+          @if (isInvalid('nombre')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('nombre') }}</small>
+          }
+        </div>
+
+        <!-- Ciclo Escolar -->
+        <div class="space-y-2">
+          <label for="ciclo_escolar_id" class="block text-sm font-medium text-gray-700">
+            Ciclo Escolar <span class="text-red-500">*</span>
+          </label>
+          <p-select 
+            formControlName="ciclo_escolar_id" 
+            [options]="ciclosEscolares" 
+            optionLabel="nombre" 
+            optionValue="id" 
+            placeholder="Seleccione un ciclo escolar"
+            [style]="{ width: '100%' }"
+          ></p-select>
+          @if (isInvalid('ciclo_escolar_id')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('ciclo_escolar_id') }}</small>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex justify-end gap-3">
+        <button
+          pButton
+          type="button"
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary"
+          (click)="onCancel()"
+          [disabled]="loading"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          [label]="loading ? 'Creando...' : 'Crear Grupo'"
+          [icon]="loading ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="loading"
+          [disabled]="grupoForm.invalid || loading"
+        ></button>
+      </div>
+    </div>
+  </form>
+
+  <p-toast key="br" position="bottom-right"></p-toast>
+</div>

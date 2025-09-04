@@ -34,7 +34,7 @@ export class Modalidad {
   get displayValue(): string {
     switch (this.value) {
       case ModalidadType.GENERAL:
-        return 'General (Todas las modalidades)';
+        return 'General';
       case ModalidadType.PRESENCIAL:
         return 'Presencial';
       case ModalidadType.EN_LINEA:

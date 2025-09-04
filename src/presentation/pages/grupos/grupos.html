@@ -1,0 +1,116 @@
+<div class="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Grupos</h1>
+        <p class="text-gray-600 text-sm mt-1">Gestionar grupos de estudiantes</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          type="button"
+          icon="fa-solid fa-file-excel"
+          label="Exportar a excel"
+          (click)="exportToExcel()"
+        ></button>
+        <button
+          [routerLink]="['/grupos/create']"
+          pButton
+          type="button"
+          label="Nuevo grupo"
+          icon="pi pi-plus"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div
+    *ngIf="error"
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
+  >
+    <div class="flex items-center">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      {{ error }}
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <p-table
+      [value]="grupos"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} grupos"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" class="text-left">
+            <div class="flex items-center gap-2">
+              ID <p-sortIcon field="id"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="nombre" class="text-left">
+            <div class="flex items-center gap-2">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="ciclo_escolar.nombre" class="text-left">
+            <div class="flex items-center gap-2">
+              Ciclo Escolar <p-sortIcon field="ciclo_escolar.nombre"></p-sortIcon>
+            </div>
+          </th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-grupo>
+        <tr class="hover:bg-gray-50">
+          <td class="font-medium">{{ grupo.id }}</td>
+          <td class="font-medium text-gray-900">{{ grupo.nombre }}</td>
+          <td class="text-gray-700">{{ grupo.ciclo_escolar?.nombre }}</td>
+          <td class="text-center">
+            <div class="flex justify-center gap-1">
+              <button
+                [routerLink]="['/grupos', grupo.id, 'edit']"
+                pButton
+                type="button"
+                class="p-button-rounded p-button-text p-button-sm"
+                pTooltip="Editar nombre"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-12">
+            <div class="flex flex-col items-center">
+              <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">
+                No se encontraron grupos
+              </h3>
+              <p class="text-gray-600 mb-6">
+                No hay grupos registrados
+              </p>
+              <button
+                [routerLink]="['/grupos/create']"
+                pButton
+                type="button"
+                label="Crear primer grupo"
+                icon="pi pi-plus"
+                class="p-button-outlined"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

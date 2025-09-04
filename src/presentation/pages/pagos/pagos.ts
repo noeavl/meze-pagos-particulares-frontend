@@ -13,6 +13,9 @@ import { Popover } from "primeng/popover";
 import { PaginatorModule } from "primeng/paginator";
 import { RouterLink } from "@angular/router";
 import { usePago } from "../../hooks/use-pago.hook";
+import { useNivel } from "../../hooks/use-nivel.hook";
+import { useModalidad } from "../../hooks/use-modalidad.hook";
+import { useGrado } from "../../hooks/use-grado.hook";
 import * as XLSX from "xlsx";
 
 @Component({
@@ -37,11 +40,14 @@ import * as XLSX from "xlsx";
 })
 export class Pagos implements OnInit {
   pagoService = inject(usePago);
+  nivelService = inject(useNivel);
+  modalidadService = inject(useModalidad);
+  gradoService = inject(useGrado);
 
   // Filtros y búsqueda
-  selectedNivel: string = "";
-  selectedGrado: string = "";
-  selectedModalidad: string = "";
+  selectedNivel: string = "general";
+  selectedGrado: string = "general";
+  selectedModalidad: string = "general";
   searchTerm: string = "";
 
   // Paginación
@@ -52,33 +58,26 @@ export class Pagos implements OnInit {
   expandedStudents: Set<number> = new Set();
 
   // Opciones de filtros
-  nivelOptions = [
-    { label: "Todos los niveles", value: "" },
-    { label: "Preescolar", value: "preescolar" },
-    { label: "Primaria", value: "primaria" },
-    { label: "Secundaria", value: "secundaria" },
-    { label: "Bachillerato", value: "bachillerato" },
-    { label: "Bachillerato Sabatino", value: "bachillerato_sabatino" },
-  ];
+  get nivelOptions() {
+    return this.nivelService.getNivelesOptions();
+  }
 
-  modalidadOptions = [
-    { label: "Todas las modalidades", value: "" },
-    { label: "Presencial", value: "presencial" },
-    { label: "En Línea", value: "en_linea" },
-  ];
+  get modalidadOptions() {
+    return this.modalidadService.getModalidadesOptions();
+  }
 
-  gradosPorNivel = {
-    preescolar: [1, 2, 3],
-    primaria: [1, 2, 3, 4, 5, 6],
-    secundaria: [1, 2, 3],
-    bachillerato: [1, 2, 3, 4, 5, 6],
-    bachillerato_sabatino: [1, 2, 3, 4, 5, 6],
-  };
+  get gradoOptions() {
+    return this.gradoService.getGradosOptionsForSelect();
+  }
+
 
   constructor() {}
 
   ngOnInit() {
     this.pagoService.loadEstudiantesConPagos();
+    this.nivelService.loadNiveles();
+    this.modalidadService.loadModalidades();
+    this.gradoService.loadGradosByNivel('general');
   }
 
   estudiantesConPagos = this.pagoService.estudiantesConPagos;
@@ -88,22 +87,22 @@ export class Pagos implements OnInit {
   get filteredEstudiantesConPagos() {
     let filtered = this.estudiantesConPagos();
 
-    // Filtrar por nivel si está seleccionado
-    if (this.selectedNivel) {
+    // Filtrar por nivel si está seleccionado y no es "general"
+    if (this.selectedNivel && this.selectedNivel !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.nivel.toLowerCase() === this.selectedNivel.toLowerCase()
       );
     }
 
-    // Filtrar por grado si está seleccionado
-    if (this.selectedGrado) {
+    // Filtrar por grado si está seleccionado y no es "general"
+    if (this.selectedGrado && this.selectedGrado !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.grado.toString() === this.selectedGrado
       );
     }
 
-    // Filtrar por modalidad si está seleccionada
-    if (this.selectedModalidad) {
+    // Filtrar por modalidad si está seleccionada y no es "general"
+    if (this.selectedModalidad && this.selectedModalidad !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.modalidad.toLowerCase() === this.selectedModalidad.toLowerCase()
       );
@@ -171,28 +170,13 @@ export class Pagos implements OnInit {
     this.resetPagination();
   }
 
-  get availableGradoOptions(): number[] {
-    if (!this.selectedNivel) {
-      return [];
-    }
-    return (
-      this.gradosPorNivel[
-        this.selectedNivel as keyof typeof this.gradosPorNivel
-      ] || []
-    );
-  }
-
-  get gradoOptionsForSelect() {
-    const options = [{ label: "Todos los grados", value: "" }];
-    const gradoOptions = this.availableGradoOptions.map((grado) => ({
-      label: `${grado}°`,
-      value: grado.toString(),
-    }));
-    return [...options, ...gradoOptions];
-  }
-
   onNivelChange() {
-    this.selectedGrado = "";
+    if (this.selectedNivel === 'general') {
+      this.selectedGrado = "general";
+    } else {
+      this.selectedGrado = "general";
+      this.gradoService.loadGradosByNivel(this.selectedNivel);
+    }
     this.resetPagination();
   }
 

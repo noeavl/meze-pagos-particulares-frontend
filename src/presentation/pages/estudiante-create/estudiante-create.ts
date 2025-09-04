@@ -15,6 +15,9 @@ import { Select } from 'primeng/select';
 import { ButtonDirective } from 'primeng/button';
 
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
+import { useNivel } from '../../hooks/use-nivel.hook';
+import { useModalidad } from '../../hooks/use-modalidad.hook';
+import { useGrado } from '../../hooks/use-grado.hook';
 import { CreateEstudianteDto } from '../../../domain/entities/estudiante.entity';
 
 interface DropdownOption {
@@ -42,6 +45,9 @@ export class EstudianteCreate implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private estudianteService = inject(useEstudiante);
+  private nivelService = inject(useNivel);
+  private modalidadService = inject(useModalidad);
+  private gradoService = inject(useGrado);
   private messageService = inject(MessageService);
 
   show(severity: string, summary: string, detail: string) {
@@ -66,33 +72,33 @@ export class EstudianteCreate implements OnInit {
     grupo: [''],
   });
 
-  nivelesOptions: DropdownOption[] = [
-    { label: 'Preescolar', value: 'preescolar' },
-    { label: 'Primaria', value: 'primaria' },
-    { label: 'Secundaria', value: 'secundaria' },
-    { label: 'Bachillerato', value: 'bachillerato' },
-    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
-  ];
+  get nivelesOptions() {
+    return this.nivelService.niveles().map(nivel => ({
+      label: nivel.displayName,
+      value: nivel.nombre
+    }));
+  }
 
-  gradosPorNivel: { [key: string]: number[] } = {
-    preescolar: [1, 2, 3],
-    primaria: [1, 2, 3, 4, 5, 6],
-    secundaria: [1, 2, 3],
-    bachillerato: [1, 2, 3, 4, 5, 6],
-    bachillerato_sabatino: [1, 2, 3, 4, 5, 6],
-  };
+  get gradosOptions() {
+    return this.gradoService.getGradosOptions();
+  }
 
-  gradosOptions: DropdownOption[] = [];
 
-  modalidadOptions: DropdownOption[] = [
-    { label: 'Presencial', value: 'presencial' },
-    { label: 'En Línea', value: 'en_linea' },
-  ];
+  get modalidadOptions() {
+    return this.modalidadService.modalidades().map(modalidad => ({
+      label: modalidad.displayName,
+      value: modalidad.nombre
+    }));
+  }
 
   loading = false;
   errorMessage = '';
 
   ngOnInit() {
+    this.nivelService.loadNiveles();
+    this.modalidadService.loadModalidades();
+    // Load default grados for general
+    this.gradoService.loadGradosByNivel('general');
     this.estudianteForm.get('nivel')?.valueChanges.subscribe((nivel) => {
       this.updateGradoOptions(nivel);
     });
@@ -101,15 +107,11 @@ export class EstudianteCreate implements OnInit {
   updateGradoOptions(nivel: string) {
     const gradoControl = this.estudianteForm.get('grado');
     if (nivel) {
-      const grados = this.gradosPorNivel[nivel] || [];
-      this.gradosOptions = grados.map((grado) => ({
-        label: `${grado}°`,
-        value: grado.toString(),
-      }));
+      this.gradoService.loadGradosByNivel(nivel);
       gradoControl?.enable();
     } else {
-      this.gradosOptions = [];
-      gradoControl?.disable();
+      this.gradoService.loadGradosByNivel('general');
+      gradoControl?.enable();
     }
     gradoControl?.setValue('');
   }

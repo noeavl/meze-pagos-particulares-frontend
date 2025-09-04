@@ -11,6 +11,9 @@ import { TooltipModule } from "primeng/tooltip";
 import { Select } from "primeng/select";
 import { Popover } from "primeng/popover";
 import { useEstudiante } from "../../hooks/use-estudiante.hook";
+import { useNivel } from "../../hooks/use-nivel.hook";
+import { useModalidad } from "../../hooks/use-modalidad.hook";
+import { useGrado } from "../../hooks/use-grado.hook";
 import { RouterLink } from "@angular/router";
 import { DialogModule } from "primeng/dialog";
 import { MessageService } from "primeng/api";
@@ -44,6 +47,9 @@ export class Estudiantes implements OnInit {
   visible: boolean = false;
   selectedEstudiante: Estudiante | null = null;
   estudianteService = inject(useEstudiante);
+  nivelService = inject(useNivel);
+  modalidadService = inject(useModalidad);
+  gradoService = inject(useGrado);
   messageService = inject(MessageService);
 
   showDialog(estudiante: Estudiante) {
@@ -97,39 +103,32 @@ export class Estudiantes implements OnInit {
   }
 
   // Filtros y búsqueda
-  selectedNivel: string = "";
-  selectedModalidad: string = "";
-  selectedGrado: string = "";
+  selectedNivel: string = "general";
+  selectedModalidad: string = "general";
+  selectedGrado: string = "general";
   searchTerm: string = "";
 
-  // Opciones de filtros
-  nivelOptions = [
-    { label: "Todos los niveles", value: "" },
-    { label: "Preescolar", value: "preescolar" },
-    { label: "Primaria", value: "primaria" },
-    { label: "Secundaria", value: "secundaria" },
-    { label: "Bachillerato", value: "bachillerato" },
-    { label: "Bachillerato Sabatino", value: "bachillerato_sabatino" },
-  ];
+  // Opciones de filtros dinámicas
+  get nivelOptions() {
+    return this.nivelService.getNivelesOptions();
+  }
 
-  modalidadOptions = [
-    { label: "Todas las modalidades", value: "" },
-    { label: "Presencial", value: "presencial" },
-    { label: "En Línea", value: "en_linea" },
-  ];
+  get modalidadOptions() {
+    return this.modalidadService.getModalidadesOptions();
+  }
 
-  gradosPorNivel = {
-    preescolar: [1, 2, 3],
-    primaria: [1, 2, 3, 4, 5, 6],
-    secundaria: [1, 2, 3],
-    bachillerato: [1, 2, 3, 4, 5, 6],
-    bachillerato_sabatino: [1, 2, 3, 4, 5, 6],
-  };
+  get gradoOptions() {
+    return this.gradoService.getGradosOptionsForSelect();
+  }
 
   constructor() {}
 
   ngOnInit() {
     this.estudianteService.loadEstudiantes();
+    this.nivelService.loadNiveles();
+    this.modalidadService.loadModalidades();
+    // Load grados for general nivel by default
+    this.gradoService.loadGradosByNivel('general');
   }
 
   estudiantes = this.estudianteService.estudiantes;
@@ -139,22 +138,22 @@ export class Estudiantes implements OnInit {
   get filteredEstudiantes() {
     let filtered = this.estudiantes();
 
-    // Filtrar por nivel si está seleccionado
-    if (this.selectedNivel) {
+    // Filtrar por nivel si está seleccionado y no es "general"
+    if (this.selectedNivel && this.selectedNivel !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.nivel.rawValue === this.selectedNivel
       );
     }
 
-    // Filtrar por modalidad si está seleccionada
-    if (this.selectedModalidad) {
+    // Filtrar por modalidad si está seleccionada y no es "general"
+    if (this.selectedModalidad && this.selectedModalidad !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.modalidad.rawValue === this.selectedModalidad
       );
     }
 
-    // Filtrar por grado si está seleccionado
-    if (this.selectedGrado) {
+    // Filtrar por grado si está seleccionado y no es "general"
+    if (this.selectedGrado && this.selectedGrado !== "general") {
       filtered = filtered.filter(
         (estudiante) => estudiante.grado.toString() === this.selectedGrado
       );
@@ -203,26 +202,6 @@ export class Estudiantes implements OnInit {
     return conteos;
   }
 
-  get availableGradoOptions(): number[] {
-    if (!this.selectedNivel) {
-      return [];
-    }
-    return (
-      this.gradosPorNivel[
-        this.selectedNivel as keyof typeof this.gradosPorNivel
-      ] || []
-    );
-  }
-
-  get gradoOptionsForSelect() {
-    const options = [{ label: "Todos los grados", value: "" }];
-    return options.concat(
-      this.availableGradoOptions.map((grado) => ({
-        label: `${grado}°`,
-        value: grado.toString(),
-      }))
-    );
-  }
 
   onSearch(event: any) {
     this.searchTerm = event.target.value;
@@ -230,7 +209,13 @@ export class Estudiantes implements OnInit {
 
   onNivelChange() {
     // Reset grado selection when nivel changes
-    this.selectedGrado = "";
+    if (this.selectedNivel === 'general') {
+      this.selectedGrado = "general";
+    } else {
+      this.selectedGrado = "general";
+      // Load grados for selected nivel
+      this.gradoService.loadGradosByNivel(this.selectedNivel);
+    }
   }
 
   onModalidadChange() {
@@ -269,4 +254,5 @@ export class Estudiantes implements OnInit {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, ""); // Eliminar acentos
   }
+
 }

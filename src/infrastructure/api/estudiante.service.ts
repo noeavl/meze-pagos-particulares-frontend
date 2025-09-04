@@ -27,7 +27,13 @@ export class EstudianteService implements EstudianteRepository {
     return this.http
       .get<ApiResponse<ApiEstudianteResponse[]>>(this.endpoint)
       .pipe(
-        map((response) => response.data.map(this.mapApiResponseToEstudiante))
+        map((response) => {
+          console.log('API Response:', response);
+          console.log('Students count from API:', response.data.length);
+          const mappedStudents = response.data.map(this.mapApiResponseToEstudiante.bind(this));
+          console.log('Mapped students:', mappedStudents);
+          return mappedStudents;
+        })
       );
   }
 
@@ -99,17 +105,28 @@ export class EstudianteService implements EstudianteRepository {
   private mapApiResponseToEstudiante(
     apiResponse: ApiEstudianteResponse
   ): Estudiante {
-    return {
-      id: apiResponse.id,
-      nombres: apiResponse.persona.nombres,
-      apellidoPaterno: apiResponse.persona.apellido_paterno,
-      apellidoMaterno: apiResponse.persona.apellido_materno,
-      curp: apiResponse.curp,
-      nivel: Nivel.createFromRaw(apiResponse.nivel),
-      grado: apiResponse.grado,
-      modalidad: Modalidad.createFromRaw(apiResponse.modalidad),
-      estado: apiResponse.estado,
-      grupo: apiResponse.grupo,
-    };
+    console.log('Mapping student:', apiResponse.id, apiResponse.persona?.nombres);
+    console.log('Nivel from API:', apiResponse.nivel_grado?.nivel?.nombre);
+    console.log('Modalidad from API:', apiResponse.nivel_grado?.modalidad?.nombre);
+    
+    try {
+      const estudiante = {
+        id: apiResponse.id,
+        nombres: apiResponse.persona.nombres,
+        apellidoPaterno: apiResponse.persona.apellido_paterno,
+        apellidoMaterno: apiResponse.persona.apellido_materno,
+        curp: apiResponse.curp,
+        nivel: Nivel.createFromRaw(apiResponse.nivel_grado.nivel.nombre),
+        grado: apiResponse.nivel_grado.grado.numero,
+        modalidad: Modalidad.createFromRaw(apiResponse.nivel_grado.modalidad.nombre),
+        estado: apiResponse.estado === 1,
+        grupo: apiResponse.grupos.length > 0 ? apiResponse.grupos[0] : null,
+      };
+      console.log('Successfully mapped student:', estudiante.nombres);
+      return estudiante;
+    } catch (error) {
+      console.error('Error mapping student:', apiResponse.id, error);
+      throw error;
+    }
   }
 }

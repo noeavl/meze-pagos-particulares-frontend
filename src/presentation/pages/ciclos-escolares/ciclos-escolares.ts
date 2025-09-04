@@ -46,17 +46,7 @@ export class CiclosEscolares implements OnInit {
   }
 
   getEstadoCiclo(ciclo: CicloEscolar): string {
-    const hoy = new Date();
-    const fechaInicio = new Date(ciclo.fechaInicio);
-    const fechaFin = new Date(ciclo.fechaFin);
-    
-    if (hoy >= fechaInicio && hoy <= fechaFin) {
-      return 'activo';
-    } else if (hoy < fechaInicio) {
-      return 'proximo';
-    } else {
-      return 'finalizado';
-    }
+    return ciclo.estado;
   }
 
   getClaseEstado(estado: string): string {
@@ -65,7 +55,7 @@ export class CiclosEscolares implements OnInit {
         return 'bg-green-100 text-green-800';
       case 'proximo':
         return 'bg-blue-100 text-blue-800';
-      case 'finalizado':
+      case 'inactivo':
         return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -78,8 +68,8 @@ export class CiclosEscolares implements OnInit {
         return 'Activo';
       case 'proximo':
         return 'Próximo';
-      case 'finalizado':
-        return 'Finalizado';
+      case 'inactivo':
+        return 'Inactivo';
       default:
         return 'Desconocido';
     }

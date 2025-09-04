@@ -16,6 +16,10 @@ import { adeudoProviders } from '../shared/providers/adeudo.providers';
 import { pagoProviders } from '../shared/providers/pago.providers';
 import { userProviders } from '../shared/providers/user.providers';
 import { cicloEscolarProviders } from '../shared/providers/ciclo-escolar.providers';
+import { NIVEL_PROVIDERS } from '../shared/providers/nivel.providers';
+import { MODALIDAD_PROVIDERS } from '../shared/providers/modalidad-entity.providers';
+import { GRADO_PROVIDERS } from '../shared/providers/grado.providers';
+import { grupoProviders } from '../shared/providers/grupo.providers';
 import { authInterceptor } from '../shared/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
@@ -39,5 +43,9 @@ export const appConfig: ApplicationConfig = {
     ...pagoProviders,
     ...userProviders,
     ...cicloEscolarProviders,
+    ...NIVEL_PROVIDERS,
+    ...MODALIDAD_PROVIDERS,
+    ...GRADO_PROVIDERS,
+    ...grupoProviders,
   ],
 };

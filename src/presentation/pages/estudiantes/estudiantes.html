@@ -94,10 +94,10 @@
         <p-select
           [(ngModel)]="selectedGrado"
           (ngModelChange)="onGradoChange()"
-          [options]="gradoOptionsForSelect"
+          [options]="gradoOptions"
           optionLabel="label"
           optionValue="value"
-          [disabled]="!selectedNivel"
+          [disabled]="selectedNivel === 'general'"
           class="w-full"
         ></p-select>
       </div>
@@ -224,14 +224,8 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="id" class="text-center">
-            ID <p-sortIcon field="id"></p-sortIcon>
-          </th>
           <th pSortableColumn="nombres" class="text-left">
             Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
-          </th>
-          <th pSortableColumn="curp" class="text-left">
-            CURP <p-sortIcon field="curp"></p-sortIcon>
           </th>
           <th pSortableColumn="nivel" class="text-left">
             Nivel <p-sortIcon field="nivel"></p-sortIcon>
@@ -251,15 +245,9 @@
 
       <ng-template pTemplate="body" let-estudiante>
         <tr>
-          <td class="text-center font-semibold text-blue-600">
-            {{ estudiante.id }}
-          </td>
           <td class="font-medium text-gray-900">
-            {{ estudiante.nombres }} {{ estudiante.apellidoPaterno }} 
-            {{ estudiante.apellidoMaterno }}
-          </td>
-          <td>
-            {{ estudiante.curp }}
+            <div>{{ estudiante.nombres }} {{ estudiante.apellidoPaterno }} {{ estudiante.apellidoMaterno }}</div>
+            <div class="text-sm text-gray-500">{{ estudiante.curp }}</div>
           </td>
           <td>
             <p-tag
@@ -287,6 +275,7 @@
               [severity]="
                 estudiante.modalidad.rawValue === 'presencial' ? 'info' : 'help'
               "
+              pTooltip="{{estudiante.modalidad.rawValue === 'general' ? 'Todas las modalidades' : estudiante.modalidad.displayValue}}"
             ></p-tag>
           </td>
           <td class="text-center">

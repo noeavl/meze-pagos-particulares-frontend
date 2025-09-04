@@ -45,22 +45,52 @@ export class CicloEscolarService extends CicloEscolarRepository {
 
   updateCicloEscolar(cicloEscolar: UpdateCicloEscolarDto): Observable<CicloEscolar> {
     return this.http
-      .put<ApiResponse<ApiCicloEscolarResponse>>(
+      .put<any>(
         API_ENDPOINTS.ciclosEscolares.update(cicloEscolar.id),
         {
           fecha_inicio: cicloEscolar.fecha_inicio,
           fecha_fin: cicloEscolar.fecha_fin
         }
       )
-      .pipe(map((response) => this.mapToDomain(response.data)));
+      .pipe(
+        map((response) => {
+          // Si la respuesta solo contiene success y message (sin data), 
+          // retornamos el ciclo escolar que se estaba editando con las nuevas fechas
+          if (response.success && !response.data) {
+            return {
+              id: cicloEscolar.id,
+              nombre: '', // No tenemos el nombre en el DTO, pero no es crítico para el update
+              fechaInicio: cicloEscolar.fecha_inicio,
+              fechaFin: cicloEscolar.fecha_fin,
+              estado: 'activo' // Estado por defecto
+            } as CicloEscolar;
+          }
+          
+          // Si tiene data, usar el mapeo normal
+          if (response.data) {
+            return this.mapToDomain(response.data);
+          }
+          
+          throw new Error('Respuesta del servidor inválida');
+        })
+      );
   }
 
   private mapToDomain(apiResponse: ApiCicloEscolarResponse): CicloEscolar {
+    if (!apiResponse) {
+      throw new Error('La respuesta del servidor está vacía o es inválida');
+    }
+
+    if (!apiResponse.id) {
+      throw new Error('La respuesta del servidor no contiene un ID válido');
+    }
+
     return {
       id: apiResponse.id,
-      nombre: apiResponse.nombre,
-      fechaInicio: apiResponse.fecha_inicio.split('T')[0],
-      fechaFin: apiResponse.fecha_fin.split('T')[0],
+      nombre: apiResponse.nombre || '',
+      fechaInicio: apiResponse.fecha_inicio ? apiResponse.fecha_inicio.split('T')[0] : '',
+      fechaFin: apiResponse.fecha_fin ? apiResponse.fecha_fin.split('T')[0] : '',
+      estado: apiResponse.estado || 'inactivo',
     };
   }
 }

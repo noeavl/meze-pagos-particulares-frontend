@@ -110,11 +110,10 @@
         <p-select
           [(ngModel)]="selectedGrado"
           (ngModelChange)="onGradoChange()"
-          [options]="gradoOptionsForSelect"
+          [options]="gradoOptions"
           optionLabel="label"
           optionValue="value"
-          placeholder="Todos"
-          [disabled]="!selectedNivel"
+          [disabled]="selectedNivel === 'general'"
           class="w-full"
         ></p-select>
       </div>

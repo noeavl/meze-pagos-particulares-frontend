@@ -1,5 +1,3 @@
-import { Modalidad } from '../value-objects/modalidad.value-object';
-import { Nivel } from '../value-objects/nivel.value-object';
 
 export interface ApiPersonaResponse {
   id: number;
@@ -10,24 +8,71 @@ export interface ApiPersonaResponse {
   updated_at: string;
 }
 
+export interface ApiGradoResponse {
+  id: number;
+  numero: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiNivelResponse {
+  id: number;
+  nombre: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiModalidadResponse {
+  id: number;
+  nombre: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiNivelGradoResponse {
+  id: number;
+  nivel_id: number;
+  grado_id: number;
+  modalidad_id: number;
+  created_at: string;
+  updated_at: string;
+  grado: ApiGradoResponse;
+  nivel: ApiNivelResponse;
+  modalidad: ApiModalidadResponse;
+}
+
+export interface ApiCicloEscolarResponse {
+  id: number;
+  nombre: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  created_at: string;
+  updated_at: string;
+  estado: string;
+}
+
 export interface ApiEstudianteResponse {
   id: number;
   persona_id: number;
-  nivel: string;
-  grado: string;
-  modalidad: string;
-  estado: boolean;
+  curp: string;
+  nivel_grado_id: number;
+  ciclo_escolar_id: number;
+  estado: number;
   created_at: string;
   updated_at: string;
   persona: ApiPersonaResponse;
-  grupo?: string;
-  curp: string;
+  ciclo_escolar: ApiCicloEscolarResponse;
+  grupos: any[];
+  nivel_grado: ApiNivelGradoResponse;
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
 }
+
+import { Modalidad } from '../value-objects/modalidad.value-object';
+import { Nivel } from '../value-objects/nivel.value-object';
 
 export interface Estudiante {
   id: number;

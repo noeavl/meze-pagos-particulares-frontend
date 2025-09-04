@@ -16,6 +16,9 @@ import { ButtonDirective } from 'primeng/button';
 import { ProgressSpinner } from 'primeng/progressspinner';
 
 import { useEstudiante } from '../../hooks/use-estudiante.hook';
+import { useNivel } from '../../hooks/use-nivel.hook';
+import { useModalidad } from '../../hooks/use-modalidad.hook';
+import { useGrado } from '../../hooks/use-grado.hook';
 import {
   UpdateEstudianteDto,
   Estudiante,
@@ -48,6 +51,9 @@ export class EstudianteEdit implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private estudianteService = inject(useEstudiante);
+  private nivelService = inject(useNivel);
+  private modalidadService = inject(useModalidad);
+  private gradoService = inject(useGrado);
   private cdr = inject(ChangeDetectorRef);
   private messageService = inject(MessageService);
 
@@ -76,33 +82,32 @@ export class EstudianteEdit implements OnInit {
     grupo: [''],
   });
 
-  nivelesOptions: DropdownOption[] = [
-    { label: 'Preescolar', value: 'preescolar' },
-    { label: 'Primaria', value: 'primaria' },
-    { label: 'Secundaria', value: 'secundaria' },
-    { label: 'Bachillerato', value: 'bachillerato' },
-    { label: 'Bachillerato Sabatino', value: 'bachillerato_sabatino' },
-  ];
+  get nivelesOptions() {
+    return this.nivelService.niveles().map(nivel => ({
+      label: nivel.displayName,
+      value: nivel.nombre
+    }));
+  }
 
-  gradosOptions: DropdownOption[] = [
-    { label: '1°', value: '1' },
-    { label: '2°', value: '2' },
-    { label: '3°', value: '3' },
-    { label: '4°', value: '4' },
-    { label: '5°', value: '5' },
-    { label: '6°', value: '6' },
-  ];
+  get gradosOptions() {
+    return this.gradoService.getGradosOptions();
+  }
 
-  modalidadOptions: DropdownOption[] = [
-    { label: 'Presencial', value: 'presencial' },
-    { label: 'En Línea', value: 'en_linea' },
-  ];
+  get modalidadOptions() {
+    return this.modalidadService.modalidades().map(modalidad => ({
+      label: modalidad.displayName,
+      value: modalidad.nombre
+    }));
+  }
 
   loading = false;
   loadingData = true;
   errorMessage = '';
 
   ngOnInit() {
+    this.nivelService.loadNiveles();
+    this.modalidadService.loadModalidades();
+    this.gradoService.loadGradosByNivel('general');
     this.estudianteId = Number(this.route.snapshot.params['id']);
     if (this.estudianteId) {
       this.loadEstudiante();

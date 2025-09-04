@@ -5,6 +5,7 @@ export interface ApiCicloEscolarResponse {
   fecha_fin: string;
   created_at: string;
   updated_at: string;
+  estado: string;
 }
 
 export interface ApiResponse<T> {
@@ -17,6 +18,7 @@ export interface CicloEscolar {
   nombre: string;
   fechaInicio: string;
   fechaFin: string;
+  estado: string;
 }
 
 export interface CreateCicloEscolarDto {
