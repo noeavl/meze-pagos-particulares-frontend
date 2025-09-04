@@ -27,16 +27,29 @@
       Información del Ciclo
     </h3>
 
-    @if (year?.value) {
+    @if (selectedCicloEscolar()) {
     <div class="mb-4">
       <div class="text-lg font-medium text-blue-600 mb-3">
-        Ciclo Escolar: {{ year?.value }} - {{ year?.value + 1 }}
+        Ciclo Escolar: {{ selectedCicloEscolar()?.nombre }}
+      </div>
+      <div class="text-sm text-gray-600">
+        <span class="font-medium">Período:</span> 
+        {{ selectedCicloEscolar()?.fechaInicio | date:'dd/MM/yyyy' }} - {{ selectedCicloEscolar()?.fechaFin | date:'dd/MM/yyyy' }}
+      </div>
+      <div class="text-sm text-gray-600 mt-1">
+        <span class="font-medium">Estado:</span> 
+        <span [class]="selectedCicloEscolar()?.estado === 'activo' ? 'text-green-600' : 'text-gray-500'">
+          {{ selectedCicloEscolar()?.estado || 'No definido' }}
+        </span>
       </div>
     </div>
     } @else {
     <div class="mb-4">
       <div class="text-lg font-medium text-gray-500 mb-3">
-        Ciclo Escolar: Por definir
+        Ciclo Escolar: Por seleccionar
+      </div>
+      <div class="text-sm text-gray-500">
+        Selecciona un ciclo escolar para ver los detalles
       </div>
     </div>
     }
@@ -49,11 +62,11 @@
       <ul class="space-y-2 text-blue-800">
         <li class="flex items-start gap-2">
           <i class="pi pi-check text-blue-600 mt-0.5"></i>
-          <span>Estudiantes que sigan cursando en algún nivel y modalidad</span>
+          <span>Estudiantes del ciclo escolar, nivel y modalidad seleccionados</span>
         </li>
         <li class="flex items-start gap-2">
           <i class="pi pi-check text-blue-600 mt-0.5"></i>
-          <span>Para conceptos de pago semestral y únicos</span>
+          <span>Para conceptos de pago semestral y únicos aplicables</span>
         </li>
         <li class="flex items-start gap-2">
           <i class="pi pi-check text-blue-600 mt-0.5"></i>
@@ -62,23 +75,20 @@
       </ul>
 
       <div class="mt-4 ml-6 space-y-3 text-sm text-blue-700">
+        @if (selectedCicloEscolar()) {
         <div>
           <p class="font-medium mb-2">Pagos Semestrales:</p>
           <div class="ml-2 space-y-1">
             <div class="flex justify-between">
               <span>• Primer semestre:</span>
               <span>
-                @if (year?.value) {
-                {{ year?.value }}-08-01 → {{ year?.value }}-08-15 } @else {
-                XXXX-08-01 → XXXX-08-15 }
+                {{ getYearFromDate(selectedCicloEscolar()?.fechaInicio) }}-08-01 → {{ getYearFromDate(selectedCicloEscolar()?.fechaInicio) }}-08-15
               </span>
             </div>
             <div class="flex justify-between">
               <span>• Segundo semestre:</span>
               <span>
-                @if (year?.value) {
-                {{ year?.value + 1 }}-02-01 → {{ year?.value + 1 }}-02-28 }
-                @else { XXXX-02-01 → XXXX-02-28 }
+                {{ getYearFromDate(selectedCicloEscolar()?.fechaFin) }}-02-01 → {{ getYearFromDate(selectedCicloEscolar()?.fechaFin) }}-02-28
               </span>
             </div>
           </div>
@@ -89,13 +99,35 @@
             <div class="flex justify-between">
               <span>• Todo el ciclo escolar:</span>
               <span>
-                @if (year?.value) {
-                {{ year?.value }}-01-01 → {{ year?.value + 1 }}-12-31 } @else {
-                XXXX-01-01 → XXXX-12-31 }
+                {{ selectedCicloEscolar()?.fechaInicio | date:'dd/MM/yyyy' }} → {{ selectedCicloEscolar()?.fechaFin | date:'dd/MM/yyyy' }}
               </span>
             </div>
           </div>
         </div>
+        } @else {
+        <div>
+          <p class="font-medium mb-2">Pagos Semestrales:</p>
+          <div class="ml-2 space-y-1">
+            <div class="flex justify-between">
+              <span>• Primer semestre:</span>
+              <span>XXXX-08-01 → XXXX-08-15</span>
+            </div>
+            <div class="flex justify-between">
+              <span>• Segundo semestre:</span>
+              <span>XXXX-02-01 → XXXX-02-28</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="font-medium mb-2">Pagos Únicos:</p>
+          <div class="ml-2">
+            <div class="flex justify-between">
+              <span>• Todo el ciclo escolar:</span>
+              <span>Selecciona un ciclo escolar</span>
+            </div>
+          </div>
+        </div>
+        }
       </div>
     </div>
   </div>
@@ -109,32 +141,73 @@
     </h3>
 
     <form [formGroup]="adeudosGenerarForm" (ngSubmit)="onSubmit()">
-      <div class="max-w-sm">
-        <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
-          Año del Ciclo Escolar <span class="text-red-500">*</span>
-        </label>
-        <p-inputnumber
-          inputId="year"
-          formControlName="year"
-          placeholder="Ej. 2024"
-          [useGrouping]="false"
-          [min]="2000"
-          [max]="9999"
-          class="w-full"
-        ></p-inputnumber>
-        @if (isInvalid('year')) { @if(year?.hasError('required')){
-        <small class="text-red-600 text-xs mt-1 block"
-          >El año es requerido</small
-        >
-        } @if(year?.hasError('min')){
-        <small class="text-red-600 text-xs mt-1 block"
-          >El año debe ser mayor a 2000</small
-        >
-        } @if (year?.hasError('max')){
-        <small class="text-red-600 text-xs mt-1 block"
-          >El año debe ser menor a 9999</small
-        >
-        } }
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- Ciclo Escolar Selection -->
+        <div>
+          <label for="ciclo_escolar_id" class="block text-sm font-medium text-gray-700 mb-2">
+            Ciclo Escolar <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            inputId="ciclo_escolar_id"
+            formControlName="ciclo_escolar_id"
+            [options]="ciclosEscolares"
+            optionLabel="nombre"
+            optionValue="id"
+            placeholder="Selecciona un ciclo escolar"
+            [loading]="ciclosLoading"
+            class="w-full"
+            (onChange)="onCicloEscolarChange($event)"
+          ></p-select>
+          @if (isInvalid('ciclo_escolar_id')) {
+          <small class="text-red-600 text-xs mt-1 block"
+            >El ciclo escolar es requerido</small
+          >
+          }
+        </div>
+
+        <!-- Nivel Selection -->
+        <div>
+          <label for="nivel_id" class="block text-sm font-medium text-gray-700 mb-2">
+            Nivel <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            inputId="nivel_id"
+            formControlName="nivel_id"
+            [options]="niveles"
+            optionLabel="displayName"
+            optionValue="id"
+            placeholder="Selecciona un nivel"
+            [loading]="nivelesLoading"
+            class="w-full"
+          ></p-select>
+          @if (isInvalid('nivel_id')) {
+          <small class="text-red-600 text-xs mt-1 block"
+            >El nivel es requerido</small
+          >
+          }
+        </div>
+
+        <!-- Modalidad Selection -->
+        <div>
+          <label for="modalidad_id" class="block text-sm font-medium text-gray-700 mb-2">
+            Modalidad <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            inputId="modalidad_id"
+            formControlName="modalidad_id"
+            [options]="modalidades"
+            optionLabel="displayName"
+            optionValue="id"
+            placeholder="Selecciona una modalidad"
+            [loading]="modalidadesLoading"
+            class="w-full"
+          ></p-select>
+          @if (isInvalid('modalidad_id')) {
+          <small class="text-red-600 text-xs mt-1 block"
+            >La modalidad es requerida</small
+          >
+          }
+        </div>
       </div>
     </form>
   </div>

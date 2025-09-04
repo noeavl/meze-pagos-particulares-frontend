@@ -28,20 +28,25 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+  @if (error) {
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
     <div class="flex items-center">
       <i class="fas fa-exclamation-triangle mr-2"></i>
       {{ error }}
     </div>
   </div>
+  }
 
   <!-- Loading -->
-  <div *ngIf="loading" class="flex justify-center items-center py-12">
+  @if (loading) {
+  <div class="flex justify-center items-center py-12">
     <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
   </div>
+  }
 
   <!-- Adeudo Information -->
-  <div *ngIf="adeudo && !loading">
+  @if (adeudo && !loading) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
     
     <!-- Adeudo Summary Card -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
@@ -187,9 +192,11 @@
       </p-table>
     </div>
   </div>
+  }
 
   <!-- Not Found Message -->
-  <div *ngIf="!adeudo && !loading && !error" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
+  @if (!adeudo && !loading && !error) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
     <div class="text-center">
       <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Adeudo no encontrado</h3>
@@ -204,4 +211,5 @@
       ></button>
     </div>
   </div>
+  }
 </div>

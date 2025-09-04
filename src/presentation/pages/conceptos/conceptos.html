@@ -47,8 +47,8 @@
   </div>
 
   <!-- Error Message -->
+  @if (error) {
   <div
-    *ngIf="error"
     class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"
   >
     <div class="flex items-center">
@@ -56,6 +56,7 @@
       {{ error }}
     </div>
   </div>
+  }
 
   <!-- Table -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule,
@@ -37,6 +37,7 @@ export class GrupoEdit implements OnInit {
   private route = inject(ActivatedRoute);
   private grupoService = useGrupo();
   private messageService = inject(MessageService);
+  private cdr = inject(ChangeDetectorRef);
 
   grupoForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
@@ -49,22 +50,44 @@ export class GrupoEdit implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('ID del parámetro:', id);
     if (id) {
       this.loadGrupo(+id);
+    } else {
+      console.error('No se encontró ID en la URL');
+      this.loading = false;
+      this.errorMessage = 'ID de grupo no válido';
     }
   }
 
   loadGrupo(id: number) {
     this.loading = true;
+    this.errorMessage = '';
+    console.log('Cargando grupo con ID:', id);
+    
+    // Timeout de seguridad
+    const timeout = setTimeout(() => {
+      console.warn('Timeout: La petición está tardando demasiado');
+      this.loading = false;
+      this.errorMessage = 'La petición está tardando demasiado. Verifica tu conexión.';
+    }, 10000); // 10 segundos
+    
     this.grupoService.getGrupoById(id).subscribe({
       next: (data: Grupo) => {
+        clearTimeout(timeout);
+        console.log('Grupo cargado exitosamente:', data);
         this.grupo = data;
         this.grupoForm.patchValue({ nombre: data.nombre });
         this.loading = false;
+        console.log('Loading establecido a false:', this.loading);
+        this.cdr.detectChanges();
       },
-      error: () => {
-        this.errorMessage = 'Error al cargar el grupo';
+      error: (error) => {
+        clearTimeout(timeout);
+        console.error('Error al cargar grupo:', error);
+        this.errorMessage = `Error al cargar el grupo: ${error.message || error}`;
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }

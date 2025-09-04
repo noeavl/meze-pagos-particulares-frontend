@@ -50,15 +50,23 @@ export class useAdeudo {
                 nombres: estudiante.persona?.nombres || '',
                 apellidoPaterno: estudiante.persona?.apellido_paterno || '',
                 apellidoMaterno: estudiante.persona?.apellido_materno || '',
-                nivel: { rawValue: estudiante.nivel || '', displayValue: estudiante.nivel || '' },
-                grado: estudiante.grado || 0,
-                modalidad: { rawValue: estudiante.modalidad || '', displayValue: estudiante.modalidad || '' }
+                nivel: { 
+                  rawValue: estudiante.nivel_grado?.nivel?.nombre || '', 
+                  displayValue: estudiante.nivel_grado?.nivel?.nombre || '' 
+                },
+                grado: estudiante.nivel_grado?.grado?.numero || 'N/A',
+                modalidad: { 
+                  rawValue: estudiante.nivel_grado?.modalidad?.nombre || '', 
+                  displayValue: estudiante.nivel_grado?.modalidad?.nombre || '' 
+                }
               },
               concepto: adeudo.concepto || {},
               montoTotal: parseFloat(adeudo.total || '0'),
               montoPagado: parseFloat(adeudo.pagado || '0'),
               montoPendiente: parseFloat(adeudo.pendiente || '0'),
+              fechaInicio: adeudo.fecha_inicio,
               fechaVencimiento: adeudo.fecha_vencimiento,
+              descripcionPeriodo: adeudo.descripcion_periodo,
               estado: {
                 displayValue: adeudo.estado || 'pendiente',
                 colorClass: adeudo.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :
@@ -167,15 +175,23 @@ export class useAdeudo {
                 nombres: estudiante.persona?.nombres || '',
                 apellidoPaterno: estudiante.persona?.apellido_paterno || '',
                 apellidoMaterno: estudiante.persona?.apellido_materno || '',
-                nivel: { rawValue: estudiante.nivel || '', displayValue: estudiante.nivel || '' },
-                grado: estudiante.grado || 0,
-                modalidad: { rawValue: estudiante.modalidad || '', displayValue: estudiante.modalidad || '' }
+                nivel: { 
+                  rawValue: estudiante.nivel_grado?.nivel?.nombre || '', 
+                  displayValue: estudiante.nivel_grado?.nivel?.nombre || '' 
+                },
+                grado: estudiante.nivel_grado?.grado?.numero || 'N/A',
+                modalidad: { 
+                  rawValue: estudiante.nivel_grado?.modalidad?.nombre || '', 
+                  displayValue: estudiante.nivel_grado?.modalidad?.nombre || '' 
+                }
               },
               concepto: adeudo.concepto || {},
               montoTotal: parseFloat(adeudo.total || '0'),
               montoPagado: parseFloat(adeudo.pagado || '0'),
               montoPendiente: parseFloat(adeudo.pendiente || '0'),
+              fechaInicio: adeudo.fecha_inicio,
               fechaVencimiento: adeudo.fecha_vencimiento,
+              descripcionPeriodo: adeudo.descripcion_periodo,
               estado: {
                 displayValue: adeudo.estado || 'pendiente',
                 colorClass: adeudo.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' :

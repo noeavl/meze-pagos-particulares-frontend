@@ -14,7 +14,7 @@ export class Sidebar implements OnInit {
   private router = inject(Router);
 
   isSideBarCollapse = false;
-  isPagosMenuOpen = false;
+  isCobranzaOpen = false;
 
   // Computed para obtener el usuario actual
   currentUser = computed(() => {
@@ -36,8 +36,8 @@ export class Sidebar implements OnInit {
     this.isSideBarCollapse = !this.isSideBarCollapse;
   }
 
-  togglePagosMenu() {
-    this.isPagosMenuOpen = !this.isPagosMenuOpen;
+  toggleCobranza() {
+    this.isCobranzaOpen = !this.isCobranzaOpen;
   }
 
   async logout() {

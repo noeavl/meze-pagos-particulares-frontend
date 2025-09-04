@@ -225,7 +225,7 @@
       <ng-template pTemplate="header">
         <tr>
           <th pSortableColumn="nombres" class="text-left">
-            Nombre Completo <p-sortIcon field="nombres"></p-sortIcon>
+            Estudiante <p-sortIcon field="nombres"></p-sortIcon>
           </th>
           <th pSortableColumn="nivel" class="text-left">
             Nivel <p-sortIcon field="nivel"></p-sortIcon>
@@ -238,6 +238,9 @@
           </th>
           <th pSortableColumn="modalidad" class="text-left">
             Modalidad <p-sortIcon field="modalidad"></p-sortIcon>
+          </th>
+          <th pSortableColumn="ciclo_escolar.nombre" class="text-left">
+            Ciclo Escolar <p-sortIcon field="ciclo_escolar.nombre"></p-sortIcon>
           </th>
           <th class="text-center">Acciones</th>
         </tr>
@@ -278,6 +281,9 @@
               pTooltip="{{estudiante.modalidad.rawValue === 'general' ? 'Todas las modalidades' : estudiante.modalidad.displayValue}}"
             ></p-tag>
           </td>
+          <td>
+            {{ estudiante.ciclo_escolar?.nombre }}
+          </td>
           <td class="text-center">
             <button
               [routerLink]="['/estudiante/detail', estudiante.id]"
@@ -315,7 +321,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="text-center py-8">
+          <td colspan="7" class="text-center py-8">
             <div class="flex flex-col items-center">
               <i class="pi pi-users text-4xl text-gray-400 mb-3"></i>
               <p class="text-lg text-gray-500">

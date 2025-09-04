@@ -3,7 +3,11 @@ import { ButtonDirective } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CommonModule } from '@angular/common';
 import { MessageModule } from 'primeng/message';
+import { Select } from 'primeng/select';
 import { useAdeudo } from '../../hooks/use-adeudo.hook';
+import { useCicloEscolar } from '../../hooks/use-ciclo-escolar.hook';
+import { useNivel } from '../../hooks/use-nivel.hook';
+import { useModalidad } from '../../hooks/use-modalidad.hook';
 import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 
@@ -22,6 +26,7 @@ import { MessageService } from 'primeng/api';
     CommonModule,
     ReactiveFormsModule,
     MessageModule,
+    Select,
     ToastModule,
   ],
   templateUrl: './adeudos-create.html',
@@ -31,8 +36,12 @@ import { MessageService } from 'primeng/api';
 export class AdeudosCreate implements OnInit {
   adeudosGenerarForm!: FormGroup;
   successMessage = signal<string>('');
+  selectedCicloEscolar = signal<any>(null);
   private fb = inject(FormBuilder);
   private useAdeudoService = inject(useAdeudo);
+  private useCicloEscolarService = inject(useCicloEscolar);
+  private useNivelService = inject(useNivel);
+  private useModalidadService = inject(useModalidad);
   private router = inject(Router);
   private messageService = inject(MessageService);
 
@@ -52,6 +61,9 @@ export class AdeudosCreate implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.useCicloEscolarService.loadCiclosEscolares();
+    this.useNivelService.loadNiveles();
+    this.useModalidadService.loadModalidades();
   }
 
   volver() {
@@ -66,17 +78,48 @@ export class AdeudosCreate implements OnInit {
     return this.useAdeudoService.error();
   }
 
+  get ciclosEscolares() {
+    return this.useCicloEscolarService.ciclosEscolares();
+  }
+
+  get ciclosLoading() {
+    return this.useCicloEscolarService.loading();
+  }
+
+  get niveles() {
+    return this.useNivelService.niveles();
+  }
+
+  get modalidades() {
+    return this.useModalidadService.modalidades();
+  }
+
+  get nivelesLoading() {
+    return this.useNivelService.loading();
+  }
+
+  get modalidadesLoading() {
+    return this.useModalidadService.loading();
+  }
+
   private initForm() {
     this.adeudosGenerarForm = this.fb.group({
-      year: [
-        '',
-        [Validators.required, Validators.min(2000), Validators.max(9999)],
-      ],
+      ciclo_escolar_id: ['', Validators.required],
+      nivel_id: ['', Validators.required],
+      modalidad_id: ['', Validators.required],
     });
   }
 
-  get year() {
-    return this.adeudosGenerarForm.get('year');
+  get cicloEscolarId() {
+    return this.adeudosGenerarForm.get('ciclo_escolar_id');
+  }
+
+  get nivelId() {
+    return this.adeudosGenerarForm.get('nivel_id');
+  }
+
+  get modalidadId() {
+    return this.adeudosGenerarForm.get('modalidad_id');
   }
 
   isInvalid(fieldName: string): boolean {
@@ -88,14 +131,29 @@ export class AdeudosCreate implements OnInit {
       this.successMessage.set('');
       const formValue = this.adeudosGenerarForm.value;
       this.useAdeudoService
-        .generateAdeudosMassive({ year: formValue.year })
+        .generateAdeudosMassive({ 
+          ciclo_escolar_id: formValue.ciclo_escolar_id,
+          nivel_id: formValue.nivel_id,
+          modalidad_id: formValue.modalidad_id
+        })
         .subscribe({
           next: (response) => {
             this.successMessage.set(response.message);
             this.show('success', 'Exito', response.message);
             this.adeudosGenerarForm.reset();
+            this.selectedCicloEscolar.set(null);
           },
         });
     }
+  }
+
+  onCicloEscolarChange(event: any) {
+    const selectedCiclo = this.ciclosEscolares.find((ciclo: any) => ciclo.id === event.value);
+    this.selectedCicloEscolar.set(selectedCiclo);
+  }
+
+  getYearFromDate(dateString: string): number {
+    if (!dateString) return new Date().getFullYear();
+    return new Date(dateString).getFullYear();
   }
 }

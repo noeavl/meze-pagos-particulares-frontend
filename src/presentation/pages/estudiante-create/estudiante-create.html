@@ -117,6 +117,7 @@
             formControlName="curp"
             placeholder="CURP del estudiante"
             [invalid]="isInvalid('curp')"
+            maxlength="18"
             class="w-full"
           />
           @if (isInvalid('curp')) {
@@ -136,7 +137,30 @@
         Información Académica
       </h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Primera fila: Ciclo Escolar, Nivel, Grado, Modalidad -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Ciclo Escolar -->
+        <div class="space-y-2">
+          <label for="ciclo_escolar" class="block text-sm font-medium text-gray-700">
+            Ciclo Escolar <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="ciclo_escolar"
+            formControlName="ciclo_escolar"
+            [options]="ciclosEscolaresOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar ciclo escolar"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('ciclo_escolar')"
+          ></p-select>
+          @if (isInvalid('ciclo_escolar')) {
+          <small class="text-red-600 text-xs">
+            {{ getErrorMessage("ciclo_escolar") }}
+          </small>
+          }
+        </div>
+
         <!-- Nivel -->
         <div class="space-y-2">
           <label for="nivel" class="block text-sm font-medium text-gray-700">
@@ -206,22 +230,33 @@
           }
         </div>
 
+      </div>
+
+      <!-- Segunda fila: Grupo -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Grupo -->
         <div class="space-y-2">
           <label for="grupo" class="block text-sm font-medium text-gray-700">
-            Grupo
+            Grupo <span class="text-gray-400">(Opcional)</span>
           </label>
-          <input
-            pInputText
+          <p-select
             id="grupo"
             formControlName="grupo"
-            placeholder="Grupo del estudiante"
-            [invalid]="isInvalid('grupo')"
+            [options]="gruposOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar grupo"
             class="w-full"
-          />
+            [class.ng-invalid]="isInvalid('grupo')"
+          ></p-select>
           @if (isInvalid('grupo')) {
           <small class="text-red-600 text-xs">
             {{ getErrorMessage("grupo") }}
+          </small>
+          }
+          @if (estudianteForm.get('grupo')?.disabled) {
+          <small class="text-gray-500 text-xs">
+            Selecciona nivel, grado y modalidad para ver grupos disponibles
           </small>
           }
         </div>

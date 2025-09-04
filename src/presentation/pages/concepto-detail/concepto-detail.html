@@ -28,104 +28,108 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+  @if (error()) {
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
     <div class="flex items-center">
       <i class="pi pi-exclamation-triangle mr-2"></i>
       {{ error() }}
     </div>
   </div>
+  }
 
   <!-- Loading -->
-  <div *ngIf="loading()" class="flex justify-center items-center py-12">
+  @if (loading()) {
+  <div class="flex justify-center items-center py-12">
     <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
   </div>
+  }
 
   <!-- Concepto Information -->
-  <div *ngIf="concepto() && !loading()">
-    <!-- Concepto Identity Card -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          {{ concepto()?.nombre }}
-        </h2>
-        <div class="flex justify-center items-center gap-4 text-gray-600">
-          <span class="flex items-center gap-1">
-            <span
-              class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-              [ngClass]="{
-                'bg-blue-100 text-blue-800': concepto()?.tipo === 'adeudo',
-                'bg-green-100 text-green-800': concepto()?.tipo === 'requerido'
-              }"
-            >
-              {{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}
-            </span>
+  @if (concepto() && !loading()) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="text-center">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">
+        {{ concepto()?.nombre }}
+      </h2>
+      <div class="flex justify-center items-center gap-4 text-gray-600">
+        <span class="flex items-center gap-1">
+          <span
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+            [ngClass]="{
+              'bg-blue-100 text-blue-800': concepto()?.tipo === 'adeudo',
+              'bg-green-100 text-green-800': concepto()?.tipo === 'requerido'
+            }"
+          >
+            {{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}
           </span>
-          <span class="flex items-center gap-1">
-            <i class="pi pi-tag"></i>
-            {{ concepto()?.periodo?.displayValue }}
-          </span>
-          <span class="flex items-center gap-1">
-            <i class="pi pi-dollar"></i>
-            {{ concepto()?.costo | number:'1.2-2' }}
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Detailed Information -->
-    <div class="grid md:grid-cols-2 gap-6">
-      <!-- Basic Information -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-          Información Básica
-        </h3>
-        
-        <div class="space-y-4">
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">ID:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.id }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Nombre:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.nombre }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Tipo:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Periodo:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.periodo?.displayValue }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Costo:</span>
-            <span class="font-medium text-green-600">${{ concepto()?.costo | number:'1.2-2' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Application Information -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-          Información de Aplicación
-        </h3>
-        
-        <div class="space-y-4">
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Nivel Educativo:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.nivel?.displayValue || 'General' }}</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600 text-sm">Modalidad:</span>
-            <span class="font-medium text-gray-900">{{ concepto()?.modalidad?.displayValue || 'General' }}</span>
-          </div>
-        </div>
+        </span>
+        <span class="flex items-center gap-1">
+          <i class="pi pi-tag"></i>
+          {{ concepto()?.periodo?.displayValue }}
+        </span>
+        <span class="flex items-center gap-1">
+          <i class="pi pi-dollar"></i>
+          {{ concepto()?.costo | number:'1.2-2' }}
+        </span>
       </div>
     </div>
   </div>
 
+  <!-- Detailed Information -->
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- Basic Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+        Información Básica
+      </h3>
+      
+      <div class="space-y-4">
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">ID:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.id }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Nombre:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.nombre }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Tipo:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.tipo === 'adeudo' ? 'Adeudo' : 'Requerido' }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Periodo:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.periodo?.displayValue }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Costo:</span>
+          <span class="font-medium text-green-600">${{ concepto()?.costo | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Information -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+        Información de Aplicación
+      </h3>
+      
+      <div class="space-y-4">
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Nivel Educativo:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.nivel?.displayValue || 'General' }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600 text-sm">Modalidad:</span>
+          <span class="font-medium text-gray-900">{{ concepto()?.modalidad?.displayValue || 'General' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
   <!-- Not Found Message -->
-  <div *ngIf="!concepto() && !loading() && !error()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
+  @if (!concepto() && !loading() && !error()) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
     <div class="text-center">
       <i class="pi pi-tag text-4xl text-gray-300 mb-4"></i>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Concepto no encontrado</h3>
@@ -140,4 +144,5 @@
       ></button>
     </div>
   </div>
+  }
 </div>

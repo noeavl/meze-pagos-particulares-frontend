@@ -52,6 +52,7 @@ export interface Adeudo {
   montoPagado: number;
   fechaInicio: Date;
   fechaVencimiento: Date;
+  descripcionPeriodo?: string;
   pagos?: Pago[];
 }
 
@@ -67,7 +68,9 @@ export interface CreateAdeudoDto {
 }
 
 export interface GenerarAdeudosDto {
-  year: number;
+  ciclo_escolar_id: number;
+  modalidad_id: number;
+  nivel_id: number;
 }
 
 export interface ApiGenerarAdeudosResponse {

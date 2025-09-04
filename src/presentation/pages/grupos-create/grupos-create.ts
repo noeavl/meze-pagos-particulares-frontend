@@ -14,9 +14,17 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { useGrupo } from '../../hooks/use-grupo.hook';
+import { useNivel } from '../../hooks/use-nivel.hook';
+import { useModalidad } from '../../hooks/use-modalidad.hook';
+import { useGrado } from '../../hooks/use-grado.hook';
 import { CreateGrupoDto } from '../../../domain/entities/grupo.entity';
 import { CicloEscolar } from '../../../domain/entities/ciclo-escolar.entity';
 import { CicloEscolarUseCase } from '../../../domain/use-cases/ciclo-escolar.use-case';
+
+interface DropdownOption {
+  label: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-grupo-create',
@@ -40,11 +48,17 @@ export class GrupoCreate implements OnInit {
   private router = inject(Router);
   private grupoService = useGrupo();
   private cicloEscolarUseCase = inject(CicloEscolarUseCase);
+  private nivelService = inject(useNivel);
+  private modalidadService = inject(useModalidad);
+  private gradoService = inject(useGrado);
   private messageService = inject(MessageService);
 
   grupoForm: FormGroup = this.fb.group({
     nombre: ['', [Validators.required]],
     ciclo_escolar_id: [null, [Validators.required]],
+    nivel_id: ['', [Validators.required]],
+    grado_id: [{ value: '', disabled: true }, [Validators.required]],
+    modalidad_id: ['', [Validators.required]],
   });
 
   ciclosEscolares: CicloEscolar[] = [];
@@ -52,14 +66,62 @@ export class GrupoCreate implements OnInit {
   errorMessage = '';
   fieldErrors: { [key: string]: string[] } = {};
 
+  get nivelesOptions() {
+    return this.nivelService.niveles()
+      .filter(nivel => nivel.nombre !== 'general')
+      .map(nivel => ({
+        label: nivel.displayName,
+        value: nivel.id.toString()
+      }));
+  }
+
+  get gradosOptions() {
+    return this.gradoService.getGradosOptions().map(grado => ({
+      label: grado.label,
+      value: grado.value.toString()
+    }));
+  }
+
+  get modalidadOptions() {
+    return this.modalidadService.modalidades()
+      .filter(modalidad => modalidad.nombre !== 'general')
+      .map(modalidad => ({
+        label: modalidad.displayName,
+        value: modalidad.id.toString()
+      }));
+  }
+
   ngOnInit() {
     this.loadCiclosEscolares();
+    this.nivelService.loadNiveles();
+    this.modalidadService.loadModalidades();
+    this.gradoService.loadGradosByNivel('general');
+    
+    this.grupoForm.get('nivel_id')?.valueChanges.subscribe((nivelId) => {
+      this.updateGradoOptions(nivelId);
+    });
   }
 
   loadCiclosEscolares() {
     this.cicloEscolarUseCase.getAllCiclosEscolares().subscribe((data: CicloEscolar[]) => {
       this.ciclosEscolares = data;
     });
+  }
+
+  updateGradoOptions(nivelId: string) {
+    const gradoControl = this.grupoForm.get('grado_id');
+    if (nivelId) {
+      // Buscar el nivel por ID para obtener el nombre
+      const nivel = this.nivelService.niveles().find(n => n.id.toString() === nivelId);
+      if (nivel) {
+        this.gradoService.loadGradosByNivel(nivel.nombre);
+      }
+      gradoControl?.enable();
+    } else {
+      this.gradoService.loadGradosByNivel('general');
+      gradoControl?.enable();
+    }
+    gradoControl?.setValue('');
   }
 
   show(severity: string, summary: string, detail: string) {
@@ -88,6 +150,9 @@ export class GrupoCreate implements OnInit {
     const labels: { [key: string]: string } = {
       nombre: 'Nombre',
       ciclo_escolar_id: 'Ciclo Escolar',
+      nivel_id: 'Nivel',
+      grado_id: 'Grado',
+      modalidad_id: 'Modalidad',
     };
     return labels[fieldName] || fieldName;
   }
@@ -110,7 +175,14 @@ export class GrupoCreate implements OnInit {
     this.errorMessage = '';
     this.fieldErrors = {};
 
-    const createDto: CreateGrupoDto = this.grupoForm.value;
+    const formValues = this.grupoForm.value;
+    const createDto: CreateGrupoDto = {
+      nombre: formValues.nombre,
+      ciclo_escolar_id: parseInt(formValues.ciclo_escolar_id),
+      nivel_id: parseInt(formValues.nivel_id),
+      grado_id: parseInt(formValues.grado_id),
+      modalidad_id: parseInt(formValues.modalidad_id),
+    };
 
     this.grupoService.createGrupo(createDto).subscribe({
       next: () => {

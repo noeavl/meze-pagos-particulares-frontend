@@ -233,8 +233,8 @@
                   {{ student.persona.apellido_materno }}
                 </h3>
                 <p class="text-sm text-gray-600">
-                  {{ formatNivel(student.nivel) }} - {{ student.grado }}° -
-                  {{ formatModalidad(student.modalidad) }}
+                  {{ formatNivel(student.nivel_grado?.nivel?.nombre) }} - {{ student.nivel_grado?.grado?.numero || 'N/A' }}° -
+                  {{ formatModalidad(student.nivel_grado?.modalidad?.nombre) }}
                 </p>
               </div>
             </div>

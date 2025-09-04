@@ -23,6 +23,8 @@ import {
   UpdateEstudianteDto,
   Estudiante,
 } from '../../../domain/entities/estudiante.entity';
+import { GrupoUseCase } from '../../../domain/use-cases/grupo.use-case';
+import { Grupo } from '../../../domain/entities/grupo.entity';
 
 interface DropdownOption {
   label: string;
@@ -54,6 +56,7 @@ export class EstudianteEdit implements OnInit {
   private nivelService = inject(useNivel);
   private modalidadService = inject(useModalidad);
   private gradoService = inject(useGrado);
+  private grupoUseCase = inject(GrupoUseCase);
   private cdr = inject(ChangeDetectorRef);
   private messageService = inject(MessageService);
 
@@ -79,14 +82,16 @@ export class EstudianteEdit implements OnInit {
     nivel: ['', [Validators.required]],
     grado: ['', [Validators.required]],
     modalidad: ['', [Validators.required]],
-    grupo: [''],
+    grupo: [{ value: '', disabled: true }], // Campo opcional
   });
 
   get nivelesOptions() {
-    return this.nivelService.niveles().map(nivel => ({
-      label: nivel.displayName,
-      value: nivel.nombre
-    }));
+    return this.nivelService.niveles()
+      .filter(nivel => nivel.nombre !== 'general')
+      .map(nivel => ({
+        label: nivel.displayName,
+        value: nivel.nombre
+      }));
   }
 
   get gradosOptions() {
@@ -94,20 +99,45 @@ export class EstudianteEdit implements OnInit {
   }
 
   get modalidadOptions() {
-    return this.modalidadService.modalidades().map(modalidad => ({
-      label: modalidad.displayName,
-      value: modalidad.nombre
+    return this.modalidadService.modalidades()
+      .filter(modalidad => modalidad.nombre !== 'general')
+      .map(modalidad => ({
+        label: modalidad.displayName,
+        value: modalidad.nombre
+      }));
+  }
+
+  get gruposOptions() {
+    return this.grupos.map(grupo => ({
+      label: `${grupo.nombre} - ${grupo.ciclo_escolar?.nombre}`,
+      value: grupo.id.toString()
     }));
   }
 
   loading = false;
   loadingData = true;
   errorMessage = '';
+  grupos: Grupo[] = [];
 
   ngOnInit() {
     this.nivelService.loadNiveles();
     this.modalidadService.loadModalidades();
     this.gradoService.loadGradosByNivel('general');
+    
+    // Listeners para cambios de campos
+    this.estudianteForm.get('nivel')?.valueChanges.subscribe((nivel) => {
+      this.updateGradoOptions(nivel);
+      this.checkAndLoadGrupos();
+    });
+    
+    this.estudianteForm.get('grado')?.valueChanges.subscribe(() => {
+      this.checkAndLoadGrupos();
+    });
+    
+    this.estudianteForm.get('modalidad')?.valueChanges.subscribe(() => {
+      this.checkAndLoadGrupos();
+    });
+    
     this.estudianteId = Number(this.route.snapshot.params['id']);
     if (this.estudianteId) {
       this.loadEstudiante();
@@ -143,23 +173,96 @@ export class EstudianteEdit implements OnInit {
     });
   }
 
+  updateGradoOptions(nivel: string) {
+    const gradoControl = this.estudianteForm.get('grado');
+    if (nivel) {
+      this.gradoService.loadGradosByNivel(nivel);
+      gradoControl?.enable();
+    } else {
+      this.gradoService.loadGradosByNivel('general');
+      gradoControl?.enable();
+    }
+    // No resetear el valor del grado aquí para que se mantenga cuando se carga el estudiante
+  }
+
+  checkAndLoadGrupos() {
+    const nivel = this.estudianteForm.get('nivel')?.value;
+    const grado = this.estudianteForm.get('grado')?.value;
+    const modalidad = this.estudianteForm.get('modalidad')?.value;
+    const grupoControl = this.estudianteForm.get('grupo');
+
+    if (nivel && grado && modalidad) {
+      // Buscar los IDs correspondientes
+      const nivelObj = this.nivelService.niveles().find(n => n.nombre === nivel);
+      const gradoObj = this.gradoService.getGradosOptions().find(g => g.value === grado);
+      const modalidadObj = this.modalidadService.modalidades().find(m => m.nombre === modalidad);
+
+      if (nivelObj && gradoObj && modalidadObj) {
+        this.grupoUseCase.getGruposByParams(nivelObj.id, parseInt(gradoObj.value), modalidadObj.id)
+          .subscribe({
+            next: (grupos) => {
+              this.grupos = grupos;
+              grupoControl?.enable();
+              // No resetear la selección en el caso de editar para mantener el grupo actual
+            },
+            error: (error) => {
+              console.error('Error al cargar grupos:', error);
+              this.grupos = [];
+              grupoControl?.disable();
+            }
+          });
+      }
+    } else {
+      // Si no están los 3 campos, deshabilitar grupo
+      this.grupos = [];
+      grupoControl?.disable();
+    }
+  }
+
   populateForm(estudiante: Estudiante) {
     try {
-      this.estudianteForm.patchValue({
-        nombres: estudiante.nombres,
-        apellidoPaterno: estudiante.apellidoPaterno,
-        apellidoMaterno: estudiante.apellidoMaterno,
-        curp: estudiante.curp,
-        nivel: estudiante.nivel.rawValue,
-        grado: estudiante.grado,
-        modalidad: estudiante.modalidad.rawValue,
-        grupo: estudiante.grupo,
-      });
+      // Primero cargar los grados del nivel correcto
+      this.gradoService.loadGradosByNivel(estudiante.nivel.rawValue);
+      
+      // Usar setTimeout para esperar a que se carguen los grados
+      setTimeout(() => {
+        this.estudianteForm.patchValue({
+          nombres: estudiante.nombres,
+          apellidoPaterno: estudiante.apellidoPaterno,
+          apellidoMaterno: estudiante.apellidoMaterno,
+          curp: estudiante.curp,
+          nivel: estudiante.nivel.rawValue,
+          grado: estudiante.grado,
+          modalidad: estudiante.modalidad.rawValue,
+          grupo: estudiante.grupo_id ? estudiante.grupo_id.toString() : '',
+        });
 
-      console.log(
-        'Valores del formulario después de patchValue:',
-        this.estudianteForm.value
-      );
+        // Actualizar validación del formulario
+        this.estudianteForm.updateValueAndValidity();
+        
+        // Marcar campos como tocados para que se muestren las validaciones si hay errores
+        if (this.estudianteForm.invalid) {
+          this.estudianteForm.markAllAsTouched();
+        }
+        
+        // Forzar detección de cambios
+        this.cdr.detectChanges();
+
+        console.log(
+          'Valores del formulario después de patchValue:',
+          this.estudianteForm.value
+        );
+        console.log('Form validity:', this.estudianteForm.valid);
+        console.log('Form errors:', this.estudianteForm.errors);
+        
+        // Log individual field validation
+        Object.keys(this.estudianteForm.controls).forEach(key => {
+          const control = this.estudianteForm.get(key);
+          if (control?.errors) {
+            console.log(`${key} errors:`, control.errors);
+          }
+        });
+      }, 100);
     } catch (error) {
       console.error('Error al popular formulario:', error);
       this.errorMessage = 'Error al cargar los datos del estudiante';
@@ -226,7 +329,7 @@ export class EstudianteEdit implements OnInit {
         nivel: formValues.nivel,
         grado: formValues.grado,
         modalidad: formValues.modalidad,
-        grupo: formValues.grupo,
+        grupo_id: formValues.grupo ? parseInt(formValues.grupo) : undefined,
       };
 
       this.estudianteService.updateEstudiante(updateDto).subscribe({

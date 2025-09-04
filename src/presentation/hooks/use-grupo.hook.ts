@@ -13,12 +13,15 @@ export const useGrupo = () => {
   const loadGrupos = () => {
     loading.set(true);
     error.set(null);
+    console.log('Cargando grupos...');
     grupoUseCase.getAllGrupos().subscribe({
-      next: (data: any) => {
-        grupos.set(data.data);
+      next: (data: Grupo[]) => {
+        console.log('Grupos recibidos:', data);
+        grupos.set(data);
         loading.set(false);
       },
       error: (err) => {
+        console.error('Error al cargar grupos:', err);
         error.set('Error al cargar los grupos');
         loading.set(false);
       },

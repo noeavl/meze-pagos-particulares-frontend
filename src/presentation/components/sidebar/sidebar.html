@@ -2,7 +2,6 @@
   class="bg-gray-900 text-white h-screen flex flex-col shadow-xl transition-all duration-300 ease-in-out"
   [ngClass]="isSideBarCollapse ? 'w-16' : 'w-64'"
 >
-  <!-- Header -->
   <div class="flex items-center justify-between p-4 border-b border-gray-700">
     <h2
       class="text-xl font-semibold text-gray-100 transition-opacity duration-200"
@@ -11,7 +10,7 @@
         'block overflow-hidden': !isSideBarCollapse
       }"
     >
-      Meze Pagos
+      Colegio MEZE
     </h2>
     <button
       (click)="sideBarCollapse()"
@@ -20,7 +19,6 @@
       <i class="fas fa-bars text-gray-300"></i>
     </button>
   </div>
-  <!-- Navigation -->
   <nav class="flex-1 px-2 py-4">
     <ul class="space-y-1">
       <li>
@@ -37,23 +35,6 @@
             }"
           >
             Dashboard
-          </span>
-        </a>
-      </li>
-      <li>
-        <a
-          [routerLink]="['/adeudos']"
-          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
-        >
-          <i class="fas fa-file-invoice-dollar text-lg w-5 text-center"></i>
-          <span
-            class="ml-3 font-medium transition-all duration-200"
-            [ngClass]="{
-              hidden: isSideBarCollapse,
-              'block overflow-hidden': !isSideBarCollapse
-            }"
-          >
-            Adeudos
           </span>
         </a>
       </li>
@@ -76,10 +57,10 @@
       </li>
       <li>
         <a
-          [routerLink]="['/conceptos']"
+          [routerLink]="['/grupos']"
           class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
         >
-          <i class="fas fa-tags text-lg w-5 text-center"></i>
+          <i class="fas fa-users text-lg w-5 text-center"></i>
           <span
             class="ml-3 font-medium transition-all duration-200"
             [ngClass]="{
@@ -87,9 +68,59 @@
               'block overflow-hidden': !isSideBarCollapse
             }"
           >
-            Conceptos
+            Grupos
           </span>
         </a>
+      </li>
+      <li>
+        <button
+          (click)="toggleCobranza()"
+          class="flex items-center w-full px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-file-invoice-dollar text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
+            >Cobranza</span
+          >
+          <i
+            class="fas fa-chevron-down transition-transform duration-200"
+            [class.rotate-180]="isCobranzaOpen"
+            [class.hidden]="isSideBarCollapse"
+            [class.ml-auto]="!isSideBarCollapse"
+          ></i>
+        </button>
+        @if (isCobranzaOpen && !isSideBarCollapse) {
+        <ul class="pl-8 space-y-1 mt-1">
+          <li>
+            <a
+              [routerLink]="['/adeudos']"
+              class="flex items-center px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-200 group"
+            >
+              Adeudos
+            </a>
+          </li>
+          <li>
+            <a
+              [routerLink]="['/conceptos']"
+              class="flex items-center px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-200 group"
+            >
+              Conceptos
+            </a>
+          </li>
+          <li>
+            <a
+              [routerLink]="['/pagos']"
+              class="flex items-center px-3 py-2 text-sm text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-all duration-200 group"
+            >
+              Pagos
+            </a>
+          </li>
+        </ul>
+        }
       </li>
       <li>
         <a
@@ -108,58 +139,24 @@
           </span>
         </a>
       </li>
-      <li>
-        <a
-          [routerLink]="['/grupos']"
-          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
-        >
-          <i class="fas fa-users text-lg w-5 text-center"></i>
-          <span
-            class="ml-3 font-medium transition-all duration-200"
-            [ngClass]="{
-              hidden: isSideBarCollapse,
-              'block overflow-hidden': !isSideBarCollapse
-            }"
-          >
-            Grupos
-          </span>
-        </a>
-      </li>
-      <li>
-        <a
-          [routerLink]="['/pagos']"
-          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
-        >
-          <i class="fas fa-credit-card text-lg w-5 text-center"></i>
-          <span
-            class="ml-3 font-medium transition-all duration-200"
-            [ngClass]="{
-              hidden: isSideBarCollapse,
-              'block overflow-hidden': !isSideBarCollapse
-            }"
-          >
-            Pagos
-          </span>
-        </a>
-      </li>
       @if (isSuperAdmin()) {
-        <li>
-          <a
-            [routerLink]="['/usuarios']"
-            class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+      <li>
+        <a
+          [routerLink]="['/usuarios']"
+          class="flex items-center px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
+        >
+          <i class="fas fa-user-gear text-lg w-5 text-center"></i>
+          <span
+            class="ml-3 font-medium transition-all duration-200"
+            [ngClass]="{
+              hidden: isSideBarCollapse,
+              'block overflow-hidden': !isSideBarCollapse
+            }"
           >
-            <i class="fas fa-users text-lg w-5 text-center"></i>
-            <span
-              class="ml-3 font-medium transition-all duration-200"
-              [ngClass]="{
-                hidden: isSideBarCollapse,
-                'block overflow-hidden': !isSideBarCollapse
-              }"
-            >
-              Usuarios
-            </span>
-          </a>
-        </li>
+            Usuarios
+          </span>
+        </a>
+      </li>
       }
     </ul>
   </nav>
@@ -181,10 +178,10 @@
           }"
         >
           <p class="text-sm font-medium text-gray-300 overflow-hidden">
-            {{ currentUser()?.name || 'Usuario' }}
+            {{ currentUser()?.name || "Usuario" }}
           </p>
           <p class="text-xs text-gray-400 overflow-hidden">
-            {{ currentUser()?.email || 'email@meze.com' }}
+            {{ currentUser()?.email || "email@meze.com" }}
           </p>
         </div>
       </div>

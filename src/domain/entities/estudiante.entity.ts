@@ -1,4 +1,3 @@
-
 export interface ApiPersonaResponse {
   id: number;
   nombres: string;
@@ -71,8 +70,8 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-import { Modalidad } from '../value-objects/modalidad.value-object';
-import { Nivel } from '../value-objects/nivel.value-object';
+import { Modalidad } from "../value-objects/modalidad.value-object";
+import { Nivel } from "../value-objects/nivel.value-object";
 
 export interface Estudiante {
   id: number;
@@ -84,7 +83,10 @@ export interface Estudiante {
   modalidad: Modalidad;
   estado: boolean;
   grupo?: string;
+  grupo_id?: number;
   curp: string;
+  ciclo_escolar?: ApiCicloEscolarResponse;
+  nivel_grado?: ApiNivelGradoResponse;
 }
 
 export interface CreateEstudianteDto {
@@ -94,8 +96,9 @@ export interface CreateEstudianteDto {
   nivel: string;
   grado: string;
   modalidad: string;
-  grupo?: string;
   curp: string;
+  grupo_id?: number;
+  ciclo_escolar_id: number;
 }
 
 export interface UpdateEstudianteDto extends Partial<CreateEstudianteDto> {

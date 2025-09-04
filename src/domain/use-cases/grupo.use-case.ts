@@ -26,4 +26,8 @@ export class GrupoUseCase {
   deleteGrupo(id: number): Observable<void> {
     return this.repository.deleteGrupo(id);
   }
+
+  getGruposByParams(nivelId: number, gradoId: number, modalidadId: number): Observable<Grupo[]> {
+    return this.repository.getGruposByParams(nivelId, gradoId, modalidadId);
+  }
 }

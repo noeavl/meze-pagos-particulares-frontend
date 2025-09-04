@@ -28,20 +28,22 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-    <div class="flex items-center">
-      <i class="pi pi-exclamation-triangle mr-2"></i>
-      {{ error() }}
-    </div>
+  @if (error()) {
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    {{ error() }}
   </div>
+  }
 
   <!-- Loading -->
-  <div *ngIf="loading()" class="flex justify-center items-center py-12">
+  @if (loading()) {
+  <div class="flex justify-center items-center py-12">
     <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
   </div>
+  }
 
   <!-- Student Information -->
-  <div *ngIf="estudiante() && !loading()">
+  @if (estudiante() && !loading()) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
     <!-- Student Identity Card -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
       <div class="text-center">
@@ -120,13 +122,19 @@
             <span class="text-gray-600 text-sm">Grupo:</span>
             <span class="font-medium text-gray-900">{{ estudiante()?.grupo || 'N/A' }}</span>
           </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Ciclo Escolar:</span>
+            <span class="font-medium text-gray-900">{{ estudiante()?.ciclo_escolar?.nombre || 'N/A' }}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  }
 
   <!-- Not Found Message -->
-  <div *ngIf="!estudiante() && !loading() && !error()" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
+  @if (!estudiante() && !loading() && !error()) {
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
     <div class="text-center">
       <i class="pi pi-user-minus text-4xl text-gray-300 mb-4"></i>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Estudiante no encontrado</h3>
@@ -141,4 +149,5 @@
       ></button>
     </div>
   </div>
+  }
 </div>

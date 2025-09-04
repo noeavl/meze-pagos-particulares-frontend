@@ -32,7 +32,7 @@
         Información del Grupo
       </h3>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Nombre -->
         <div class="space-y-2">
           <label for="nombre" class="block text-sm font-medium text-gray-700">
@@ -59,6 +59,66 @@
           ></p-select>
           @if (isInvalid('ciclo_escolar_id')) {
           <small class="text-red-600 text-xs">{{ getErrorMessage('ciclo_escolar_id') }}</small>
+          }
+        </div>
+
+        <!-- Nivel -->
+        <div class="space-y-2">
+          <label for="nivel_id" class="block text-sm font-medium text-gray-700">
+            Nivel Educativo <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="nivel_id"
+            formControlName="nivel_id"
+            [options]="nivelesOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar nivel"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('nivel_id')"
+          ></p-select>
+          @if (isInvalid('nivel_id')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('nivel_id') }}</small>
+          }
+        </div>
+
+        <!-- Grado -->
+        <div class="space-y-2">
+          <label for="grado_id" class="block text-sm font-medium text-gray-700">
+            Grado <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="grado_id"
+            formControlName="grado_id"
+            [options]="gradosOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar grado"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('grado_id')"
+          ></p-select>
+          @if (isInvalid('grado_id')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('grado_id') }}</small>
+          }
+        </div>
+
+        <!-- Modalidad -->
+        <div class="space-y-2">
+          <label for="modalidad_id" class="block text-sm font-medium text-gray-700">
+            Modalidad <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            id="modalidad_id"
+            formControlName="modalidad_id"
+            [options]="modalidadOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar modalidad"
+            class="w-full"
+            [class.ng-invalid]="isInvalid('modalidad_id')"
+          ></p-select>
+          @if (isInvalid('modalidad_id')) {
+          <small class="text-red-600 text-xs">{{ getErrorMessage('modalidad_id') }}</small>
           }
         </div>
       </div>

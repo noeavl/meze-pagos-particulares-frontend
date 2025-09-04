@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { GrupoRepository } from '../../domain/repositories/grupo.repository';
 import { Grupo, CreateGrupoDto, UpdateGrupoDto } from '../../domain/entities/grupo.entity';
 import { API_BASE_URL } from '../../shared/constants/api.constants';
@@ -11,11 +12,27 @@ export class GrupoService extends GrupoRepository {
     private apiUrl = `${API_BASE_URL}/grupos`;
 
     getAllGrupos(): Observable<Grupo[]> {
-        return this.http.get<Grupo[]>(this.apiUrl);
+        return this.http.get<{success: boolean, data: Grupo[]}>(this.apiUrl)
+            .pipe(
+                map(response => {
+                    if (response.success && response.data) {
+                        return response.data;
+                    }
+                    return [];
+                })
+            );
     }
 
     getGrupoById(id: number): Observable<Grupo> {
-        return this.http.get<Grupo>(`${this.apiUrl}/${id}`);
+        return this.http.get<{success: boolean, data: Grupo[]}>(`${this.apiUrl}/${id}`)
+            .pipe(
+                map(response => {
+                    if (response.data && response.data.length > 0) {
+                        return response.data[0];
+                    }
+                    throw new Error('Grupo no encontrado');
+                })
+            );
     }
 
     createGrupo(grupo: CreateGrupoDto): Observable<Grupo> {
@@ -28,5 +45,17 @@ export class GrupoService extends GrupoRepository {
 
     deleteGrupo(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    getGruposByParams(nivelId: number, gradoId: number, modalidadId: number): Observable<Grupo[]> {
+        return this.http.get<{success: boolean, data: Grupo[]}>(`${this.apiUrl}/showByParam/${nivelId}/${gradoId}/${modalidadId}`)
+            .pipe(
+                map(response => {
+                    if (response.success && response.data) {
+                        return response.data;
+                    }
+                    return [];
+                })
+            );
     }
 }

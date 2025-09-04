@@ -109,21 +109,21 @@ export class Adeudos implements OnInit {
     // Filtrar por nivel si está seleccionado y no es "general"
     if (this.selectedNivel && this.selectedNivel !== "general") {
       filtered = filtered.filter(
-        (student) => student.nivel === this.selectedNivel
+        (student) => student.nivel_grado?.nivel?.nombre === this.selectedNivel
       );
     }
 
     // Filtrar por grado si está seleccionado y no es "general"
     if (this.selectedGrado && this.selectedGrado !== "general") {
       filtered = filtered.filter(
-        (student) => student.grado.toString() === this.selectedGrado
+        (student) => student.nivel_grado?.grado?.numero === this.selectedGrado
       );
     }
 
     // Filtrar por modalidad si está seleccionada y no es "general"
     if (this.selectedModalidad && this.selectedModalidad !== "general") {
       filtered = filtered.filter(
-        (student) => student.modalidad === this.selectedModalidad
+        (student) => student.nivel_grado?.modalidad?.nombre === this.selectedModalidad
       );
     }
 
@@ -172,11 +172,14 @@ export class Adeudos implements OnInit {
           nombres: student.persona.nombres,
           apellidoPaterno: student.persona.apellido_paterno,
           apellidoMaterno: student.persona.apellido_materno,
-          nivel: { rawValue: student.nivel, displayValue: student.nivel },
-          grado: student.grado,
+          nivel: { 
+            rawValue: student.nivel_grado?.nivel?.nombre || '', 
+            displayValue: student.nivel_grado?.nivel?.nombre || '' 
+          },
+          grado: student.nivel_grado?.grado?.numero || 'N/A',
           modalidad: {
-            rawValue: student.modalidad,
-            displayValue: student.modalidad,
+            rawValue: student.nivel_grado?.modalidad?.nombre || '',
+            displayValue: student.nivel_grado?.modalidad?.nombre || '',
           },
         },
         montoTotal: parseFloat(adeudo.total),
@@ -297,9 +300,9 @@ export class Adeudos implements OnInit {
     const studentsSheet = XLSX.utils.json_to_sheet(
       this.groupedStudents.map((student) => ({
         Estudiante: `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`,
-        Nivel: this.formatNivel(student.nivel),
-        Grado: `${student.grado}°`,
-        Modalidad: this.formatModalidad(student.modalidad),
+        Nivel: this.formatNivel(student.nivel_grado?.nivel?.nombre || ''),
+        Grado: `${student.nivel_grado?.grado?.numero || 'N/A'}°`,
+        Modalidad: this.formatModalidad(student.nivel_grado?.modalidad?.nombre || ''),
         "Último Pago": student.ultimo_pago_fecha
           ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
           : "Sin pagos registrados",
@@ -375,9 +378,9 @@ export class Adeudos implements OnInit {
       [],
       ["Resumen del Estudiante"],
       ["Nombre:", studentName],
-      ["Nivel:", this.formatNivel(student.nivel)],
-      ["Grado:", `${student.grado}°`],
-      ["Modalidad:", this.formatModalidad(student.modalidad)],
+      ["Nivel:", this.formatNivel(student.nivel_grado?.nivel?.nombre || '')],
+      ["Grado:", `${student.nivel_grado?.grado?.numero || 'N/A'}°`],
+      ["Modalidad:", this.formatModalidad(student.nivel_grado?.modalidad?.nombre || '')],
       [
         "Último Pago:",
         student.ultimo_pago_fecha
