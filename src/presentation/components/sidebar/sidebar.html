@@ -74,26 +74,23 @@
       </li>
       <li>
         <button
-          (click)="toggleCobranza()"
+          (click)="toggleParticular()"
           class="flex items-center w-full px-3 py-2.5 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group"
         >
           <i class="fas fa-file-invoice-dollar text-lg w-5 text-center"></i>
           <span
             class="ml-3 font-medium transition-all duration-200"
-            [ngClass]="{
-              hidden: isSideBarCollapse,
-              'block overflow-hidden': !isSideBarCollapse
-            }"
-            >Cobranza</span
+            [style.display]="isSideBarCollapse ? 'none' : 'block'"
+            >Particular</span
           >
           <i
             class="fas fa-chevron-down transition-transform duration-200"
-            [class.rotate-180]="isCobranzaOpen"
-            [class.hidden]="isSideBarCollapse"
+            [class.rotate-180]="isParticularOpen"
+            [style.display]="isSideBarCollapse ? 'none' : 'block'"
             [class.ml-auto]="!isSideBarCollapse"
           ></i>
         </button>
-        @if (isCobranzaOpen && !isSideBarCollapse) {
+        @if (isParticularOpen && !isSideBarCollapse) {
         <ul class="pl-8 space-y-1 mt-1">
           <li>
             <a

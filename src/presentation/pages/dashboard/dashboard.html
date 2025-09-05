@@ -1,1 +1,217 @@
-<p>dashboard</p>
+<div class="min-h-screen bg-gray-50 p-4">
+  <p-toast></p-toast>
+  
+  <!-- Header -->
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+      <p class="text-gray-600 mt-2" *ngIf="dashboardData?.contexto">
+        Ciclo Escolar: {{ dashboardData?.contexto?.ciclo_escolar_nombre }}
+      </p>
+    </div>
+    <button 
+      *ngIf="!loading"
+      (click)="refreshDashboard()"
+      class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+      <i class="pi pi-refresh"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div *ngFor="let i of [1,2,3,4]" class="bg-white rounded-lg shadow-sm p-6">
+      <p-skeleton height="20px" class="mb-4"></p-skeleton>
+      <p-skeleton height="40px" width="60%" class="mb-2"></p-skeleton>
+      <p-skeleton height="15px" width="80%"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
+        <span class="text-red-700">{{ error }}</span>
+      </div>
+      <button 
+        (click)="loadDashboardData()"
+        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center gap-2 transition-colors">
+        <i class="pi pi-refresh"></i>
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="dashboardData && !loading">
+    
+    <!-- KPIs Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Ingresos Hoy -->
+      <p-card class="bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium">Ingresos Hoy</p>
+            <p class="text-2xl font-bold">{{ formatCurrency(dashboardData.kpis.ingresos_hoy) }}</p>
+          </div>
+          <i class="pi pi-dollar text-3xl"></i>
+        </div>
+      </p-card>
+
+      <!-- Deuda Pendiente Total -->
+      <p-card class="bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium">Deuda Pendiente Total</p>
+            <p class="text-2xl font-bold">{{ formatCurrency(dashboardData.kpis.deuda_pendiente_total) }}</p>
+          </div>
+          <i class="pi pi-wallet text-3xl"></i>
+        </div>
+      </p-card>
+
+      <!-- Deuda Vencida -->
+      <p-card class="bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium">Deuda Vencida</p>
+            <p class="text-2xl font-bold">{{ formatCurrency(dashboardData.kpis.deuda_vencida_total) }}</p>
+          </div>
+          <i class="pi pi-exclamation-triangle text-3xl"></i>
+        </div>
+      </p-card>
+
+      <!-- Estudiantes con Vencidos -->
+      <p-card class="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg hover:shadow-xl transition-shadow">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium">Estudiantes con Vencidos</p>
+            <p class="text-2xl font-bold">{{ dashboardData.kpis.estudiantes_con_vencidos }}</p>
+          </div>
+          <i class="pi pi-users text-3xl"></i>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Adeudos por Estado -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4 pb-0">
+            <h3 class="text-lg font-semibold text-gray-800">Adeudos por Estado</h3>
+          </div>
+        </ng-template>
+        <div class="h-64 flex items-center justify-center overflow-hidden">
+          <div class="doughnut-chart-container">
+            <p-chart type="doughnut" [data]="adeudosPorEstadoChart" [options]="doughnutChartOptions"></p-chart>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Deuda por Concepto -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4 pb-0">
+            <h3 class="text-lg font-semibold text-gray-800">Deuda por Concepto</h3>
+          </div>
+        </ng-template>
+        <div class="h-64">
+          <p-chart type="bar" [data]="deudaPorConceptoChart" [options]="barChartOptions"></p-chart>
+        </div>
+      </p-card>
+
+      <!-- Ingresos Últimos 30 Días -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4 pb-0">
+            <h3 class="text-lg font-semibold text-gray-800">Ingresos Últimos 30 Días</h3>
+          </div>
+        </ng-template>
+        <div class="h-64">
+          <p-chart type="line" [data]="ingresosChart" [options]="lineChartOptions"></p-chart>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <!-- Últimos Pagos -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4 pb-0">
+            <h3 class="text-lg font-semibold text-gray-800">Últimos Pagos</h3>
+          </div>
+        </ng-template>
+        <p-table [value]="dashboardData.listas.ultimos_pagos" [scrollable]="true" scrollHeight="400px">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-xs">Folio</th>
+              <th class="text-xs">Estudiante</th>
+              <th class="text-xs">Monto</th>
+              <th class="text-xs">Método</th>
+              <th class="text-xs">Fecha</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-pago>
+            <tr>
+              <td class="text-sm font-mono">{{ pago.folio }}</td>
+              <td class="text-sm">{{ getEstudianteFullName(pago.estudiante) }}</td>
+              <td class="text-sm font-semibold">{{ formatCurrency(pago.monto) }}</td>
+              <td>
+                <p-tag 
+                  [value]="getPaymentMethodTag(pago.metodo_pago).value"
+                  [severity]="getPaymentMethodTag(pago.metodo_pago).severity"
+                  class="text-xs">
+                </p-tag>
+              </td>
+              <td class="text-sm">{{ formatDate(pago.fecha) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center py-4 text-gray-500">
+                No hay pagos recientes
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+
+      <!-- Top Deudores -->
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4 pb-0">
+            <h3 class="text-lg font-semibold text-gray-800">Top Deudores</h3>
+          </div>
+        </ng-template>
+        <p-table [value]="dashboardData.listas.top_deudores" [scrollable]="true" scrollHeight="400px">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-xs">Estudiante</th>
+              <th class="text-xs">Nivel</th>
+              <th class="text-xs">Grado</th>
+              <th class="text-xs">Deuda Total</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-deudor>
+            <tr>
+              <td class="text-sm">{{ getEstudianteFullName(deudor.estudiante) }}</td>
+              <td class="text-sm capitalize">{{ deudor.estudiante.nivel_grado.nivel.nombre }}</td>
+              <td class="text-sm">{{ deudor.estudiante.nivel_grado.grado.numero }}°</td>
+              <td class="text-sm font-semibold text-red-600">{{ formatCurrency(deudor.total_deuda) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="4" class="text-center py-4 text-gray-500">
+                No hay deudores registrados
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+  </div>
+</div>

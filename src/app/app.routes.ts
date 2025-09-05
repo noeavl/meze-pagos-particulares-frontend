@@ -32,7 +32,11 @@ import { GrupoCreate } from "../presentation/pages/grupos-create/grupos-create";
 import { GrupoEdit } from "../presentation/pages/grupos-edit/grupos-edit";
 
 export const routes: Routes = [
-  { path: "", redirectTo: "/dashboard", pathMatch: "full" },
+  {
+    path: "",
+    redirectTo: "dashboard",
+    pathMatch: "full",
+  },
   {
     path: "login",
     component: LoginComponent,
