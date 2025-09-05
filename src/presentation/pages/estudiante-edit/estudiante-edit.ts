@@ -109,7 +109,7 @@ export class EstudianteEdit implements OnInit {
 
   get gruposOptions() {
     return this.grupos.map(grupo => ({
-      label: `${grupo.nombre} - ${grupo.ciclo_escolar?.nombre}`,
+      label: grupo.nombre,
       value: grupo.id.toString()
     }));
   }
@@ -118,6 +118,7 @@ export class EstudianteEdit implements OnInit {
   loadingData = true;
   errorMessage = '';
   grupos: Grupo[] = [];
+  gruposMessage = '';
 
   ngOnInit() {
     this.nivelService.loadNiveles();
@@ -191,30 +192,38 @@ export class EstudianteEdit implements OnInit {
     const modalidad = this.estudianteForm.get('modalidad')?.value;
     const grupoControl = this.estudianteForm.get('grupo');
 
-    if (nivel && grado && modalidad) {
+    if (nivel && grado && modalidad && this.estudiante?.ciclo_escolar?.id) {
       // Buscar los IDs correspondientes
       const nivelObj = this.nivelService.niveles().find(n => n.nombre === nivel);
       const gradoObj = this.gradoService.getGradosOptions().find(g => g.value === grado);
       const modalidadObj = this.modalidadService.modalidades().find(m => m.nombre === modalidad);
 
       if (nivelObj && gradoObj && modalidadObj) {
-        this.grupoUseCase.getGruposByParams(nivelObj.id, parseInt(gradoObj.value), modalidadObj.id)
+        this.grupoUseCase.getGruposByParams(nivelObj.id, parseInt(gradoObj.value), modalidadObj.id, this.estudiante.ciclo_escolar.id)
           .subscribe({
             next: (grupos) => {
               this.grupos = grupos;
-              grupoControl?.enable();
+              if (grupos.length === 0) {
+                this.gruposMessage = "Grupos no encontrados";
+                grupoControl?.disable();
+              } else {
+                this.gruposMessage = "";
+                grupoControl?.enable();
+              }
               // No resetear la selección en el caso de editar para mantener el grupo actual
             },
             error: (error) => {
               console.error('Error al cargar grupos:', error);
               this.grupos = [];
+              this.gruposMessage = "Grupos no encontrados";
               grupoControl?.disable();
             }
           });
       }
     } else {
-      // Si no están los 3 campos, deshabilitar grupo
+      // Si no están los campos necesarios o el estudiante no está cargado, deshabilitar grupo
       this.grupos = [];
+      this.gruposMessage = "";
       grupoControl?.disable();
     }
   }

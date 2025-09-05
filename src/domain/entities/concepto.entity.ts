@@ -49,8 +49,8 @@ export interface CreateConceptoDto {
   nombre: string;
   tipo: string;
   periodo: string;
-  nivel: string | null;
-  modalidad: string | null;
+  nivel_id: number | null;
+  modalidad_id: number | null;
   costo: number;
 }
 

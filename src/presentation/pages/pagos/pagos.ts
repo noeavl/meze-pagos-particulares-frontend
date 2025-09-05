@@ -17,6 +17,7 @@ import { useNivel } from "../../hooks/use-nivel.hook";
 import { useModalidad } from "../../hooks/use-modalidad.hook";
 import { useGrado } from "../../hooks/use-grado.hook";
 import * as XLSX from "xlsx";
+import * as ExcelJS from 'exceljs';
 
 @Component({
   selector: "app-pagos",
@@ -192,99 +193,313 @@ export class Pagos implements OnInit {
     this.first = 0;
   }
 
-  exportToExcel() {
-    const estudiantesData = this.filteredEstudiantesConPagos.map((estudiante) => ({
-      Estudiante: estudiante.nombreCompleto,
-      Nivel: estudiante.nivel,
-      Grado: `${estudiante.grado}°`,
-      Modalidad: estudiante.modalidad,
-      "Total Pagos": estudiante.totalPagos,
-      "Monto Total": estudiante.montoTotalPagado,
-      "Fecha Último Pago": estudiante.fechaUltimoPago 
-        ? estudiante.fechaUltimoPago.toLocaleDateString()
-        : "Sin pagos",
-    }));
-
-    const pagosData: any[] = [];
-    this.filteredEstudiantesConPagos.forEach((estudiante) => {
-      estudiante.pagos.forEach((pago) => {
-        pagosData.push({
-          Estudiante: estudiante.nombreCompleto,
-          Nivel: estudiante.nivel,
-          Grado: `${estudiante.grado}°`,
-          Modalidad: estudiante.modalidad,
-          Folio: pago.folio,
-          Monto: pago.monto,
-          Método: pago.metodoPago,
-          Fecha: pago.fecha.toLocaleDateString(),
-          "Conceptos Adeudos": pago.adeudos.map((a: any) => a.nombre).join(", "),
-          "Conceptos Requeridos": pago.requeridos.map((r: any) => r.nombre).join(", "),
-        });
-      });
-    });
-
-    const workbook = XLSX.utils.book_new();
+  async exportToExcel() {
+    const workbook = new ExcelJS.Workbook();
     
-    const estudiantesSheet = XLSX.utils.json_to_sheet(estudiantesData);
-    XLSX.utils.book_append_sheet(workbook, estudiantesSheet, "Resumen Estudiantes");
-    
-    const pagosSheet = XLSX.utils.json_to_sheet(pagosData);
-    XLSX.utils.book_append_sheet(workbook, pagosSheet, "Detalle Pagos");
-
-    XLSX.writeFile(workbook, "estudiantes_pagos.xlsx");
-  }
-
-  exportStudentToExcel(estudiante: any) {
-    const studentName = estudiante.nombreCompleto;
-    
-    const pagosSheet = XLSX.utils.json_to_sheet(
-      estudiante.pagos.map((pago: any) => ({
-        Folio: pago.folio,
-        "Método de Pago": pago.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia',
-        Monto: pago.monto,
-        "Fecha de Pago": pago.fecha.toLocaleDateString(),
-        "Conceptos Adeudos": pago.adeudos.map((a: any) => a.nombre).join(", "),
-        "Conceptos Requeridos": pago.requeridos.map((r: any) => r.nombre).join(", "),
-      }))
-    );
-
-    // Agregar información del estudiante al final
-    const studentInfo = [
-      [],
-      ["Resumen del Estudiante"],
-      ["Nombre:", studentName],
-      ["Nivel:", estudiante.nivel],
-      ["Grado:", `${estudiante.grado}°`],
-      ["Modalidad:", estudiante.modalidad],
-      ["Último Pago:", estudiante.fechaUltimoPago ? estudiante.fechaUltimoPago.toLocaleDateString() : "Sin pagos registrados"],
-      [],
-      ["Total de Pagos:", estudiante.totalPagos],
-      ["Monto Total Pagado:", `$${estudiante.montoTotalPagado.toFixed(2)}`],
+    // Hoja de resumen de estudiantes
+    const estudiantesSheet = workbook.addWorksheet('Resumen Estudiantes');
+    estudiantesSheet.columns = [
+      { header: 'Estudiante', key: 'estudiante', width: 30 },
+      { header: 'Nivel', key: 'nivel', width: 15 },
+      { header: 'Grado', key: 'grado', width: 10 },
+      { header: 'Modalidad', key: 'modalidad', width: 15 },
+      { header: 'Total Pagos', key: 'totalPagos', width: 12 },
+      { header: 'Monto Total', key: 'montoTotal', width: 15 },
+      { header: 'Fecha Último Pago', key: 'fechaUltimo', width: 18 }
     ];
 
-    // Agregar las filas de información del estudiante
-    const ws = pagosSheet;
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-    let startRow = range.e.r + 2;
+    // Estilos para encabezados de estudiantes
+    const headerRowEst = estudiantesSheet.getRow(1);
+    headerRowEst.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4'; // Azul por defecto
+      if (colNumber === 5) headerColor = '4472C4'; // Total Pagos - Azul
+      if (colNumber === 6) headerColor = '70AD47'; // Monto Total - Verde
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
 
-    studentInfo.forEach((row, index) => {
-      row.forEach((cell, colIndex) => {
-        const cellAddress = XLSX.utils.encode_cell({ r: startRow + index, c: colIndex });
-        ws[cellAddress] = { v: cell, t: typeof cell === 'number' ? 'n' : 's' };
+    // Agregar datos de estudiantes
+    this.filteredEstudiantesConPagos.forEach((estudiante, index) => {
+      const row = estudiantesSheet.addRow({
+        estudiante: estudiante.nombreCompleto,
+        nivel: estudiante.nivel,
+        grado: `${estudiante.grado}°`,
+        modalidad: estudiante.modalidad,
+        totalPagos: estudiante.totalPagos,
+        montoTotal: estudiante.montoTotalPagado,
+        fechaUltimo: estudiante.fechaUltimoPago ? estudiante.fechaUltimoPago.toLocaleDateString() : 'Sin pagos'
+      });
+
+      const isEvenRow = index % 2 === 0;
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        // Colores especiales
+        if (colNumber === 5) { // Total Pagos - Azul claro
+          cellColor = isEvenRow ? 'E8F0FF' : 'F0F8FF';
+        } else if (colNumber === 6) { // Monto Total - Verde claro
+          cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0';
+          cell.numFmt = '"$"#,##0.00';
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        cell.alignment = { 
+          horizontal: colNumber >= 5 && colNumber <= 6 ? 'right' : 'left',
+          vertical: 'middle' 
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
       });
     });
 
-    // Actualizar el rango
-    ws['!ref'] = XLSX.utils.encode_range({
-      s: { r: 0, c: 0 },
-      e: { r: startRow + studentInfo.length - 1, c: Math.max(range.e.c, 1) }
+    // Hoja de detalle de pagos
+    const pagosSheet = workbook.addWorksheet('Detalle Pagos');
+    pagosSheet.columns = [
+      { header: 'Estudiante', key: 'estudiante', width: 30 },
+      { header: 'Nivel', key: 'nivel', width: 15 },
+      { header: 'Grado', key: 'grado', width: 10 },
+      { header: 'Modalidad', key: 'modalidad', width: 15 },
+      { header: 'Folio', key: 'folio', width: 15 },
+      { header: 'Monto', key: 'monto', width: 12 },
+      { header: 'Método', key: 'metodo', width: 15 },
+      { header: 'Fecha', key: 'fecha', width: 12 },
+      { header: 'Conceptos Adeudos', key: 'adeudos', width: 25 },
+      { header: 'Conceptos Requeridos', key: 'requeridos', width: 25 }
+    ];
+
+    // Estilos para encabezados de pagos
+    const headerRowPagos = pagosSheet.getRow(1);
+    headerRowPagos.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4';
+      if (colNumber === 6) headerColor = '70AD47'; // Monto - Verde
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
     });
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, pagosSheet, "Pagos");
+    // Agregar datos de pagos
+    let pagoIndex = 0;
+    this.filteredEstudiantesConPagos.forEach((estudiante) => {
+      estudiante.pagos.forEach((pago) => {
+        const row = pagosSheet.addRow({
+          estudiante: estudiante.nombreCompleto,
+          nivel: estudiante.nivel,
+          grado: `${estudiante.grado}°`,
+          modalidad: estudiante.modalidad,
+          folio: pago.folio,
+          monto: pago.monto,
+          metodo: pago.metodoPago,
+          fecha: pago.fecha.toLocaleDateString(),
+          adeudos: pago.adeudos.map((a: any) => a.nombre).join(', '),
+          requeridos: pago.requeridos.map((r: any) => r.nombre).join(', ')
+        });
+
+        const isEvenRow = pagoIndex % 2 === 0;
+        row.eachCell((cell, colNumber) => {
+          let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+          
+          if (colNumber === 6) { // Monto - Verde claro
+            cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0';
+            cell.numFmt = '"$"#,##0.00';
+          }
+
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF' + cellColor }
+          };
+          cell.alignment = { 
+            horizontal: colNumber === 6 ? 'right' : 'left',
+            vertical: 'middle' 
+          };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+            left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+            bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+            right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+          };
+        });
+        pagoIndex++;
+      });
+    });
+
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'estudiantes_pagos.xlsx';
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  async exportStudentToExcel(estudiante: any) {
+    const studentName = estudiante.nombreCompleto;
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Pagos');
+
+    // Definir columnas para pagos
+    worksheet.columns = [
+      { header: 'Folio', key: 'folio', width: 15 },
+      { header: 'Método de Pago', key: 'metodo', width: 15 },
+      { header: 'Monto', key: 'monto', width: 12 },
+      { header: 'Fecha de Pago', key: 'fecha', width: 15 },
+      { header: 'Conceptos Adeudos', key: 'adeudos', width: 25 },
+      { header: 'Conceptos Requeridos', key: 'requeridos', width: 25 }
+    ];
+
+    // Estilos para encabezados
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4';
+      if (colNumber === 3) headerColor = '70AD47'; // Monto - Verde
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Agregar datos de pagos
+    estudiante.pagos.forEach((pago: any, index: number) => {
+      const row = worksheet.addRow({
+        folio: pago.folio,
+        metodo: pago.metodoPago === 'efectivo' ? 'Efectivo' : 'Transferencia',
+        monto: pago.monto,
+        fecha: pago.fecha.toLocaleDateString(),
+        adeudos: pago.adeudos.map((a: any) => a.nombre).join(', '),
+        requeridos: pago.requeridos.map((r: any) => r.nombre).join(', ')
+      });
+
+      const isEvenRow = index % 2 === 0;
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        if (colNumber === 3) { // Monto - Verde claro
+          cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0';
+          cell.numFmt = '"$"#,##0.00';
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        cell.alignment = { 
+          horizontal: colNumber === 3 ? 'right' : 'left',
+          vertical: 'middle' 
+        };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
+      });
+    });
+
+    // Agregar información del estudiante
+    const lastRow = worksheet.lastRow?.number || 1;
+    const summaryStartRow = lastRow + 2;
     
+    // Encabezado de resumen
+    const summaryHeaderRow = worksheet.getRow(summaryStartRow);
+    summaryHeaderRow.getCell(1).value = 'Resumen del Estudiante';
+    summaryHeaderRow.getCell(1).font = { bold: true, size: 14 };
+    summaryHeaderRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    summaryHeaderRow.getCell(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    
+    // Información del estudiante
+    const studentInfo = [
+      ['Nombre:', studentName],
+      ['Nivel:', estudiante.nivel],
+      ['Grado:', `${estudiante.grado}°`],
+      ['Modalidad:', estudiante.modalidad],
+      ['Último Pago:', estudiante.fechaUltimoPago ? estudiante.fechaUltimoPago.toLocaleDateString() : 'Sin pagos registrados'],
+      ['Total de Pagos:', estudiante.totalPagos],
+      ['Monto Total Pagado:', estudiante.montoTotalPagado]
+    ];
+
+    studentInfo.forEach((info, index) => {
+      const row = worksheet.getRow(summaryStartRow + 2 + index);
+      row.getCell(1).value = info[0];
+      row.getCell(1).font = { bold: true };
+      row.getCell(2).value = info[1];
+      
+      // Formato especial para totales
+      if (index >= 5) { // Total de Pagos y Monto Total
+        if (index === 5) { // Total de Pagos - Azul
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE8F0FF' }
+          };
+        } else if (index === 6) { // Monto Total - Verde
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE8F5E8' }
+          };
+          row.getCell(2).numFmt = '"$"#,##0.00';
+        }
+      }
+    });
+
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
     const fileName = `pagos_${studentName.replace(/\s+/g, '_')}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   normalizeText(text: string): string {

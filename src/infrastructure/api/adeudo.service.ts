@@ -146,10 +146,10 @@ export class AdeudoService extends AdeudoRepository {
         tipo: (apiResponse.concepto as any).tipo || 'adeudo' as 'adeudo' | 'requerido',
         periodo: Periodo.fromString(apiResponse.concepto.periodo),
         nivel: apiResponse.concepto.nivel
-          ? Nivel.fromString(apiResponse.concepto.nivel)
+          ? Nivel.fromString(apiResponse.concepto.nivel.nombre)
           : null,
         modalidad: apiResponse.concepto.modalidad
-          ? Modalidad.fromString(apiResponse.concepto.modalidad)
+          ? Modalidad.fromString(apiResponse.concepto.modalidad.nombre)
           : null,
         costo: parseFloat(apiResponse.concepto.costo),
       },
@@ -159,11 +159,11 @@ export class AdeudoService extends AdeudoRepository {
         apellidoPaterno: apiResponse.estudiante.persona.apellido_paterno,
         apellidoMaterno: apiResponse.estudiante.persona.apellido_materno,
         curp: apiResponse.estudiante.curp,
-        nivel: Nivel.createFromRaw(apiResponse.estudiante.nivel),
-        grado: apiResponse.estudiante.grado,
-        modalidad: Modalidad.createFromRaw(apiResponse.estudiante.modalidad),
-        estado: apiResponse.estudiante.estado,
-        grupo: apiResponse.estudiante.grupo,
+        nivel: Nivel.createFromRaw(apiResponse.estudiante.nivel_grado.nivel.nombre),
+        grado: apiResponse.estudiante.nivel_grado.grado.numero,
+        modalidad: Modalidad.createFromRaw(apiResponse.estudiante.nivel_grado.modalidad.nombre),
+        estado: apiResponse.estudiante.estado === 1,
+        grupo: apiResponse.estudiante.grupo_actual?.nombre || null,
       },
       estado: Estado.fromString(apiResponse.estado),
       montoPendiente: parseFloat(apiResponse.pendiente),

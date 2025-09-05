@@ -35,7 +35,7 @@ export class Nivel {
   get displayValue(): string {
     switch (this.value) {
       case NivelType.GENERAL:
-        return 'General (Todos los niveles)';
+        return 'General';
       case NivelType.PREESCOLAR:
         return 'Preescolar';
       case NivelType.PRIMARIA:

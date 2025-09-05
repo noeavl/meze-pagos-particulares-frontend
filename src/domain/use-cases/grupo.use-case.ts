@@ -27,7 +27,7 @@ export class GrupoUseCase {
     return this.repository.deleteGrupo(id);
   }
 
-  getGruposByParams(nivelId: number, gradoId: number, modalidadId: number): Observable<Grupo[]> {
-    return this.repository.getGruposByParams(nivelId, gradoId, modalidadId);
+  getGruposByParams(nivelId: number, gradoId: number, modalidadId: number, cicloEscolarId: number): Observable<Grupo[]> {
+    return this.repository.getGruposByParams(nivelId, gradoId, modalidadId, cicloEscolarId);
   }
 }

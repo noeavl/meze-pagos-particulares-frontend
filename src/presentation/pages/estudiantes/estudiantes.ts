@@ -20,6 +20,7 @@ import { MessageService } from "primeng/api";
 import { ToastModule } from "primeng/toast";
 import { Estudiante } from "../../../domain/entities/estudiante.entity";
 import * as XLSX from "xlsx";
+import * as ExcelJS from 'exceljs';
 
 @Component({
   selector: "app-estudiantes",
@@ -226,26 +227,99 @@ export class Estudiantes implements OnInit {
     // El filtro se aplica automáticamente a través del getter filteredEstudiantes
   }
 
-  exportToExcel() {
-    const estudiantesSheet = XLSX.utils.json_to_sheet(
-      this.filteredEstudiantes.map((e) => ({
-        Nombre: `${e.nombres} ${e.apellidoPaterno} ${e.apellidoMaterno}`,
-        CURP: e.curp,
-        Nivel: e.nivel.displayValue,
-        Grado: e.grado,
-        Grupo: e.grupo || 'N/A',
-        Modalidad: e.modalidad.displayValue,
-        Estado: e.estado ? "Activo" : "Inactivo",
-      }))
-    );
+  async exportToExcel() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Estudiantes');
 
-    const estudiantesBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      estudiantesBook,
-      estudiantesSheet,
-      "Estudiantes"
-    );
-    XLSX.writeFile(estudiantesBook, "estudiantes.xlsx");
+    // Definir columnas
+    worksheet.columns = [
+      { header: 'Nombre Completo', key: 'nombre', width: 35 },
+      { header: 'CURP', key: 'curp', width: 20 },
+      { header: 'Nivel', key: 'nivel', width: 15 },
+      { header: 'Grado', key: 'grado', width: 8 },
+      { header: 'Grupo', key: 'grupo', width: 10 },
+      { header: 'Modalidad', key: 'modalidad', width: 15 },
+      { header: 'Estado', key: 'estado', width: 12 }
+    ];
+
+    // Aplicar estilos a los encabezados
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4'; // Azul por defecto
+      
+      if (colNumber === 7) headerColor = '70AD47'; // Estado - Verde
+
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Agregar datos
+    this.filteredEstudiantes.forEach((estudiante, index) => {
+      const row = worksheet.addRow({
+        nombre: `${estudiante.nombres} ${estudiante.apellidoPaterno} ${estudiante.apellidoMaterno}`,
+        curp: estudiante.curp,
+        nivel: estudiante.nivel.displayValue,
+        grado: estudiante.grado,
+        grupo: estudiante.grupo || 'N/A',
+        modalidad: estudiante.modalidad.displayValue,
+        estado: estudiante.estado ? 'Activo' : 'Inactivo'
+      });
+
+      const isEvenRow = index % 2 === 0;
+
+      // Aplicar estilos a cada celda
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        // Color especial para estado
+        if (colNumber === 7) {
+          if (estudiante.estado) {
+            cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0'; // Verde para activos
+          } else {
+            cellColor = isEvenRow ? 'FFE8E8' : 'FFF0F0'; // Rojo claro para inactivos
+          }
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        
+        cell.alignment = { 
+          horizontal: 'left',
+          vertical: 'middle' 
+        };
+        
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
+      });
+    });
+
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'estudiantes.xlsx';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   normalizeText(text: string): string {

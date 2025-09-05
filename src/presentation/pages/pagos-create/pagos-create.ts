@@ -146,30 +146,10 @@ export class PagosCreate implements OnInit {
           life: 1500
         });
         
-        // Reload payment history after successful payment
-        if (this.adeudo()?.pagos) {
-          this.adeudoService.getAdeudoById(this.adeudoId).subscribe({
-            next: (adeudo) => {
-              if (adeudo.pagos) {
-                this.adeudoService.paymentHistory.set(adeudo.pagos);
-              }
-              
-              // Check if debt is fully paid and redirect
-              if (adeudo.montoPendiente <= 0 || adeudo.estado?.rawValue === 'pagado') {
-                // Wait a moment to show success, then redirect
-                setTimeout(() => {
-                  this.router.navigate(['/adeudos']);
-                }, 1500);
-              } else {
-                // Reset form for another payment
-                this.pagoForm.reset();
-                this.pagoForm.patchValue({
-                  fecha: new Date()
-                });
-              }
-            }
-          });
-        }
+        // Wait a moment to show success, then redirect to adeudos list
+        setTimeout(() => {
+          this.router.navigate(['/adeudos']);
+        }, 1500);
       },
       error: (err: HttpErrorResponse) => {
         console.error('Error caught in component:', err);

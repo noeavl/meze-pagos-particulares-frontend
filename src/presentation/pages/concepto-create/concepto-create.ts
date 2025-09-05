@@ -19,6 +19,8 @@ import { Periodo } from '../../../domain/value-objects/periodo.value-object';
 import { Nivel } from '../../../domain/value-objects/nivel.value-object';
 import { Modalidad } from '../../../domain/value-objects/modalidad.value-object';
 import { CreateConceptoDto } from '../../../domain/entities/concepto.entity';
+import { NivelService } from '../../../infrastructure/api/nivel.service';
+import { ModalidadEntityService } from '../../../infrastructure/api/modalidad-entity.service';
 
 @Component({
   selector: 'app-concepto-create',
@@ -44,6 +46,8 @@ export class ConceptoCreate implements OnInit {
   private conceptoService = inject(useConcepto);
   private cdr = inject(ChangeDetectorRef);
   private messageService = inject(MessageService);
+  private nivelService = inject(NivelService);
+  private modalidadService = inject(ModalidadEntityService);
 
   show(severity: string, summary: string, detail: string) {
     const toastLife = 1500;
@@ -70,14 +74,44 @@ export class ConceptoCreate implements OnInit {
     { value: 'requerido', displayValue: 'Requerido' }
   ];
   periodos = Periodo.getAll();
-  niveles = Nivel.getAll();
-  modalidades = Modalidad.getAll();
+  niveles: any[] = [];
+  modalidades: any[] = [];
 
   loading = false;
-  loadingData = false; // No data to load on create page
+  loadingData = true;
   errorMessage = '';
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadData();
+  }
+
+  private loadData() {
+    this.loadingData = true;
+    
+    // Load niveles and modalidades from API
+    Promise.all([
+      this.nivelService.getAll().toPromise(),
+      this.modalidadService.getAll().toPromise()
+    ]).then(([niveles, modalidades]) => {
+      this.niveles = niveles?.map(nivel => ({
+        value: nivel.id,
+        displayValue: Nivel.createFromRaw(nivel.nombre).displayValue
+      })) || [];
+      
+      this.modalidades = modalidades?.map(modalidad => ({
+        value: modalidad.id,
+        displayValue: Modalidad.createFromRaw(modalidad.nombre).displayValue
+      })) || [];
+      
+      this.loadingData = false;
+      this.cdr.detectChanges();
+    }).catch(error => {
+      console.error('Error loading data:', error);
+      this.errorMessage = 'Error al cargar los datos necesarios';
+      this.loadingData = false;
+      this.cdr.detectChanges();
+    });
+  }
 
   isInvalid(fieldName: string): boolean {
     const field = this.conceptoForm.get(fieldName);
@@ -132,8 +166,8 @@ export class ConceptoCreate implements OnInit {
         nombre: formValues.nombre,
         tipo: formValues.tipo,
         periodo: formValues.periodo,
-        nivel: formValues.nivel || null,
-        modalidad: formValues.modalidad || null,
+        nivel_id: formValues.nivel || null,
+        modalidad_id: formValues.modalidad || null,
         costo: formValues.costo,
       };
 

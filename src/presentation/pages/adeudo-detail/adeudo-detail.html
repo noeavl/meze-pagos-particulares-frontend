@@ -82,6 +82,12 @@
               >{{ adeudo()?.estudiante?.grado }}°</span
             >
           </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600 text-sm">Grupo:</span>
+            <span class="text-gray-900">{{ 
+              adeudo()?.estudiante?.grupo || 'Sin grupo asignado' 
+            }}</span>
+          </div>
         </div>
       </div>
 

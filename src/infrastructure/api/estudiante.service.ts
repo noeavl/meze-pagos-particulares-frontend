@@ -155,7 +155,7 @@ export class EstudianteService implements EstudianteRepository {
           apiResponse.nivel_grado.modalidad.nombre
         ),
         estado: apiResponse.estado === 1,
-        grupo: apiResponse.grupos.length > 0 ? apiResponse.grupos[0] : null,
+        grupo: apiResponse.grupo_actual?.nombre || null,
         ciclo_escolar: apiResponse.ciclo_escolar,
       };
       console.log("Successfully mapped student:", estudiante.nombres);

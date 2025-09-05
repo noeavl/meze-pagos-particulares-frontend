@@ -50,6 +50,13 @@ export interface ApiCicloEscolarResponse {
   estado: string;
 }
 
+export interface ApiGrupoResponse {
+  id: number;
+  nombre: string;
+  ciclo_escolar_id: number;
+  nivel_grado_id: number;
+}
+
 export interface ApiEstudianteResponse {
   id: number;
   persona_id: number;
@@ -62,6 +69,7 @@ export interface ApiEstudianteResponse {
   persona: ApiPersonaResponse;
   ciclo_escolar: ApiCicloEscolarResponse;
   grupos: any[];
+  grupo_actual: ApiGrupoResponse | null;
   nivel_grado: ApiNivelGradoResponse;
 }
 
@@ -82,7 +90,7 @@ export interface Estudiante {
   grado: string;
   modalidad: Modalidad;
   estado: boolean;
-  grupo?: string;
+  grupo?: string | null;
   grupo_id?: number;
   curp: string;
   ciclo_escolar?: ApiCicloEscolarResponse;

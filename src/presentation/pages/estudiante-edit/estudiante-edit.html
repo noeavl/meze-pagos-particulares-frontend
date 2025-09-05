@@ -219,7 +219,12 @@
             {{ getErrorMessage("grupo") }}
           </small>
           }
-          @if (estudianteForm.get('grupo')?.disabled) {
+          @if (gruposMessage) {
+          <small class="text-orange-600 text-xs">
+            {{ gruposMessage }}
+          </small>
+          }
+          @if (estudianteForm.get('grupo')?.disabled && !gruposMessage) {
           <small class="text-gray-500 text-xs">
             Selecciona nivel, grado y modalidad para ver grupos disponibles
           </small>

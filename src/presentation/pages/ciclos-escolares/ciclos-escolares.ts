@@ -9,6 +9,7 @@ import { useCicloEscolar } from "../../hooks/use-ciclo-escolar.hook";
 import { CicloEscolar } from "../../../domain/entities/ciclo-escolar.entity";
 import { RouterLink } from "@angular/router";
 import * as XLSX from "xlsx";
+import * as ExcelJS from 'exceljs';
 
 @Component({
   selector: "app-ciclos-escolares",
@@ -75,19 +76,101 @@ export class CiclosEscolares implements OnInit {
     }
   }
 
-  exportToExcel() {
-    const ciclosSheet = XLSX.utils.json_to_sheet(
-      this.ciclosEscolares.map((c) => ({
-        ID: c.id,
-        'Nombre del Ciclo': c.nombre,
-        'Fecha de Inicio': c.fechaInicio,
-        'Fecha de Fin': c.fechaFin,
-        'Estado': this.getTextoEstado(this.getEstadoCiclo(c)),
-      }))
-    );
+  async exportToExcel() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Ciclos Escolares');
 
-    const ciclosBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(ciclosBook, ciclosSheet, "Ciclos Escolares");
-    XLSX.writeFile(ciclosBook, "ciclos-escolares.xlsx");
+    // Definir columnas
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 8 },
+      { header: 'Nombre del Ciclo', key: 'nombre', width: 25 },
+      { header: 'Fecha de Inicio', key: 'fechaInicio', width: 15 },
+      { header: 'Fecha de Fin', key: 'fechaFin', width: 15 },
+      { header: 'Estado', key: 'estado', width: 12 }
+    ];
+
+    // Aplicar estilos a los encabezados
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4'; // Azul por defecto
+      
+      if (colNumber === 5) headerColor = '70AD47'; // Estado - Verde
+
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    // Agregar datos
+    this.ciclosEscolares.forEach((ciclo, index) => {
+      const estado = this.getEstadoCiclo(ciclo);
+      const row = worksheet.addRow({
+        id: ciclo.id,
+        nombre: ciclo.nombre,
+        fechaInicio: ciclo.fechaInicio,
+        fechaFin: ciclo.fechaFin,
+        estado: this.getTextoEstado(estado)
+      });
+
+      const isEvenRow = index % 2 === 0;
+
+      // Aplicar estilos a cada celda
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        // Color especial para estado según el valor
+        if (colNumber === 5) {
+          switch (estado) {
+            case 'activo':
+              cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0'; // Verde para activo
+              break;
+            case 'proximo':
+              cellColor = isEvenRow ? 'E8F0FF' : 'F0F8FF'; // Azul para próximo
+              break;
+            case 'inactivo':
+              cellColor = isEvenRow ? 'FFE8E8' : 'FFF0F0'; // Rojo claro para inactivo
+              break;
+          }
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        
+        cell.alignment = { 
+          horizontal: colNumber === 1 ? 'center' : 'left',
+          vertical: 'middle' 
+        };
+        
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
+      });
+    });
+
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'ciclos-escolares.xlsx';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 }

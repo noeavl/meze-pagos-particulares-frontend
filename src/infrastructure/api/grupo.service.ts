@@ -24,11 +24,11 @@ export class GrupoService extends GrupoRepository {
     }
 
     getGrupoById(id: number): Observable<Grupo> {
-        return this.http.get<{success: boolean, data: Grupo[]}>(`${this.apiUrl}/${id}`)
+        return this.http.get<{success: boolean, data: Grupo}>(`${this.apiUrl}/${id}`)
             .pipe(
                 map(response => {
-                    if (response.data && response.data.length > 0) {
-                        return response.data[0];
+                    if (response.data) {
+                        return response.data;
                     }
                     throw new Error('Grupo no encontrado');
                 })
@@ -47,8 +47,8 @@ export class GrupoService extends GrupoRepository {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
 
-    getGruposByParams(nivelId: number, gradoId: number, modalidadId: number): Observable<Grupo[]> {
-        return this.http.get<{success: boolean, data: Grupo[]}>(`${this.apiUrl}/showByParam/${nivelId}/${gradoId}/${modalidadId}`)
+    getGruposByParams(nivelId: number, gradoId: number, modalidadId: number, cicloEscolarId: number): Observable<Grupo[]> {
+        return this.http.get<{success: boolean, data: Grupo[]}>(`${this.apiUrl}/showByParam/${nivelId}/${gradoId}/${modalidadId}/${cicloEscolarId}`)
             .pipe(
                 map(response => {
                     if (response.success && response.data) {

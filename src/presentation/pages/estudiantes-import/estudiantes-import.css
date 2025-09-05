@@ -1,0 +1,27 @@
+/* Estilos específicos para la vista de importación de estudiantes */
+
+.upload-area {
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: #3b82f6;
+  background-color: #f8fafc;
+}
+
+.upload-area.dragover {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.error-item {
+  border-left: 4px solid #ef4444;
+}
+
+.success-item {
+  border-left: 4px solid #10b981;
+}
+
+.progress-container {
+  background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+}

@@ -111,7 +111,7 @@ export class EstudianteCreate implements OnInit {
 
   get gruposOptions() {
     return this.grupos.map((grupo) => ({
-      label: `${grupo.nombre} - ${grupo.ciclo_escolar?.nombre}`,
+      label: grupo.nombre,
       value: grupo.id.toString(),
     }));
   }
@@ -127,6 +127,7 @@ export class EstudianteCreate implements OnInit {
   errorMessage = "";
   grupos: Grupo[] = [];
   ciclosEscolares: CicloEscolar[] = [];
+  gruposMessage = "";
 
   ngOnInit() {
     this.nivelService.loadNiveles();
@@ -145,6 +146,10 @@ export class EstudianteCreate implements OnInit {
     });
 
     this.estudianteForm.get("modalidad")?.valueChanges.subscribe(() => {
+      this.checkAndLoadGrupos();
+    });
+
+    this.estudianteForm.get("ciclo_escolar")?.valueChanges.subscribe(() => {
       this.checkAndLoadGrupos();
     });
   }
@@ -176,9 +181,10 @@ export class EstudianteCreate implements OnInit {
     const nivel = this.estudianteForm.get("nivel")?.value;
     const grado = this.estudianteForm.get("grado")?.value;
     const modalidad = this.estudianteForm.get("modalidad")?.value;
+    const cicloEscolar = this.estudianteForm.get("ciclo_escolar")?.value;
     const grupoControl = this.estudianteForm.get("grupo");
 
-    if (nivel && grado && modalidad) {
+    if (nivel && grado && modalidad && cicloEscolar) {
       // Buscar los IDs correspondientes
       const nivelObj = this.nivelService
         .niveles()
@@ -195,24 +201,33 @@ export class EstudianteCreate implements OnInit {
           .getGruposByParams(
             nivelObj.id,
             parseInt(gradoObj.value),
-            modalidadObj.id
+            modalidadObj.id,
+            parseInt(cicloEscolar)
           )
           .subscribe({
             next: (grupos) => {
               this.grupos = grupos;
-              grupoControl?.enable();
+              if (grupos.length === 0) {
+                this.gruposMessage = "Grupos no encontrados";
+                grupoControl?.disable();
+              } else {
+                this.gruposMessage = "";
+                grupoControl?.enable();
+              }
               grupoControl?.setValue(""); // Reset selection
             },
             error: (error) => {
               console.error("Error al cargar grupos:", error);
               this.grupos = [];
+              this.gruposMessage = "Grupos no encontrados";
               grupoControl?.disable();
             },
           });
       }
     } else {
-      // Si no están los 3 campos, deshabilitar grupo
+      // Si no están los 4 campos, deshabilitar grupo
       this.grupos = [];
+      this.gruposMessage = "";
       grupoControl?.disable();
       grupoControl?.setValue("");
     }

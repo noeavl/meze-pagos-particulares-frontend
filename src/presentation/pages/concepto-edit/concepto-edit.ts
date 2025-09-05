@@ -22,6 +22,8 @@ import {
   Concepto,
   UpdateConceptoDto,
 } from '../../../domain/entities/concepto.entity';
+import { NivelService } from '../../../infrastructure/api/nivel.service';
+import { ModalidadEntityService } from '../../../infrastructure/api/modalidad-entity.service';
 
 @Component({
   selector: 'app-concepto-edit',
@@ -48,6 +50,8 @@ export class ConceptoEdit implements OnInit {
   private conceptoService = inject(useConcepto);
   private cdr = inject(ChangeDetectorRef);
   private messageService = inject(MessageService);
+  private nivelService = inject(NivelService);
+  private modalidadService = inject(ModalidadEntityService);
 
   show(severity: string, summary: string, detail: string) {
     const toastLife = 1500;
@@ -77,8 +81,8 @@ export class ConceptoEdit implements OnInit {
     { value: 'requerido', displayValue: 'Requerido' }
   ];
   periodos = Periodo.getAll();
-  niveles = Nivel.getAll();
-  modalidades = Modalidad.getAll();
+  niveles: any[] = [];
+  modalidades: any[] = [];
 
   loading = false;
   loadingData = true;
@@ -87,11 +91,39 @@ export class ConceptoEdit implements OnInit {
   ngOnInit() {
     this.conceptoId = Number(this.route.snapshot.params['id']);
     if (this.conceptoId) {
-      this.loadConcepto();
+      this.loadData();
     } else {
       this.errorMessage = 'ID de concepto no válido';
       this.loadingData = false;
     }
+  }
+
+  private loadData() {
+    this.loadingData = true;
+    
+    // Load niveles and modalidades from API first
+    Promise.all([
+      this.nivelService.getAll().toPromise(),
+      this.modalidadService.getAll().toPromise()
+    ]).then(([niveles, modalidades]) => {
+      this.niveles = niveles?.map(nivel => ({
+        value: nivel.id,
+        displayValue: Nivel.createFromRaw(nivel.nombre).displayValue
+      })) || [];
+      
+      this.modalidades = modalidades?.map(modalidad => ({
+        value: modalidad.id,
+        displayValue: Modalidad.createFromRaw(modalidad.nombre).displayValue
+      })) || [];
+      
+      // Now load the concepto
+      this.loadConcepto();
+    }).catch(error => {
+      console.error('Error loading data:', error);
+      this.errorMessage = 'Error al cargar los datos necesarios';
+      this.loadingData = false;
+      this.cdr.detectChanges();
+    });
   }
 
   loadConcepto() {
@@ -122,12 +154,21 @@ export class ConceptoEdit implements OnInit {
 
   populateForm(concepto: Concepto) {
     try {
+      // Find the IDs for nivel and modalidad by matching rawValue
+      const nivelId = concepto.nivel ? 
+        this.niveles.find(n => n.displayValue.toLowerCase() === concepto.nivel!.rawValue)?.value || null
+        : null;
+      
+      const modalidadId = concepto.modalidad ? 
+        this.modalidades.find(m => m.displayValue.toLowerCase() === concepto.modalidad!.rawValue)?.value || null
+        : null;
+
       this.conceptoForm.patchValue({
         nombre: concepto.nombre,
         tipo: concepto.tipo,
         periodo: concepto.periodo.value,
-        nivel: concepto.nivel?.rawValue,
-        modalidad: concepto.modalidad?.rawValue,
+        nivel: nivelId,
+        modalidad: modalidadId,
         costo: concepto.costo,
       });
 
@@ -197,8 +238,8 @@ export class ConceptoEdit implements OnInit {
         nombre: formValues.nombre,
         tipo: formValues.tipo,
         periodo: formValues.periodo,
-        nivel: formValues.nivel,
-        modalidad: formValues.modalidad,
+        nivel_id: formValues.nivel,
+        modalidad_id: formValues.modalidad,
         costo: formValues.costo,
       };
 

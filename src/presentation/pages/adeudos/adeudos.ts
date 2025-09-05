@@ -16,6 +16,7 @@ import { useModalidad } from "../../hooks/use-modalidad.hook";
 import { useGrado } from "../../hooks/use-grado.hook";
 import { RouterLink } from "@angular/router";
 import * as XLSX from "xlsx";
+import * as ExcelJS from 'exceljs';
 import { Popover } from "primeng/popover";
 
 @Component({
@@ -296,138 +297,342 @@ export class Adeudos implements OnInit {
     return this.expandedStudents.has(studentId);
   }
 
-  exportToExcel() {
-    const studentsSheet = XLSX.utils.json_to_sheet(
-      this.groupedStudents.map((student) => ({
-        Estudiante: `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`,
-        Nivel: this.formatNivel(student.nivel_grado?.nivel?.nombre || ''),
-        Grado: `${student.nivel_grado?.grado?.numero || 'N/A'}°`,
-        Modalidad: this.formatModalidad(student.nivel_grado?.modalidad?.nombre || ''),
-        "Último Pago": student.ultimo_pago_fecha
-          ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
-          : "Sin pagos registrados",
-        "Total General": this.getStudentTotal(student.adeudos),
-        "Total Pagado": this.getStudentTotalPagado(student.adeudos),
-        "Total Pendiente": this.getStudentTotalPendiente(student.adeudos),
-        "Número de Adeudos": student.adeudos.length,
-      }))
-    );
+  async exportToExcel() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Resumen Estudiantes');
 
-    // Agregar totales generales al final
-    const totalInfo = [
-      [],
-      ["TOTALES GENERALES"],
-      ["Total de Estudiantes:", this.groupedStudents.length],
-      ["Total General:", `$${this.totalConceptos.toFixed(2)}`],
-      ["Total Pagado:", `$${this.totalPagado.toFixed(2)}`],
-      ["Total Pendiente:", `$${this.totalPendiente.toFixed(2)}`],
+    // Definir las columnas
+    worksheet.columns = [
+      { header: 'Estudiante', key: 'estudiante', width: 25 },
+      { header: 'Nivel', key: 'nivel', width: 12 },
+      { header: 'Grado', key: 'grado', width: 8 },
+      { header: 'Modalidad', key: 'modalidad', width: 12 },
+      { header: 'Último Pago', key: 'ultimoPago', width: 15 },
+      { header: 'Total General', key: 'totalGeneral', width: 15 },
+      { header: 'Total Pagado', key: 'totalPagado', width: 15 },
+      { header: 'Total Pendiente', key: 'totalPendiente', width: 15 },
+      { header: 'Número de Adeudos', key: 'numeroAdeudos', width: 12 }
     ];
 
-    // Obtener el rango actual de la hoja
-    const ws = studentsSheet;
-    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-    let startRow = range.e.r + 2;
+    // Aplicar estilos a los encabezados
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4'; // Azul por defecto
+      
+      if (colNumber === 6) headerColor = '2E5BBA'; // Total General - Azul oscuro
+      else if (colNumber === 7) headerColor = '70AD47'; // Total Pagado - Verde
+      else if (colNumber === 8) headerColor = 'C55A5A'; // Total Pendiente - Rojo
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
 
-    // Agregar las filas de totales
-    totalInfo.forEach((row, index) => {
-      row.forEach((cell, colIndex) => {
-        const cellAddress = XLSX.utils.encode_cell({
-          r: startRow + index,
-          c: colIndex,
-        });
-        ws[cellAddress] = { v: cell, t: typeof cell === "number" ? "n" : "s" };
+    // Agregar datos de estudiantes
+    this.groupedStudents.forEach((student, index) => {
+      const rowNumber = index + 2;
+      const row = worksheet.addRow({
+        estudiante: `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`,
+        nivel: this.formatNivel(student.nivel_grado?.nivel?.nombre || ''),
+        grado: `${student.nivel_grado?.grado?.numero || 'N/A'}°`,
+        modalidad: this.formatModalidad(student.nivel_grado?.modalidad?.nombre || ''),
+        ultimoPago: student.ultimo_pago_fecha
+          ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
+          : "Sin pagos registrados",
+        totalGeneral: this.getStudentTotal(student.adeudos),
+        totalPagado: this.getStudentTotalPagado(student.adeudos),
+        totalPendiente: this.getStudentTotalPendiente(student.adeudos),
+        numeroAdeudos: student.adeudos.length,
+      });
+
+      const isEvenRow = index % 2 === 0;
+
+      // Aplicar estilos a cada celda
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        // Colores especiales para columnas de montos
+        if (colNumber === 6) { // Total General - Azul
+          cellColor = isEvenRow ? 'E7F3FF' : 'F0F8FF';
+          cell.numFmt = '"$"#,##0.00';
+        } else if (colNumber === 7) { // Total Pagado - Verde
+          cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0';
+          cell.numFmt = '"$"#,##0.00';
+        } else if (colNumber === 8) { // Total Pendiente - Rojo
+          cellColor = isEvenRow ? 'FFE8E8' : 'FFF0F0';
+          cell.numFmt = '"$"#,##0.00';
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        
+        cell.alignment = { 
+          horizontal: (colNumber >= 6 && colNumber <= 8) ? 'right' : 'left',
+          vertical: 'middle' 
+        };
+        
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
       });
     });
 
-    // Actualizar el rango de la hoja
-    ws["!ref"] = XLSX.utils.encode_range({
-      s: { r: 0, c: 0 },
-      e: { r: startRow + totalInfo.length - 1, c: Math.max(range.e.c, 1) },
+    // Agregar línea vacía y totales
+    const emptyRow = worksheet.addRow([]);
+    const totalTitleRow = worksheet.addRow(['TOTALES GENERALES']);
+    
+    // Estilo para el título de totales
+    totalTitleRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF70AD47' }
+    };
+    totalTitleRow.getCell(1).font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 14 };
+    totalTitleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+    
+    // Agregar filas de totales
+    const totalsData = [
+      ['Total de Estudiantes:', this.groupedStudents.length],
+      ['Total General:', this.totalConceptos],
+      ['Total Pagado:', this.totalPagado],
+      ['Total Pendiente:', this.totalPendiente],
+    ];
+
+    totalsData.forEach(([label, value]) => {
+      const row = worksheet.addRow([label, value]);
+      row.getCell(1).font = { bold: true };
+      row.getCell(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE2EFDA' }
+      };
+      row.getCell(2).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFF2F2F2' }
+      };
+      
+      if (typeof value === 'number' && label !== 'Total de Estudiantes:') {
+        row.getCell(2).numFmt = '"$"#,##0.00';
+      }
+      
+      row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
     });
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      studentsSheet,
-      "Resumen Estudiantes"
-    );
-    XLSX.writeFile(workbook, "resumen_adeudos_estudiantes.xlsx");
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'resumen_adeudos_estudiantes.xlsx';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
-  exportStudentToExcel(student: any) {
+  async exportStudentToExcel(student: any) {
     const studentName = `${student.persona.nombres} ${student.persona.apellido_paterno} ${student.persona.apellido_materno}`;
 
-    const adeudosSheet = XLSX.utils.json_to_sheet(
-      student.adeudos.map((adeudo: any) => ({
-        Concepto: adeudo.concepto.nombre,
-        Periodo: this.formatPeriodo(adeudo.concepto.periodo),
-        "Descripción Período": adeudo.descripcion_periodo || "Sin descripción",
-        "Monto Total": parseFloat(adeudo.total),
-        "Monto Pagado": parseFloat(adeudo.pagado),
-        "Monto Pendiente": parseFloat(adeudo.pendiente),
-        Estado: adeudo.estado,
-        "Fecha Inicio": new Date(adeudo.fecha_inicio).toLocaleDateString(),
-        "Fecha Vencimiento": new Date(
-          adeudo.fecha_vencimiento
-        ).toLocaleDateString(),
-      }))
-    );
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Adeudos');
 
-    // Agregar información del estudiante al final
-    const studentInfo = [
-      [],
-      ["Resumen del Estudiante"],
-      ["Nombre:", studentName],
-      ["Nivel:", this.formatNivel(student.nivel_grado?.nivel?.nombre || '')],
-      ["Grado:", `${student.nivel_grado?.grado?.numero || 'N/A'}°`],
-      ["Modalidad:", this.formatModalidad(student.nivel_grado?.modalidad?.nombre || '')],
-      [
-        "Último Pago:",
-        student.ultimo_pago_fecha
-          ? new Date(student.ultimo_pago_fecha).toLocaleDateString()
-          : "Sin pagos registrados",
-      ],
-      [],
-      [
-        "Total General:",
-        `$${this.getStudentTotal(student.adeudos).toFixed(2)}`,
-      ],
-      [
-        "Total Pagado:",
-        `$${this.getStudentTotalPagado(student.adeudos).toFixed(2)}`,
-      ],
-      [
-        "Total Pendiente:",
-        `$${this.getStudentTotalPendiente(student.adeudos).toFixed(2)}`,
-      ],
+    // Definir las columnas
+    worksheet.columns = [
+      { header: 'Concepto', key: 'concepto', width: 20 },
+      { header: 'Periodo', key: 'periodo', width: 15 },
+      { header: 'Descripción Período', key: 'descripcionPeriodo', width: 20 },
+      { header: 'Monto Total', key: 'montoTotal', width: 15 },
+      { header: 'Monto Pagado', key: 'montoPagado', width: 15 },
+      { header: 'Monto Pendiente', key: 'montoPendiente', width: 15 },
+      { header: 'Estado', key: 'estado', width: 12 },
+      { header: 'Fecha Inicio', key: 'fechaInicio', width: 15 },
+      { header: 'Fecha Vencimiento', key: 'fechaVencimiento', width: 15 }
     ];
 
-    // Agregar las filas de información del estudiante
-    const ws = adeudosSheet;
-    const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
-    let startRow = range.e.r + 2;
+    // Aplicar estilos a los encabezados
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell, colNumber) => {
+      let headerColor = '4472C4'; // Azul por defecto
+      
+      if (colNumber === 4) headerColor = '2E5BBA'; // Monto Total - Azul oscuro
+      else if (colNumber === 5) headerColor = '70AD47'; // Monto Pagado - Verde
+      else if (colNumber === 6) headerColor = 'C55A5A'; // Monto Pendiente - Rojo
+      
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF' + headerColor }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
 
-    studentInfo.forEach((row, index) => {
-      row.forEach((cell, colIndex) => {
-        const cellAddress = XLSX.utils.encode_cell({
-          r: startRow + index,
-          c: colIndex,
-        });
-        ws[cellAddress] = { v: cell, t: typeof cell === "number" ? "n" : "s" };
+    // Agregar datos de adeudos
+    student.adeudos.forEach((adeudo: any, index: number) => {
+      const row = worksheet.addRow({
+        concepto: adeudo.concepto.nombre,
+        periodo: this.formatPeriodo(adeudo.concepto.periodo),
+        descripcionPeriodo: adeudo.descripcion_periodo || "Sin descripción",
+        montoTotal: parseFloat(adeudo.total),
+        montoPagado: parseFloat(adeudo.pagado),
+        montoPendiente: parseFloat(adeudo.pendiente),
+        estado: adeudo.estado,
+        fechaInicio: new Date(adeudo.fecha_inicio).toLocaleDateString(),
+        fechaVencimiento: new Date(adeudo.fecha_vencimiento).toLocaleDateString()
+      });
+
+      const isEvenRow = index % 2 === 0;
+
+      // Aplicar estilos a cada celda
+      row.eachCell((cell, colNumber) => {
+        let cellColor = isEvenRow ? 'F2F2F2' : 'FFFFFF';
+        
+        // Colores especiales para columnas de montos
+        if (colNumber === 4) { // Monto Total - Azul
+          cellColor = isEvenRow ? 'E7F3FF' : 'F0F8FF';
+          cell.numFmt = '"$"#,##0.00';
+        } else if (colNumber === 5) { // Monto Pagado - Verde
+          cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0';
+          cell.numFmt = '"$"#,##0.00';
+        } else if (colNumber === 6) { // Monto Pendiente - Rojo
+          cellColor = isEvenRow ? 'FFE8E8' : 'FFF0F0';
+          cell.numFmt = '"$"#,##0.00';
+        }
+
+        // Color especial para estado
+        if (colNumber === 7) { // Estado
+          if (cell.value === 'pagado') {
+            cellColor = isEvenRow ? 'E8F5E8' : 'F0FFF0'; // Verde para pagado
+          } else if (cell.value === 'pendiente') {
+            cellColor = isEvenRow ? 'FFE8E8' : 'FFF0F0'; // Rojo para pendiente
+          }
+        }
+
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + cellColor }
+        };
+        
+        cell.alignment = { 
+          horizontal: (colNumber >= 4 && colNumber <= 6) ? 'right' : 'left',
+          vertical: 'middle' 
+        };
+        
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+          right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+        };
       });
     });
 
-    // Actualizar el rango
-    ws["!ref"] = XLSX.utils.encode_range({
-      s: { r: 0, c: 0 },
-      e: { r: startRow + studentInfo.length - 1, c: Math.max(range.e.c, 1) },
+    // Agregar información del estudiante
+    const emptyRow = worksheet.addRow([]);
+    const studentTitleRow = worksheet.addRow(['RESUMEN DEL ESTUDIANTE']);
+    
+    // Estilo para el título
+    studentTitleRow.getCell(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+    studentTitleRow.getCell(1).font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 14 };
+    studentTitleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+    // Agregar datos del estudiante
+    const studentData = [
+      ['Nombre:', studentName],
+      ['Nivel:', this.formatNivel(student.nivel_grado?.nivel?.nombre || '')],
+      ['Grado:', `${student.nivel_grado?.grado?.numero || 'N/A'}°`],
+      ['Modalidad:', this.formatModalidad(student.nivel_grado?.modalidad?.nombre || '')],
+      ['Último Pago:', student.ultimo_pago_fecha 
+        ? new Date(student.ultimo_pago_fecha).toLocaleDateString() 
+        : "Sin pagos registrados"],
+      [], // Línea vacía
+      ['Total General:', this.getStudentTotal(student.adeudos)],
+      ['Total Pagado:', this.getStudentTotalPagado(student.adeudos)],
+      ['Total Pendiente:', this.getStudentTotalPendiente(student.adeudos)],
+    ];
+
+    studentData.forEach(([label, value], index) => {
+      const row = worksheet.addRow([label, value]);
+      
+      if (label && value !== undefined) {
+        row.getCell(1).font = { bold: true };
+        row.getCell(1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE2F3FF' }
+        };
+        
+        // Colores especiales para los totales
+        if (label.includes('Total General')) {
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE7F3FF' }
+          };
+          row.getCell(2).numFmt = '"$"#,##0.00';
+        } else if (label.includes('Total Pagado')) {
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE8F5E8' }
+          };
+          row.getCell(2).numFmt = '"$"#,##0.00';
+        } else if (label.includes('Total Pendiente')) {
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFE8E8' }
+          };
+          row.getCell(2).numFmt = '"$"#,##0.00';
+        } else {
+          row.getCell(2).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF2F2F2' }
+          };
+        }
+        
+        row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
+      }
     });
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, adeudosSheet, "Adeudos");
-
+    // Guardar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
     const fileName = `adeudos_${studentName.replace(/\s+/g, "_")}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    link.download = fileName;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   formatNivel(nivel: string): string {

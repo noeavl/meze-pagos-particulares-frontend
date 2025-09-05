@@ -17,6 +17,15 @@
           (click)="exportToExcel()"
         ></button>
         <button
+          [routerLink]="['/estudiantes/import']"
+          pButton
+          type="button"
+          severity="secondary"
+          outlined="true"
+          label="Importar desde Excel"
+          icon="pi pi-upload"
+        ></button>
+        <button
           [routerLink]="['/estudiante/create']"
           pButton
           type="button"

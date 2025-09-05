@@ -10,6 +10,7 @@ import { Estudiantes } from "../presentation/pages/estudiantes/estudiantes";
 import { EstudianteCreate } from "../presentation/pages/estudiante-create/estudiante-create";
 import { EstudianteEdit } from "../presentation/pages/estudiante-edit/estudiante-edit";
 import { EstudianteDetailComponent } from "../presentation/pages/estudiante-detail/estudiante-detail";
+import { EstudiantesImport } from "../presentation/pages/estudiantes-import/estudiantes-import";
 import { Conceptos } from "../presentation/pages/conceptos/conceptos";
 import { ConceptoCreate } from "../presentation/pages/concepto-create/concepto-create";
 import { ConceptoEdit } from "../presentation/pages/concepto-edit/concepto-edit";
@@ -76,6 +77,10 @@ export const routes: Routes = [
       {
         path: "estudiante/detail/:id",
         component: EstudianteDetailComponent,
+      },
+      {
+        path: "estudiantes/import",
+        component: EstudiantesImport,
       },
       {
         path: "conceptos",

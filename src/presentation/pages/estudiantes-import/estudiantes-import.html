@@ -1,0 +1,228 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      Importar Estudiantes desde Excel
+    </h1>
+    <div class="flex gap-2">
+      <p-button
+        label="Descargar Plantilla"
+        icon="pi pi-download"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="downloadTemplate()"
+      />
+      <p-button
+        label="Volver"
+        icon="pi pi-arrow-left"
+        [outlined]="true"
+        routerLink="/estudiantes"
+      />
+    </div>
+  </div>
+
+  <!-- Instrucciones -->
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <h3 class="text-lg font-semibold text-blue-800 mb-2">
+      <i class="pi pi-info-circle mr-2"></i>
+      Instrucciones para importar
+    </h3>
+    <ul class="text-blue-700 space-y-1 ml-4 list-disc">
+      <li>Descarga la plantilla de Excel haciendo clic en "Descargar Plantilla"</li>
+      <li>Completa todos los campos obligatorios marcados en la plantilla</li>
+      <li>Los valores de Nivel deben ser: preescolar, primaria, secundaria, bachillerato, bachillerato_sabatino</li>
+      <li>Los valores de Modalidad deben ser: presencial, en_linea</li>
+      <li>Los valores de Grado deben corresponder al nivel seleccionado (1-6 para primaria, etc.)</li>
+      <li>El CURP debe tener el formato correcto (18 caracteres)</li>
+      <li>Guarda el archivo y selecciónalo para importar</li>
+    </ul>
+  </div>
+
+  <!-- Área de carga de archivo -->
+  <div class="bg-white border rounded-lg p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+      Seleccionar archivo de Excel
+    </h3>
+
+    <!-- Información de requisitos -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+      <div class="flex items-start">
+        <i class="pi pi-info-circle text-yellow-600 mt-0.5 mr-3"></i>
+        <div class="text-yellow-800">
+          <p class="font-medium mb-2">Requisitos del archivo:</p>
+          <ul class="text-sm space-y-1 ml-4 list-disc">
+            <li><strong>Tipos permitidos:</strong> .xlsx, .xls (archivos de Excel)</li>
+            <li><strong>Límite máximo:</strong> 1,000 registros por importación</li>
+            <li><strong>Tamaño máximo:</strong> 10 MB por archivo</li>
+            <li><strong>Formato:</strong> Usar la plantilla proporcionada</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+      <input
+        #fileInput
+        type="file"
+        accept=".xlsx,.xls"
+        (change)="onFileSelected($event)"
+        class="hidden"
+      />
+      
+      <div class="mb-4">
+        <i class="pi pi-upload text-4xl text-gray-400"></i>
+      </div>
+      
+      <p class="text-gray-600 mb-2">
+        {{ selectedFile ? selectedFile.name : 'Arrastra un archivo Excel aquí o haz clic para seleccionar' }}
+      </p>
+      
+      @if (selectedFile) {
+        <div class="text-sm text-gray-500 mb-4">
+          <p>Archivo: {{ selectedFile.name }}</p>
+          <p>Tamaño: {{ formatFileSize(selectedFile.size) }}</p>
+          <p>Tipo: {{ selectedFile.type || 'Excel' }}</p>
+        </div>
+      }
+      
+      <p-button
+        label="Seleccionar archivo"
+        icon="pi pi-file"
+        (onClick)="fileInput.click()"
+        [disabled]="processing"
+      />
+    </div>
+    
+    <div class="mt-4 flex gap-2">
+      <p-button
+        label="Procesar Archivo"
+        icon="pi pi-cog"
+        [disabled]="!selectedFile || processing"
+        [loading]="processing"
+        (onClick)="processFile()"
+      />
+      <p-button
+        label="Limpiar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="processing"
+        (onClick)="clearFile()"
+      />
+    </div>
+  </div>
+
+  <!-- Resultados del procesamiento -->
+  @if (processResults) {
+    <div class="bg-white border rounded-lg p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        Resultados del procesamiento
+      </h3>
+      
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="text-center p-4 bg-blue-50 rounded">
+          <div class="text-2xl font-bold text-blue-600">{{ processResults.total }}</div>
+          <div class="text-sm text-blue-800">Total de registros</div>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded">
+          <div class="text-2xl font-bold text-green-600">{{ processResults.valid }}</div>
+          <div class="text-sm text-green-800">Registros válidos</div>
+        </div>
+        <div class="text-center p-4 bg-red-50 rounded">
+          <div class="text-2xl font-bold text-red-600">{{ processResults.invalid }}</div>
+          <div class="text-sm text-red-800">Registros con errores</div>
+        </div>
+      </div>
+
+      <!-- Errores encontrados -->
+      @if (processResults.errors.length > 0) {
+        <div class="mb-6">
+          <h4 class="text-md font-semibold text-red-800 mb-3">Errores encontrados:</h4>
+          <div class="max-h-64 overflow-y-auto">
+            @for (error of processResults.errors; track error.row) {
+              <div class="bg-red-50 border border-red-200 rounded p-3 mb-2">
+                <div class="font-medium text-red-800">Fila {{ error.row }}:</div>
+                <ul class="list-disc ml-4 mt-1">
+                  @for (message of error.errors; track message) {
+                    <li class="text-red-700 text-sm">{{ message }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Botones de acción -->
+      <div class="flex gap-2">
+        @if (processResults.valid > 0) {
+          <p-button
+            label="Importar registros válidos ({{ processResults.valid }})"
+            icon="pi pi-check"
+            [disabled]="importing"
+            [loading]="importing"
+            (onClick)="importValidRecords()"
+          />
+        }
+        <p-button
+          label="Descargar reporte de errores"
+          icon="pi pi-download"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="processResults.errors.length === 0"
+          (onClick)="downloadErrorReport()"
+        />
+      </div>
+    </div>
+  }
+
+  <!-- Progreso de importación -->
+  @if (importProgress) {
+    <div class="bg-white border rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        Progreso de importación
+      </h3>
+      
+      <p-progressBar 
+        [value]="importProgress.percentage" 
+        [showValue]="true"
+        class="mb-4"
+      ></p-progressBar>
+      
+      <div class="text-sm text-gray-600">
+        {{ importProgress.current }} de {{ importProgress.total }} registros procesados
+      </div>
+      
+      @if (importProgress.completed) {
+        <div class="mt-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center p-4 bg-green-50 rounded">
+              <div class="text-xl font-bold text-green-600">{{ importProgress.success }}</div>
+              <div class="text-sm text-green-800">Importados exitosamente</div>
+            </div>
+            <div class="text-center p-4 bg-red-50 rounded">
+              <div class="text-xl font-bold text-red-600">{{ importProgress.failed }}</div>
+              <div class="text-sm text-red-800">Fallos en importación</div>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex gap-2">
+            <p-button
+              label="Volver a estudiantes"
+              icon="pi pi-arrow-left"
+              routerLink="/estudiantes"
+            />
+            <p-button
+              label="Nueva importación"
+              icon="pi pi-refresh"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="resetImport()"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<p-toast key="br" position="bottom-right"></p-toast>
